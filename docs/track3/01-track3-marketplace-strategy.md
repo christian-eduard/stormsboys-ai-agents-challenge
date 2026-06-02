@@ -75,11 +75,20 @@ El proyecto debe documentar:
 - Caso de negocio.
 - Arquitectura.
 - Seguridad.
+- Roles y permisos de operacion.
+- Tenant editorial y catalogo gestionable.
 - Cost control.
 - Testing access.
 - Operacion.
 - Public repo.
 - Demo accesible.
+
+Estado demo implementado:
+
+- `/api/v1/admin/roles`: matriz de roles `reader`, `author`, `publisher_admin`, `super_admin`.
+- `/api/v1/admin/marketplace`: tenant demo, catalogo, readiness Marketplace y metricas de operacion.
+- UI `Marketplace Admin`: consola visible para jueces con roles, permisos y catalogo editorial.
+- Produccion objetivo: Cloud Identity / Identity Platform con RBAC por tenant.
 
 ## Demo De 1-2 Minutos
 
@@ -92,8 +101,9 @@ La demo debe contar esto:
 5. Cambia a modo ficcion y crea una variante narrativa.
 6. Entra Sancho o una escena grupal.
 7. Se prepara voz/narracion.
-8. El publisher ve engagement y calidad.
-9. Se muestra arquitectura Google Cloud.
+8. El publisher ve engagement, calidad y catalogo.
+9. El superadmin ve roles, permisos, tenant, readiness y salud operativa.
+10. Se muestra arquitectura Google Cloud.
 
 ## Evidencia Tecnica
 

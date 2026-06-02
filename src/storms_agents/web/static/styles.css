@@ -151,6 +151,7 @@ button.secondary:hover {
 .reader-grid,
 .split-grid,
 .runtime-grid,
+.admin-grid,
 .architecture-band {
   width: min(1280px, 100%);
   margin: 0 auto;
@@ -257,6 +258,12 @@ button.secondary:hover {
   display: grid;
 }
 
+.admin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 18px;
+}
+
 .runtime-panel {
   padding: 18px;
 }
@@ -273,22 +280,31 @@ button.secondary:hover {
   gap: 12px;
 }
 
+.marketplace-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .runtime-metrics div,
-.publisher-metrics div {
+.publisher-metrics div,
+.marketplace-summary div {
   border-left: 3px solid var(--blue);
   padding: 10px 12px;
   background: var(--panel);
 }
 
 .runtime-metrics strong,
-.publisher-metrics strong {
+.publisher-metrics strong,
+.marketplace-summary strong {
   display: block;
   overflow-wrap: anywhere;
   font-size: 16px;
 }
 
 .runtime-metrics span,
-.publisher-metrics span {
+.publisher-metrics span,
+.marketplace-summary span {
   color: var(--muted);
   font-size: 13px;
 }
@@ -356,6 +372,8 @@ textarea {
 
 .response-box,
 .scene-item,
+.role-item,
+.catalog-item,
 .eval-item,
 .trace-item {
   border: 1px solid var(--line);
@@ -370,17 +388,42 @@ textarea {
 }
 
 .scene-list,
+.role-list,
+.catalog-list,
 .evaluation-list,
 .trace-list {
   display: grid;
   gap: 10px;
 }
 
-.scene-list {
+.scene-list,
+.catalog-list {
   margin-top: 14px;
 }
 
+.role-list {
+  gap: 12px;
+}
+
+.role-item div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.role-item span,
+.role-item small,
+.catalog-item small {
+  color: var(--blue);
+  overflow-wrap: anywhere;
+  font-weight: 700;
+}
+
 .scene-item strong,
+.role-item strong,
+.catalog-item strong,
 .trace-item strong,
 .eval-item strong {
   display: block;
@@ -388,6 +431,8 @@ textarea {
 }
 
 .scene-item p,
+.role-item p,
+.catalog-item p,
 .trace-item p,
 .eval-item p {
   margin: 0;
@@ -448,8 +493,10 @@ textarea {
 
   .reader-grid,
   .split-grid,
+  .admin-grid,
   .runtime-metrics,
-  .publisher-metrics {
+  .publisher-metrics,
+  .marketplace-summary {
     grid-template-columns: 1fr;
   }
 

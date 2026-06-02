@@ -21,6 +21,7 @@
           <a href="#reader" class="active" data-i18n="nav.reader">Reader</a>
           <a href="#agents" data-i18n="nav.agents">Agents</a>
           <a href="#publisher" data-i18n="nav.publisher">Publisher</a>
+          <a href="#admin" data-i18n="nav.admin">Admin</a>
           <a href="#evaluation" data-i18n="nav.evaluation">Evaluation</a>
           <a href="#runtime" data-i18n="nav.runtime">Runtime</a>
           <a href="#architecture" data-i18n="nav.architecture">Architecture</a>
@@ -148,7 +149,7 @@
           <div class="panel">
             <div class="panel-header">
               <div>
-              <p class="eyebrow" data-i18n="publisher.eyebrow">Publisher Insights Agent</p>
+                <p class="eyebrow" data-i18n="publisher.eyebrow">Publisher Insights Agent</p>
                 <h3 data-i18n="publisher.title">Admin value view</h3>
               </div>
               <button id="runPublisher" class="secondary" data-i18n="publisher.analyze">Analyze</button>
@@ -165,6 +166,32 @@
               </div>
             </div>
             <div class="scene-list" id="publisherResponse"></div>
+          </div>
+        </section>
+
+        <section id="admin" class="admin-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow" data-i18n="admin.eyebrow">Marketplace Admin</p>
+                <h3 data-i18n="admin.title">Roles and operations</h3>
+              </div>
+              <button id="refreshAdmin" class="secondary" data-i18n="admin.refresh">Refresh</button>
+            </div>
+
+            <div class="role-list" id="roleList"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow" data-i18n="marketplace.eyebrow">Track 3 readiness</p>
+                <h3 data-i18n="marketplace.title">Publisher catalog console</h3>
+              </div>
+            </div>
+
+            <div class="marketplace-summary" id="marketplaceSummary"></div>
+            <div class="catalog-list" id="catalogList"></div>
           </div>
         </section>
 

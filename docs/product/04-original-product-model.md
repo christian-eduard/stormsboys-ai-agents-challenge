@@ -55,6 +55,22 @@ Puede:
 - Auditar configuracion, uso y calidad.
 - Operar la plataforma.
 
+## Administracion Demo Track 3
+
+La entrega del challenge debe mostrar una consola operable, aunque el login real quede como
+siguiente fase de producto. La demo publica expone:
+
+- Roles funcionales: `reader`, `author`, `publisher_admin`, `super_admin`.
+- Matriz de permisos por rol.
+- Tenant editorial demo.
+- Catalogo editorial con Don Quijote como titulo publicado.
+- Estado de readiness para Marketplace.
+- Metricas de operacion: usuarios, tenants, libros publicados, salud de agentes y evaluacion.
+
+Regla de honestidad tecnica: esta consola es un contrato demo de producto. No sustituye un
+sistema de autenticacion productivo. La arquitectura objetivo para produccion es Cloud
+Identity / Identity Platform con RBAC por tenant.
+
 ## Flujo Principal
 
 1. El usuario sube un PDF o texto con metadatos basicos.

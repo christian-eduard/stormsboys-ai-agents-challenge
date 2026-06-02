@@ -11,6 +11,8 @@ CURL=(curl --max-time 60 --fail --silent)
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/capabilities" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/storage" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/storage/demo-seed" >/dev/null
+"${CURL[@]}" "${BASE_URL}/api/v1/admin/roles" >/dev/null
+"${CURL[@]}" "${BASE_URL}/api/v1/admin/marketplace" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/demo/evaluation" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/demo/publisher" >/dev/null
 "${CURL[@]}" \

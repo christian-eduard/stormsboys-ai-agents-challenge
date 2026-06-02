@@ -108,6 +108,9 @@ def challenge_capabilities() -> dict[str, object]:
         "demoFlow": [
             "book analysis",
             "reader",
+            "role-based administration",
+            "publisher catalog console",
+            "superadmin operations console",
             "canon character chat",
             "fiction branch mode",
             "english primary language",
@@ -123,6 +126,128 @@ def challenge_capabilities() -> dict[str, object]:
             "geminiModel": gemini.model,
             "vertexai": gemini.vertexai,
             "configured": gemini.configured,
+        },
+    }
+
+
+@app.get("/api/v1/admin/roles")
+def admin_roles() -> dict[str, object]:
+    return {
+        "accessModel": "demo-role-console",
+        "productionTarget": "Cloud Identity / Identity Platform with tenant-scoped RBAC",
+        "roles": [
+            {
+                "role": "reader",
+                "label": "Reader",
+                "description": (
+                    "Reads available books, chats with characters, explores scenes, "
+                    "and saves progress."
+                ),
+                "permissions": [
+                    "read_public_books",
+                    "chat_with_characters",
+                    "create_fiction_branches",
+                    "listen_to_narration",
+                ],
+            },
+            {
+                "role": "author",
+                "label": "Author",
+                "description": (
+                    "Uploads owned or public-domain books and reviews generated analysis "
+                    "before publishing."
+                ),
+                "permissions": [
+                    "upload_owned_books",
+                    "review_analysis",
+                    "test_character_agents",
+                    "submit_for_publication",
+                ],
+            },
+            {
+                "role": "publisher_admin",
+                "label": "Publisher Admin",
+                "description": (
+                    "Manages a publisher catalog, availability, engagement metrics, "
+                    "and title-level quality."
+                ),
+                "permissions": [
+                    "manage_catalog",
+                    "publish_titles",
+                    "view_engagement_metrics",
+                    "review_agent_quality",
+                    "export_catalog_insights",
+                ],
+            },
+            {
+                "role": "super_admin",
+                "label": "Super Admin",
+                "description": (
+                    "Operates the whole platform, tenants, users, costs, agent health, "
+                    "and compliance state."
+                ),
+                "permissions": [
+                    "manage_tenants",
+                    "manage_users",
+                    "audit_books",
+                    "monitor_agent_runtime",
+                    "review_costs",
+                    "configure_marketplace_listing",
+                ],
+            },
+        ],
+    }
+
+
+@app.get("/api/v1/admin/marketplace")
+def admin_marketplace() -> dict[str, object]:
+    gemini = GeminiTool().status
+    storage = StorageRepository()
+    analysis = LiteraryAnalysisAgent().run(DEMO_BOOK_TITLE, [DEMO_BOOK_TEXT]).output
+    evaluation = run_demo_evaluation()
+    return {
+        "listingReadiness": {
+            "track": "Track 3 - Google Cloud Marketplace & Gemini Enterprise",
+            "businessModel": (
+                "B2B SaaS for publishers, authors, education platforms, and reading apps"
+            ),
+            "deployment": "Cloud Run public demo with managed service account",
+            "intelligence": gemini.model,
+            "retrieval": "Cloud SQL PostgreSQL + pgvector"
+            if storage.status.pgvector_ready
+            else "in-memory fallback",
+            "identityPlan": "Cloud Identity / Identity Platform tenant RBAC",
+            "marketplaceStatus": "demo-ready, listing-contract-ready",
+        },
+        "tenant": {
+            "tenant_id": "publisher-demo-pronexus",
+            "name": "Pronexus Publisher Demo",
+            "plan": "Marketplace Pilot",
+            "region": "EMEA",
+            "billing": "challenge-credit-backed demo project",
+        },
+        "catalog": [
+            {
+                "book_id": DEMO_BOOK_ID,
+                "title": DEMO_BOOK_TITLE,
+                "rights": "public-domain demo title",
+                "owner_role": "publisher_admin",
+                "availability": "published",
+                "characters": len(analysis.characters),
+                "scenes": len(analysis.scenes),
+                "languages": ["en", "es"],
+                "agent_modes": ["CANON", "FICTION"],
+                "quality_score": round(evaluation.optimized_passed / evaluation.total_cases, 2),
+            }
+        ],
+        "operations": {
+            "users": 4,
+            "tenants": 1,
+            "publishedBooks": 1,
+            "pendingBooks": 0,
+            "agentHealth": "healthy",
+            "optimizedEvaluationCases": evaluation.optimized_passed,
+            "totalEvaluationCases": evaluation.total_cases,
         },
     }
 

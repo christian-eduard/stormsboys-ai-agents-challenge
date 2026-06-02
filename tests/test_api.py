@@ -15,6 +15,7 @@ def test_web_demo() -> None:
     response = client.get("/")
     assert response.status_code == 200
     assert "Multi-agent literary intelligence" in response.text
+    assert "Marketplace Admin" in response.text
 
 
 def test_static_asset() -> None:
@@ -42,6 +43,9 @@ def test_challenge_capabilities() -> None:
     assert body["judgingCriteria"]["technicalImplementation"] == "30%"
     assert "Cloud Run" in body["googleCloudTarget"]
     assert "voice narration plan" in body["demoFlow"]
+    assert "role-based administration" in body["demoFlow"]
+    assert "publisher catalog console" in body["demoFlow"]
+    assert "superadmin operations console" in body["demoFlow"]
     assert "canon character chat" in body["demoFlow"]
     assert "english primary language" in body["demoFlow"]
     assert "spanish secondary language" in body["demoFlow"]
@@ -56,6 +60,29 @@ def test_demo_book() -> None:
     assert body["title"] == "Don Quijote de la Mancha"
     assert len(body["analysis"]["characters"]) == 3
     assert body["traces"]
+
+
+def test_admin_roles() -> None:
+    client = TestClient(app)
+    response = client.get("/api/v1/admin/roles")
+    assert response.status_code == 200
+    body = response.json()
+    roles = {role["role"]: role for role in body["roles"]}
+    assert {"reader", "author", "publisher_admin", "super_admin"} <= set(roles)
+    assert "manage_catalog" in roles["publisher_admin"]["permissions"]
+    assert "manage_tenants" in roles["super_admin"]["permissions"]
+
+
+def test_admin_marketplace() -> None:
+    client = TestClient(app)
+    response = client.get("/api/v1/admin/marketplace")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["listingReadiness"]["track"].startswith("Track 3")
+    assert body["tenant"]["plan"] == "Marketplace Pilot"
+    assert body["catalog"][0]["book_id"] == "don-quijote"
+    assert body["catalog"][0]["languages"] == ["en", "es"]
+    assert body["operations"]["agentHealth"] == "healthy"
 
 
 def test_demo_character_chat() -> None:

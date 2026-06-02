@@ -25,6 +25,10 @@ const els = {
   runPublisher: document.querySelector("#runPublisher"),
   publisherMetrics: document.querySelector("#publisherMetrics"),
   publisherResponse: document.querySelector("#publisherResponse"),
+  refreshAdmin: document.querySelector("#refreshAdmin"),
+  roleList: document.querySelector("#roleList"),
+  marketplaceSummary: document.querySelector("#marketplaceSummary"),
+  catalogList: document.querySelector("#catalogList"),
   runEvaluation: document.querySelector("#runEvaluation"),
   evaluationResults: document.querySelector("#evaluationResults"),
   traceList: document.querySelector("#traceList"),
@@ -41,6 +45,7 @@ const copy = {
     "nav.reader": "Reader",
     "nav.agents": "Agents",
     "nav.publisher": "Publisher",
+    "nav.admin": "Admin",
     "nav.evaluation": "Evaluation",
     "nav.runtime": "Runtime",
     "nav.architecture": "Architecture",
@@ -69,6 +74,16 @@ const copy = {
     "publisher.analyze": "Analyze",
     "publisher.engagement": "Engagement",
     "publisher.quality": "Quality",
+    "admin.eyebrow": "Marketplace Admin",
+    "admin.title": "Roles and operations",
+    "admin.refresh": "Refresh",
+    "admin.running": "Loading roles and marketplace operations.",
+    "admin.permissions": "Permissions",
+    "admin.marketplaceStatus": "Marketplace status",
+    "marketplace.eyebrow": "Track 3 readiness",
+    "marketplace.title": "Publisher catalog console",
+    "marketplace.catalog": "Catalog",
+    "marketplace.operations": "Operations",
     "evaluation.eyebrow": "Track 2 evidence",
     "evaluation.title": "Before / after evaluation",
     "evaluation.run": "Run",
@@ -99,6 +114,7 @@ const copy = {
     "nav.reader": "Lector",
     "nav.agents": "Agentes",
     "nav.publisher": "Editorial",
+    "nav.admin": "Admin",
     "nav.evaluation": "Evaluacion",
     "nav.runtime": "Runtime",
     "nav.architecture": "Arquitectura",
@@ -127,6 +143,16 @@ const copy = {
     "publisher.analyze": "Analizar",
     "publisher.engagement": "Engagement",
     "publisher.quality": "Calidad",
+    "admin.eyebrow": "Admin Marketplace",
+    "admin.title": "Roles y operaciones",
+    "admin.refresh": "Actualizar",
+    "admin.running": "Cargando roles y operacion Marketplace.",
+    "admin.permissions": "Permisos",
+    "admin.marketplaceStatus": "Estado Marketplace",
+    "marketplace.eyebrow": "Preparacion Track 3",
+    "marketplace.title": "Consola de catalogo editorial",
+    "marketplace.catalog": "Catalogo",
+    "marketplace.operations": "Operaciones",
     "evaluation.eyebrow": "Evidencia Track 2",
     "evaluation.title": "Evaluacion antes / despues",
     "evaluation.run": "Ejecutar",
@@ -224,6 +250,7 @@ function renderCharacters(characters) {
 async function loadBook() {
   await loadCapabilities();
   await loadStorage();
+  await loadAdmin();
   const data = await api("/api/v1/demo/book");
   state.characters = data.analysis.characters;
   els.bookTitle.textContent = data.title;
@@ -233,6 +260,70 @@ async function loadBook() {
   els.sceneCount.textContent = data.analysis.scenes.length;
   renderCharacters(state.characters);
   renderTraces(data.traces);
+}
+
+async function loadAdmin() {
+  els.roleList.textContent = t("admin.running");
+  els.marketplaceSummary.textContent = t("admin.running");
+  const [roles, marketplace] = await Promise.all([
+    api("/api/v1/admin/roles"),
+    api("/api/v1/admin/marketplace"),
+  ]);
+  renderRoles(roles.roles);
+  renderMarketplace(marketplace);
+}
+
+function renderRoles(roles = []) {
+  els.roleList.innerHTML = "";
+  roles.forEach((role) => {
+    const item = document.createElement("article");
+    item.className = "role-item";
+    item.innerHTML = `
+      <div>
+        <strong>${role.label}</strong>
+        <span>${role.role}</span>
+      </div>
+      <p>${role.description}</p>
+      <small>${t("admin.permissions")}: ${role.permissions.join(", ")}</small>
+    `;
+    els.roleList.appendChild(item);
+  });
+}
+
+function renderMarketplace(marketplace) {
+  const readiness = marketplace.listingReadiness;
+  const operations = marketplace.operations;
+  els.marketplaceSummary.innerHTML = `
+    <div>
+      <strong>${readiness.marketplaceStatus}</strong>
+      <span>${t("admin.marketplaceStatus")}</span>
+    </div>
+    <div>
+      <strong>${marketplace.tenant.plan}</strong>
+      <span>${marketplace.tenant.name}</span>
+    </div>
+    <div>
+      <strong>${operations.agentHealth}</strong>
+      <span>${operations.optimizedEvaluationCases}/${operations.totalEvaluationCases} evaluation cases</span>
+    </div>
+    <div>
+      <strong>${operations.publishedBooks}</strong>
+      <span>${t("marketplace.catalog")}</span>
+    </div>
+  `;
+  els.catalogList.innerHTML = "";
+  marketplace.catalog.forEach((book) => {
+    const item = document.createElement("article");
+    item.className = "catalog-item";
+    item.innerHTML = `
+      <strong>${book.title}</strong>
+      <p>${book.rights} | ${book.availability} | ${book.languages.join(", ")}</p>
+      <small>${book.characters} characters | ${book.scenes} scenes | ${
+        book.agent_modes.join(" / ")
+      } | quality ${Math.round(book.quality_score * 100)}%</small>
+    `;
+    els.catalogList.appendChild(item);
+  });
 }
 
 async function loadCapabilities() {
@@ -384,6 +475,7 @@ els.languageSelect.addEventListener("change", () => applyLanguage(els.languageSe
 els.runScene.addEventListener("click", runScene);
 els.runNarration.addEventListener("click", runNarration);
 els.runPublisher.addEventListener("click", runPublisher);
+els.refreshAdmin.addEventListener("click", loadAdmin);
 els.runEvaluation.addEventListener("click", runEvaluation);
 els.refreshDemo.addEventListener("click", loadBook);
 
