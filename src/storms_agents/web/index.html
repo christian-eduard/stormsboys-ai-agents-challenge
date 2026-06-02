@@ -7,7 +7,34 @@
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
-    <main class="app-shell">
+    <section id="accessScreen" class="access-screen">
+      <div class="access-copy">
+        <p class="eyebrow">Google for Startups AI Agents Challenge</p>
+        <h1>Stormsboys Literary Agent Platform</h1>
+        <p>
+          Books become governed multi-agent experiences for readers, authors,
+          publishers, administrators, and challenge judges.
+        </p>
+        <div class="access-points">
+          <span>Cloud Run</span>
+          <span>Gemini</span>
+          <span>pgvector</span>
+          <span>Role access</span>
+        </div>
+      </div>
+
+      <div class="access-card">
+        <p class="eyebrow">Testing access</p>
+        <h2>Choose a demo account</h2>
+        <p>
+          Judges can enter with a dedicated review account, or switch roles to
+          inspect what each user type sees.
+        </p>
+        <div id="accessAccounts" class="account-grid"></div>
+      </div>
+    </section>
+
+    <main id="appShell" class="app-shell is-hidden">
       <aside class="sidebar" aria-label="Demo navigation">
         <div class="brand">
           <span class="brand-mark">S</span>
@@ -18,13 +45,15 @@
         </div>
 
         <nav class="nav-list">
-          <a href="#reader" class="active" data-i18n="nav.reader">Reader</a>
-          <a href="#agents" data-i18n="nav.agents">Agents</a>
-          <a href="#publisher" data-i18n="nav.publisher">Publisher</a>
-          <a href="#admin" data-i18n="nav.admin">Admin</a>
-          <a href="#evaluation" data-i18n="nav.evaluation">Evaluation</a>
-          <a href="#runtime" data-i18n="nav.runtime">Runtime</a>
-          <a href="#architecture" data-i18n="nav.architecture">Architecture</a>
+          <button class="nav-item active" data-view-target="dashboard" data-i18n="nav.dashboard">Dashboard</button>
+          <button class="nav-item" data-view-target="reader" data-i18n="nav.reader">Reader</button>
+          <button class="nav-item" data-view-target="agents" data-i18n="nav.agents">Agents</button>
+          <button class="nav-item" data-view-target="author" data-i18n="nav.author">Author</button>
+          <button class="nav-item" data-view-target="publisher" data-i18n="nav.publisher">Publisher</button>
+          <button class="nav-item" data-view-target="admin" data-i18n="nav.admin">Admin</button>
+          <button class="nav-item" data-view-target="evaluation" data-i18n="nav.evaluation">Evaluation</button>
+          <button class="nav-item" data-view-target="runtime" data-i18n="nav.runtime">Runtime</button>
+          <button class="nav-item" data-view-target="architecture" data-i18n="nav.architecture">Architecture</button>
         </nav>
 
         <section class="status-panel">
@@ -50,8 +79,8 @@
       <section class="workspace">
         <header class="topbar">
           <div>
-            <p class="eyebrow" data-i18n="top.eyebrow">Judge demo</p>
-            <h2 data-i18n="top.title">Multi-agent literary intelligence</h2>
+            <p class="eyebrow" id="viewEyebrow">Dashboard</p>
+            <h2 id="viewTitle">Multi-agent literary intelligence</h2>
           </div>
           <div class="topbar-actions">
             <select id="languageSelect" aria-label="Language">
@@ -64,7 +93,47 @@
           </div>
         </header>
 
-        <section id="reader" class="reader-grid">
+        <section class="view-panel" data-view="dashboard">
+          <div class="role-hero">
+            <div>
+              <p class="eyebrow" data-i18n="dashboard.eyebrow">Role workspace</p>
+              <h3 id="roleTitle">Sign in to continue</h3>
+              <p id="roleDescription">Choose a demo account to see the correct product area.</p>
+            </div>
+            <div id="roleActions" class="role-actions"></div>
+          </div>
+
+          <div id="roleWorkflow" class="workflow-grid"></div>
+
+          <div class="product-grid">
+            <article class="product-card">
+              <p class="eyebrow" data-i18n="product.case.eyebrow">Business case</p>
+              <h3 data-i18n="product.case.title">Literary IP becomes interactive catalog revenue</h3>
+              <p data-i18n="product.case.body">
+                Authors and publishers can turn owned or public-domain books into managed
+                reader experiences with measurable engagement.
+              </p>
+            </article>
+            <article class="product-card">
+              <p class="eyebrow" data-i18n="product.roles.eyebrow">Role model</p>
+              <h3 data-i18n="product.roles.title">Each account sees its own workspace</h3>
+              <p data-i18n="product.roles.body">
+                Reader, author, publisher, superadmin, and judge accounts are separated by
+                permissions and protected API access.
+              </p>
+            </article>
+            <article class="product-card">
+              <p class="eyebrow" data-i18n="product.judge.eyebrow">Judge route</p>
+              <h3 data-i18n="product.judge.title">One account reviews the full submission</h3>
+              <p data-i18n="product.judge.body">
+                The Judge Access account exposes the full tour: reader, agents, publisher,
+                admin, evaluation, runtime, and architecture.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section id="reader" class="reader-grid view-panel" data-view="reader">
           <div class="book-visual">
             <img src="/static/silent-gate-cover.svg" alt="Don Quijote de la Mancha cover" />
           </div>
@@ -91,7 +160,7 @@
           </div>
         </section>
 
-        <section id="agents" class="split-grid">
+        <section id="agents" class="split-grid view-panel" data-view="agents">
           <div class="panel">
             <div class="panel-header">
               <div>
@@ -139,7 +208,59 @@
           </div>
         </section>
 
-        <section id="publisher" class="split-grid">
+        <section id="author" class="split-grid view-panel" data-view="author">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Author Workspace</p>
+                <h3>Book submission pipeline</h3>
+              </div>
+            </div>
+            <div class="pipeline-list">
+              <article class="pipeline-item done">
+                <strong>1. Upload manuscript</strong>
+                <p>Author uploads an owned or public-domain book for analysis.</p>
+              </article>
+              <article class="pipeline-item done">
+                <strong>2. Gemini literary analysis</strong>
+                <p>Characters, scenes, places, psychology, and canon constraints are prepared.</p>
+              </article>
+              <article class="pipeline-item active">
+                <strong>3. Review generated agents</strong>
+                <p>Author validates character voice before making the book available.</p>
+              </article>
+              <article class="pipeline-item">
+                <strong>4. Submit for publishing</strong>
+                <p>Publisher or superadmin approval moves the book into catalog availability.</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Current title</p>
+                <h3>Don Quijote readiness</h3>
+              </div>
+            </div>
+            <div class="publisher-metrics">
+              <div>
+                <strong id="authorCharacters">3</strong>
+                <span>Character agents</span>
+              </div>
+              <div>
+                <strong id="authorModes">2</strong>
+                <span>Canon / Fiction modes</span>
+              </div>
+            </div>
+            <article class="response-box">
+              Author view shows the clean product path for future uploads without mixing code
+              from the original app into this challenge repository.
+            </article>
+          </div>
+        </section>
+
+        <section id="publisher" class="split-grid view-panel" data-view="publisher">
           <div class="panel">
             <div class="panel-header">
               <div>
@@ -181,7 +302,7 @@
           </div>
         </section>
 
-        <section id="admin" class="admin-grid">
+        <section id="admin" class="admin-grid view-panel" data-view="admin">
           <div class="panel">
             <div class="panel-header">
               <div>
@@ -208,7 +329,7 @@
           </div>
         </section>
 
-        <section class="split-grid">
+        <section class="split-grid view-panel" data-view="evaluation">
           <div id="evaluation" class="panel">
             <div class="panel-header">
               <div>
@@ -231,7 +352,7 @@
           </div>
         </section>
 
-        <section id="runtime" class="runtime-grid">
+        <section id="runtime" class="runtime-grid view-panel" data-view="runtime">
           <div class="panel runtime-panel">
             <div class="panel-header">
               <div>
@@ -260,7 +381,7 @@
           </div>
         </section>
 
-        <section id="architecture" class="architecture-band">
+        <section id="architecture" class="architecture-band view-panel" data-view="architecture">
           <p class="eyebrow" data-i18n="architecture.eyebrow">Google Cloud target</p>
           <div class="architecture-flow" aria-label="Architecture flow">
             <span>Cloud Run Web</span>

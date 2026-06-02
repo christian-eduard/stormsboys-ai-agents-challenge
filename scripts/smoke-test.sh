@@ -8,7 +8,10 @@ HOME_HTML="$("${CURL[@]}" "${BASE_URL}/")"
 APP_JS="$("${CURL[@]}" "${BASE_URL}/static/app.js")"
 
 grep -q "Multi-agent literary intelligence" <<<"${HOME_HTML}"
+grep -q "Choose a demo account" <<<"${HOME_HTML}"
+grep -q 'data-view="dashboard"' <<<"${HOME_HTML}"
 grep -q "runEvaluation" <<<"${APP_JS}"
+grep -q "judge_access" <<<"${APP_JS}"
 "${CURL[@]}" "${BASE_URL}/health" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/readiness" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/capabilities" >/dev/null

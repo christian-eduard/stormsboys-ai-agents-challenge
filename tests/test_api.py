@@ -17,6 +17,9 @@ def test_web_demo() -> None:
     assert "Multi-agent literary intelligence" in response.text
     assert "Marketplace Admin" in response.text
     assert "Demo access" in response.text
+    assert "Choose a demo account" in response.text
+    assert 'data-view="dashboard"' in response.text
+    assert 'data-view="author"' in response.text
 
 
 def test_static_asset() -> None:
@@ -25,6 +28,7 @@ def test_static_asset() -> None:
     assert response.status_code == 200
     assert "runEvaluation" in response.text
     assert "demo-login" in response.text
+    assert "judge_access" in response.text
 
 
 def test_challenge_readiness() -> None:
@@ -46,6 +50,7 @@ def test_challenge_capabilities() -> None:
     assert "Cloud Run" in body["googleCloudTarget"]
     assert "voice narration plan" in body["demoFlow"]
     assert "demo login and role switching" in body["demoFlow"]
+    assert "judge access tour" in body["demoFlow"]
     assert "role-based administration" in body["demoFlow"]
     assert "publisher catalog console" in body["demoFlow"]
     assert "superadmin operations console" in body["demoFlow"]
@@ -71,9 +76,17 @@ def test_auth_demo_users() -> None:
     assert response.status_code == 200
     body = response.json()
     users = {user["user_id"]: user for user in body["users"]}
-    assert {"reader-demo", "author-demo", "publisher-demo", "superadmin-demo"} <= set(users)
+    assert {
+        "reader-demo",
+        "author-demo",
+        "publisher-demo",
+        "superadmin-demo",
+        "judge-demo",
+    } <= set(users)
     assert users["publisher-demo"]["role"] == "publisher_admin"
+    assert users["judge-demo"]["role"] == "judge_access"
     assert "manage_catalog" in users["publisher-demo"]["permissions"]
+    assert "manage_tenants" in users["judge-demo"]["permissions"]
 
 
 def test_auth_demo_login() -> None:
@@ -84,6 +97,17 @@ def test_auth_demo_login() -> None:
     assert body["token"] == "demo-token:superadmin-demo"
     assert body["user"]["role"] == "super_admin"
     assert body["access"]["canOperatePlatform"] is True
+
+
+def test_judge_demo_login_has_full_review_access() -> None:
+    client = TestClient(app)
+    response = client.post("/api/v1/auth/demo-login", json={"user_id": "judge-demo"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["token"] == "demo-token:judge-demo"
+    assert body["user"]["role"] == "judge_access"
+    assert body["access"]["canOperatePlatform"] is True
+    assert body["access"]["canPublish"] is True
 
 
 def test_protected_marketplace_requires_demo_token() -> None:
@@ -107,9 +131,10 @@ def test_admin_roles() -> None:
     assert response.status_code == 200
     body = response.json()
     roles = {role["role"]: role for role in body["roles"]}
-    assert {"reader", "author", "publisher_admin", "super_admin"} <= set(roles)
+    assert {"reader", "author", "publisher_admin", "super_admin", "judge_access"} <= set(roles)
     assert "manage_catalog" in roles["publisher_admin"]["permissions"]
     assert "manage_tenants" in roles["super_admin"]["permissions"]
+    assert "monitor_agent_runtime" in roles["judge_access"]["permissions"]
 
 
 def test_admin_marketplace() -> None:
@@ -126,6 +151,18 @@ def test_admin_marketplace() -> None:
     assert body["catalog"][0]["book_id"] == "don-quijote"
     assert body["catalog"][0]["languages"] == ["en", "es"]
     assert body["operations"]["agentHealth"] == "healthy"
+
+
+def test_judge_can_access_marketplace_admin() -> None:
+    client = TestClient(app)
+    response = client.get(
+        "/api/v1/admin/marketplace",
+        headers={"authorization": "Bearer demo-token:judge-demo"},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["currentUser"]["role"] == "judge_access"
+    assert body["listingReadiness"]["marketplaceStatus"].startswith("demo-ready")
 
 
 def test_demo_character_chat() -> None:

@@ -3,10 +3,14 @@ const state = {
   demoUsers: [],
   language: "en",
   marketplace: null,
+  currentView: "dashboard",
   session: null,
 };
 
 const els = {
+  accessAccounts: document.querySelector("#accessAccounts"),
+  accessScreen: document.querySelector("#accessScreen"),
+  appShell: document.querySelector("#appShell"),
   bookTitle: document.querySelector("#bookTitle"),
   bookSummary: document.querySelector("#bookSummary"),
   characterCount: document.querySelector("#characterCount"),
@@ -47,18 +51,39 @@ const els = {
   runtimeStorage: document.querySelector("#runtimeStorage"),
   runtimeSeed: document.querySelector("#runtimeSeed"),
   runtimeRetrieval: document.querySelector("#runtimeRetrieval"),
+  roleActions: document.querySelector("#roleActions"),
+  roleDescription: document.querySelector("#roleDescription"),
+  roleTitle: document.querySelector("#roleTitle"),
+  roleWorkflow: document.querySelector("#roleWorkflow"),
+  viewEyebrow: document.querySelector("#viewEyebrow"),
+  viewTitle: document.querySelector("#viewTitle"),
 };
 
 const copy = {
   en: {
     "nav.reader": "Reader",
+    "nav.dashboard": "Dashboard",
     "nav.agents": "Agents",
+    "nav.author": "Author",
     "nav.publisher": "Publisher",
     "nav.admin": "Admin",
     "nav.evaluation": "Evaluation",
     "nav.runtime": "Runtime",
     "nav.architecture": "Architecture",
     "status.track": "Marketplace refactor",
+    "dashboard.eyebrow": "Role workspace",
+    "product.case.eyebrow": "Business case",
+    "product.case.title": "Literary IP becomes interactive catalog revenue",
+    "product.case.body":
+      "Authors and publishers can turn owned or public-domain books into managed reader experiences with measurable engagement.",
+    "product.roles.eyebrow": "Role model",
+    "product.roles.title": "Each account sees its own workspace",
+    "product.roles.body":
+      "Reader, author, publisher, superadmin, and judge accounts are separated by permissions and protected API access.",
+    "product.judge.eyebrow": "Judge route",
+    "product.judge.title": "One account reviews the full submission",
+    "product.judge.body":
+      "The Judge Access account exposes the full tour: reader, agents, publisher, admin, evaluation, runtime, and architecture.",
     "login.eyebrow": "Demo access",
     "login.account": "Account",
     "login.signIn": "Sign in",
@@ -132,13 +157,28 @@ const copy = {
   },
   es: {
     "nav.reader": "Lector",
+    "nav.dashboard": "Panel",
     "nav.agents": "Agentes",
+    "nav.author": "Autor",
     "nav.publisher": "Editorial",
     "nav.admin": "Admin",
     "nav.evaluation": "Evaluacion",
     "nav.runtime": "Runtime",
     "nav.architecture": "Arquitectura",
     "status.track": "Refactor Marketplace",
+    "dashboard.eyebrow": "Espacio por rol",
+    "product.case.eyebrow": "Caso de negocio",
+    "product.case.title": "La propiedad literaria se convierte en ingresos de catalogo interactivo",
+    "product.case.body":
+      "Autores y editoriales pueden convertir libros propios o libres de derechos en experiencias gestionadas para lectores con engagement medible.",
+    "product.roles.eyebrow": "Modelo de roles",
+    "product.roles.title": "Cada cuenta ve su propio espacio de trabajo",
+    "product.roles.body":
+      "Lector, autor, editorial, superadmin y juez estan separados por permisos y acceso protegido de API.",
+    "product.judge.eyebrow": "Ruta para jueces",
+    "product.judge.title": "Una cuenta revisa toda la entrega",
+    "product.judge.body":
+      "La cuenta Judge Access muestra el recorrido completo: lector, agentes, editorial, admin, evaluacion, runtime y arquitectura.",
     "login.eyebrow": "Acceso demo",
     "login.account": "Cuenta",
     "login.signIn": "Entrar",
@@ -212,8 +252,231 @@ const copy = {
   },
 };
 
+const roleContent = {
+  reader: {
+    title: { en: "Reader workspace", es: "Espacio de lector" },
+    description: {
+      en: "Read available books, talk to characters, explore canon answers, and create fiction branches.",
+      es: "Lee libros disponibles, habla con personajes, explora respuestas canonicas y crea ramas de ficcion.",
+    },
+    views: ["dashboard", "reader", "agents"],
+    actions: [
+      { label: { en: "Open reader", es: "Abrir lector" }, view: "reader" },
+      { label: { en: "Ask Don Quijote", es: "Preguntar a Don Quijote" }, view: "agents" },
+      { label: { en: "Try fiction mode", es: "Probar ficcion" }, view: "agents" },
+    ],
+    workflow: [
+      [
+        { en: "Read", es: "Leer" },
+        {
+          en: "Open Don Quijote and inspect extracted literary structure.",
+          es: "Abre Don Quijote y revisa la estructura literaria extraida.",
+        },
+      ],
+      [
+        { en: "Chat", es: "Chat" },
+        {
+          en: "Ask grounded questions to characters with canon safeguards.",
+          es: "Haz preguntas fundamentadas a personajes con control canonico.",
+        },
+      ],
+      [
+        { en: "Branch", es: "Rama" },
+        {
+          en: "Switch to fiction mode to create an alternate, separated story path.",
+          es: "Cambia a ficcion para crear una ruta alternativa separada del canon.",
+        },
+      ],
+    ],
+  },
+  author: {
+    title: { en: "Author workspace", es: "Espacio de autor" },
+    description: {
+      en: "Prepare owned or public-domain books, review generated agents, and submit titles for publishing.",
+      es: "Prepara libros propios o libres de derechos, revisa agentes generados y envia titulos a publicacion.",
+    },
+    views: ["dashboard", "author", "agents", "reader"],
+    actions: [
+      { label: { en: "Review analysis", es: "Revisar analisis" }, view: "author" },
+      { label: { en: "Test character voice", es: "Probar voz" }, view: "agents" },
+      { label: { en: "Submit title", es: "Enviar titulo" }, view: "author" },
+    ],
+    workflow: [
+      [
+        { en: "Upload", es: "Subir" },
+        { en: "Submit a manuscript or public-domain title.", es: "Envia un manuscrito o titulo libre de derechos." },
+      ],
+      [
+        { en: "Review", es: "Revisar" },
+        {
+          en: "Inspect Gemini analysis, characters, scenes, and psychology.",
+          es: "Inspecciona analisis Gemini, personajes, escenas y psicologia.",
+        },
+      ],
+      [
+        { en: "Approve", es: "Aprobar" },
+        {
+          en: "Validate agent behavior before catalog publication.",
+          es: "Valida el comportamiento de agentes antes de publicar en catalogo.",
+        },
+      ],
+    ],
+  },
+  publisher_admin: {
+    title: { en: "Publisher admin workspace", es: "Espacio de editorial" },
+    description: {
+      en: "Manage catalog availability, inspect engagement, and validate title quality for a publisher tenant.",
+      es: "Gestiona disponibilidad de catalogo, engagement y calidad de titulos para una editorial.",
+    },
+    views: ["dashboard", "publisher", "admin", "evaluation", "reader", "agents"],
+    actions: [
+      { label: { en: "Open catalog", es: "Abrir catalogo" }, view: "admin" },
+      { label: { en: "Analyze engagement", es: "Analizar engagement" }, view: "publisher" },
+      { label: { en: "Review quality", es: "Revisar calidad" }, view: "evaluation" },
+    ],
+    workflow: [
+      [
+        { en: "Catalog", es: "Catalogo" },
+        {
+          en: "Manage titles and availability across the publisher tenant.",
+          es: "Gestiona titulos y disponibilidad dentro de la editorial.",
+        },
+      ],
+      [
+        { en: "Engagement", es: "Engagement" },
+        {
+          en: "Use conversations and scenes as measurable reader signals.",
+          es: "Usa conversaciones y escenas como senales medibles de lectores.",
+        },
+      ],
+      [
+        { en: "Quality", es: "Calidad" },
+        {
+          en: "Review evaluation, grounding, and consistency before rollout.",
+          es: "Revisa evaluacion, fundamentacion y consistencia antes de desplegar.",
+        },
+      ],
+    ],
+  },
+  super_admin: {
+    title: { en: "Super admin workspace", es: "Espacio superadmin" },
+    description: {
+      en: "Operate tenants, users, costs, platform readiness, and Google Cloud runtime health.",
+      es: "Opera tenants, usuarios, costes, preparacion de plataforma y salud en Google Cloud.",
+    },
+    views: [
+      "dashboard",
+      "admin",
+      "publisher",
+      "evaluation",
+      "runtime",
+      "architecture",
+      "reader",
+      "agents",
+      "author",
+    ],
+    actions: [
+      { label: { en: "Operate platform", es: "Operar plataforma" }, view: "admin" },
+      { label: { en: "Inspect runtime", es: "Ver runtime" }, view: "runtime" },
+      { label: { en: "Review Marketplace", es: "Revisar Marketplace" }, view: "architecture" },
+    ],
+    workflow: [
+      [
+        { en: "Tenants", es: "Tenants" },
+        { en: "Manage publishers, roles, and platform access.", es: "Gestiona editoriales, roles y acceso." },
+      ],
+      [
+        { en: "Runtime", es: "Runtime" },
+        {
+          en: "Inspect Cloud Run, Gemini, Cloud SQL pgvector, and traces.",
+          es: "Inspecciona Cloud Run, Gemini, Cloud SQL pgvector y trazas.",
+        },
+      ],
+      [
+        { en: "Marketplace", es: "Marketplace" },
+        {
+          en: "Prepare listing evidence for Google Cloud Marketplace.",
+          es: "Prepara evidencias para publicar en Google Cloud Marketplace.",
+        },
+      ],
+    ],
+  },
+  judge_access: {
+    title: { en: "Judge review tour", es: "Recorrido para jueces" },
+    description: {
+      en: "A guided full-access review account for the challenge: reader flow, agents, publisher value, admin readiness, runtime, and evaluation.",
+      es: "Cuenta guiada con acceso completo para el desafio: lector, agentes, valor editorial, admin, runtime y evaluacion.",
+    },
+    views: [
+      "dashboard",
+      "reader",
+      "agents",
+      "author",
+      "publisher",
+      "admin",
+      "evaluation",
+      "runtime",
+      "architecture",
+    ],
+    actions: [
+      { label: { en: "Run 3-minute demo", es: "Demo de 3 minutos" }, view: "reader" },
+      { label: { en: "Check protected admin", es: "Ver admin protegido" }, view: "admin" },
+      { label: { en: "Inspect Cloud proof", es: "Ver prueba Cloud" }, view: "runtime" },
+    ],
+    workflow: [
+      [
+        { en: "1. Reader", es: "1. Lector" },
+        {
+          en: "Open Don Quijote, chat with a character in English or Spanish.",
+          es: "Abre Don Quijote y habla con un personaje en ingles o espanol.",
+        },
+      ],
+      [
+        { en: "2. Agents", es: "2. Agentes" },
+        {
+          en: "Switch between canon and fiction branch behavior.",
+          es: "Cambia entre comportamiento canonico y rama de ficcion.",
+        },
+      ],
+      [
+        { en: "3. Publisher", es: "3. Editorial" },
+        {
+          en: "Use protected token access to inspect catalog and insights.",
+          es: "Usa acceso protegido por token para revisar catalogo e insights.",
+        },
+      ],
+      [
+        { en: "4. Platform", es: "4. Plataforma" },
+        {
+          en: "Review roles, runtime, evaluation, and Marketplace readiness.",
+          es: "Revisa roles, runtime, evaluacion y preparacion Marketplace.",
+        },
+      ],
+    ],
+  },
+};
+
+const viewTitles = {
+  dashboard: ["Workspace", "Role dashboard"],
+  reader: ["Reader", "Book experience"],
+  agents: ["Agents", "Character and scene agents"],
+  author: ["Author", "Book submission pipeline"],
+  publisher: ["Publisher", "Catalog and engagement"],
+  admin: ["Admin", "Roles and Marketplace readiness"],
+  evaluation: ["Evaluation", "Before / after quality evidence"],
+  runtime: ["Runtime", "Google Cloud proof"],
+  architecture: ["Architecture", "Cloud target architecture"],
+};
+
 function t(key) {
   return copy[state.language][key] ?? copy.en[key] ?? key;
+}
+
+function localize(value) {
+  if (typeof value === "string") {
+    return value;
+  }
+  return value[state.language] ?? value.en ?? "";
 }
 
 function applyLanguage(language) {
@@ -237,6 +500,7 @@ function applyLanguage(language) {
   }
   renderSession();
   applyAccess();
+  renderRoleDashboard();
 }
 
 async function api(path, options = {}) {
@@ -259,11 +523,22 @@ async function loadAuth() {
   const data = await api("/api/v1/auth/demo-users");
   state.demoUsers = data.users;
   els.userSelect.innerHTML = "";
+  els.accessAccounts.innerHTML = "";
   data.users.forEach((user) => {
     const option = document.createElement("option");
     option.value = user.user_id;
     option.textContent = `${user.name} (${user.role})`;
     els.userSelect.appendChild(option);
+
+    const account = document.createElement("button");
+    account.className = user.role === "judge_access" ? "account-card judge" : "account-card";
+    account.innerHTML = `
+      <strong>${user.name}</strong>
+      <span>${user.role}</span>
+      <small>${user.tenant_id}</small>
+    `;
+    account.addEventListener("click", () => loginAs(user.user_id));
+    els.accessAccounts.appendChild(account);
   });
   const savedSession = localStorage.getItem("stormsboys-demo-session");
   if (savedSession) {
@@ -272,17 +547,29 @@ async function loadAuth() {
   }
   renderSession();
   applyAccess();
+  renderShell();
+  renderRoleDashboard();
+  applyViewAccess();
 }
 
 async function login() {
+  await loginAs(els.userSelect.value);
+}
+
+async function loginAs(userId) {
   const data = await api("/api/v1/auth/demo-login", {
     method: "POST",
-    body: JSON.stringify({ user_id: els.userSelect.value }),
+    body: JSON.stringify({ user_id: userId }),
   });
   state.session = data;
+  els.userSelect.value = data.user.user_id;
   localStorage.setItem("stormsboys-demo-session", JSON.stringify(data));
   renderSession();
   applyAccess();
+  renderShell();
+  renderRoleDashboard();
+  applyViewAccess();
+  setView("dashboard");
   await loadAdmin();
 }
 
@@ -292,6 +579,15 @@ function logout() {
   localStorage.removeItem("stormsboys-demo-session");
   renderSession();
   applyAccess();
+  renderShell();
+  renderRoleDashboard();
+  applyViewAccess();
+}
+
+function renderShell() {
+  const signedIn = Boolean(state.session);
+  els.accessScreen.classList.toggle("is-hidden", signedIn);
+  els.appShell.classList.toggle("is-hidden", !signedIn);
 }
 
 function renderSession() {
@@ -328,6 +624,71 @@ function applyAccess() {
   els.adminAccess.className = canOperate ? "access-box granted" : "access-box locked";
   if (state.marketplace) {
     renderMarketplace(state.marketplace);
+  }
+}
+
+function activeRoleConfig() {
+  return roleContent[state.session?.user?.role] ?? roleContent.reader;
+}
+
+function renderRoleDashboard() {
+  if (!state.session) {
+    els.roleTitle.textContent = "Sign in to continue";
+    els.roleDescription.textContent = "Choose a demo account to see the correct product area.";
+    els.roleActions.innerHTML = "";
+    els.roleWorkflow.innerHTML = "";
+    return;
+  }
+  const config = activeRoleConfig();
+  els.roleTitle.textContent = localize(config.title);
+  els.roleDescription.textContent = localize(config.description);
+  els.roleActions.innerHTML = "";
+  config.actions.forEach((action) => {
+    const button = document.createElement("button");
+    button.className = "secondary";
+    button.textContent = localize(action.label);
+    button.addEventListener("click", () => setView(action.view));
+    els.roleActions.appendChild(button);
+  });
+  els.roleWorkflow.innerHTML = config.workflow
+    .map(
+      ([title, description]) => `
+        <article class="workflow-item">
+          <strong>${localize(title)}</strong>
+          <p>${localize(description)}</p>
+        </article>
+      `,
+    )
+    .join("");
+}
+
+function canView(view) {
+  return activeRoleConfig().views.includes(view);
+}
+
+function setView(view) {
+  const target = canView(view) ? view : "dashboard";
+  state.currentView = target;
+  document.querySelectorAll(".view-panel").forEach((panel) => {
+    panel.classList.toggle("is-hidden", panel.dataset.view !== target);
+  });
+  document.querySelectorAll("[data-view-target]").forEach((item) => {
+    item.classList.toggle("active", item.dataset.viewTarget === target);
+  });
+  const [eyebrow, title] = viewTitles[target] ?? viewTitles.dashboard;
+  els.viewEyebrow.textContent = eyebrow;
+  els.viewTitle.textContent = title;
+}
+
+function applyViewAccess() {
+  const allowedViews = activeRoleConfig().views;
+  document.querySelectorAll("[data-view-target]").forEach((item) => {
+    item.classList.toggle("is-hidden", !allowedViews.includes(item.dataset.viewTarget));
+  });
+  if (!allowedViews.includes(state.currentView)) {
+    setView("dashboard");
+  } else {
+    setView(state.currentView);
   }
 }
 
@@ -611,6 +972,9 @@ els.askFuture.addEventListener("click", () => {
 });
 els.loginButton.addEventListener("click", login);
 els.logoutButton.addEventListener("click", logout);
+document.querySelectorAll("[data-view-target]").forEach((item) => {
+  item.addEventListener("click", () => setView(item.dataset.viewTarget));
+});
 els.languageSelect.addEventListener("change", () => applyLanguage(els.languageSelect.value));
 els.runScene.addEventListener("click", runScene);
 els.runNarration.addEventListener("click", runNarration);
@@ -620,6 +984,8 @@ els.runEvaluation.addEventListener("click", runEvaluation);
 els.refreshDemo.addEventListener("click", loadBook);
 
 applyLanguage(els.languageSelect.value);
+renderShell();
+setView("dashboard");
 
 loadBook()
   .then(runEvaluation)

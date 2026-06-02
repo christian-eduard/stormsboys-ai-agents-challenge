@@ -60,10 +60,12 @@ Puede:
 La entrega del challenge debe mostrar una consola operable, aunque el login real quede como
 siguiente fase de producto. La demo publica expone:
 
-- Login demo con cuentas de prueba para `reader`, `author`, `publisher_admin` y `super_admin`.
+- Pantalla inicial de acceso con cuentas demo separadas por rol y entrada dedicada `judge_access`.
+- Login demo con cuentas de prueba para `reader`, `author`, `publisher_admin`, `super_admin` y `judge_access`.
 - Sesion local de navegador para que los jueces cambien de rol sin credenciales privadas.
 - Token demo `Bearer demo-token:*` requerido por endpoints de operaciones publisher/admin.
-- Roles funcionales: `reader`, `author`, `publisher_admin`, `super_admin`.
+- Roles funcionales: `reader`, `author`, `publisher_admin`, `super_admin`, `judge_access`.
+- Navegacion por vistas: cada rol ve solo sus pantallas permitidas; `judge_access` ve el recorrido completo.
 - Matriz de permisos por rol.
 - Tenant editorial demo.
 - Catalogo editorial con Don Quijote como titulo publicado.

@@ -53,7 +53,8 @@ Ya existe:
 - RetrievalAgent usa pgvector real cuando `DATABASE_URL` esta configurado y vuelve a memoria si falla.
 - Libro demo Don Quijote sembrado en Cloud SQL con 5 secciones y embeddings `gemini-embedding-001` via Vertex AI.
 - Panel web `Runtime proof` con estado Gemini, Cloud SQL/pgvector, seed y ultima traza de retrieval.
-- Panel web `Demo access` con login/logout demo, selector de cuenta y sesion local.
+- Pantalla web `Testing access` con cuentas demo por rol y entrada dedicada `Judge Access`.
+- Panel web `Role dashboard` con acciones y navegacion filtradas para reader, author, publisher, superadmin y judge.
 - Consola web `Marketplace Admin` con roles, permisos, tenant editorial, catalogo, readiness y salud operativa.
 - Endpoints publisher/admin protegidos por `Authorization: Bearer demo-token:*`.
 - Endpoints auth/admin: `/api/v1/auth/demo-users`, `/api/v1/auth/demo-login`, `/api/v1/admin/roles` y `/api/v1/admin/marketplace`.
@@ -84,7 +85,7 @@ http://127.0.0.1:8080
 
 Ultima validacion local conocida:
 
-- Tests en contenedor Python 3.11: pasan, 31 tests.
+- Tests en contenedor Python 3.11: pasan, 33 tests.
 - `make lint`: pasa.
 - `make public-ready`: pasa.
 - `BASE_URL=http://127.0.0.1:8088 make smoke`: pasa.
@@ -112,7 +113,7 @@ Ultima validacion local conocida:
 - Chat publico confirmado: `CharacterAgent` usa `gemini-2.5-flash` y `NarrativeConsistencyAgent` pasa.
 - Narration publico confirmado: `VoiceNarrationAgent`, SSML y `ready_for_tts=true`.
 - Publisher publico confirmado: `PublisherInsightsAgent`, engagement y quality `100%`.
-- Admin publico confirmado: login demo, tokens demo, roles `reader`, `author`, `publisher_admin`, `super_admin`, tenant demo, catalogo y readiness Marketplace.
+- Admin publico confirmado: login demo, tokens demo, roles `reader`, `author`, `publisher_admin`, `super_admin`, `judge_access`, tenant demo, catalogo y readiness Marketplace.
 - Smoke test publico confirmado el 2026-06-03 contra revision `stormsboys-agents-api-00018-zx5`.
 - Modos publicos confirmados: `CANON` rechaza futuro como canon y `FICTION` crea `fictionBranch`.
 - Idioma publico confirmado: English por defecto, Espanol seleccionable, API devuelve `language` y Don Quijote responde en espanol cuando `language=es`.

@@ -85,6 +85,18 @@ def _role_permissions() -> dict[str, list[str]]:
             "review_costs",
             "configure_marketplace_listing",
         ],
+        "judge_access": [
+            "read_public_books",
+            "chat_with_characters",
+            "create_fiction_branches",
+            "listen_to_narration",
+            "manage_catalog",
+            "view_engagement_metrics",
+            "review_agent_quality",
+            "manage_tenants",
+            "monitor_agent_runtime",
+            "configure_marketplace_listing",
+        ],
     }
 
 
@@ -123,6 +135,14 @@ def _demo_users() -> list[dict[str, object]]:
             "tenant_id": "platform",
             "permissions": permissions["super_admin"],
         },
+        {
+            "user_id": "judge-demo",
+            "name": "Judge Access",
+            "email": "judge@stormsdemo.dev",
+            "role": "judge_access",
+            "tenant_id": "challenge-review",
+            "permissions": permissions["judge_access"],
+        },
     ]
 
 
@@ -132,6 +152,7 @@ def _role_labels() -> dict[str, str]:
         "author": "Author",
         "publisher_admin": "Publisher Admin",
         "super_admin": "Super Admin",
+        "judge_access": "Judge Access",
     }
 
 
@@ -237,6 +258,7 @@ def challenge_capabilities() -> dict[str, object]:
         ],
         "demoFlow": [
             "demo login and role switching",
+            "judge access tour",
             "book analysis",
             "reader",
             "role-based administration",
@@ -304,6 +326,15 @@ def admin_roles() -> dict[str, object]:
                     "and compliance state."
                 ),
                 "permissions": permissions["super_admin"],
+            },
+            {
+                "role": "judge_access",
+                "label": labels["judge_access"],
+                "description": (
+                    "Reviews the complete challenge flow with access to reader, publisher, "
+                    "admin, runtime, and evaluation views."
+                ),
+                "permissions": permissions["judge_access"],
             },
         ],
     }
