@@ -4,8 +4,11 @@ set -euo pipefail
 BASE_URL="${BASE_URL:-http://127.0.0.1:8088}"
 CURL=(curl --max-time 60 --fail --silent)
 
-"${CURL[@]}" "${BASE_URL}/" | grep -q "Multi-agent literary intelligence"
-"${CURL[@]}" "${BASE_URL}/static/app.js" | grep -q "runEvaluation"
+HOME_HTML="$("${CURL[@]}" "${BASE_URL}/")"
+APP_JS="$("${CURL[@]}" "${BASE_URL}/static/app.js")"
+
+grep -q "Multi-agent literary intelligence" <<<"${HOME_HTML}"
+grep -q "runEvaluation" <<<"${APP_JS}"
 "${CURL[@]}" "${BASE_URL}/health" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/readiness" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/capabilities" >/dev/null
