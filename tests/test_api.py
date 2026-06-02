@@ -18,6 +18,7 @@ def test_web_demo() -> None:
     assert "Marketplace Admin" in response.text
     assert "Demo access" in response.text
     assert "Choose a demo account" in response.text
+    assert "Submission readiness" in response.text
     assert 'data-view="dashboard"' in response.text
     assert 'data-view="author"' in response.text
 
@@ -58,6 +59,18 @@ def test_challenge_capabilities() -> None:
     assert "canon character chat" in body["demoFlow"]
     assert "english primary language" in body["demoFlow"]
     assert "spanish secondary language" in body["demoFlow"]
+
+
+def test_challenge_submission() -> None:
+    client = TestClient(app)
+    response = client.get("/api/v1/challenge/submission")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["track"].startswith("Track 3")
+    assert body["status"] == "public-demo-ready"
+    assert body["recommendedJudgeAccount"]["user_id"] == "judge-demo"
+    assert len(body["judgingCriteria"]) == 4
+    assert any(item["name"] == "Functional judge demo" for item in body["deliverables"])
 
 
 def test_demo_book() -> None:

@@ -57,6 +57,9 @@ const els = {
   runtimeStorage: document.querySelector("#runtimeStorage"),
   runtimeSeed: document.querySelector("#runtimeSeed"),
   runtimeRetrieval: document.querySelector("#runtimeRetrieval"),
+  submissionCriteria: document.querySelector("#submissionCriteria"),
+  submissionDeliverables: document.querySelector("#submissionDeliverables"),
+  submissionSummary: document.querySelector("#submissionSummary"),
   roleActions: document.querySelector("#roleActions"),
   roleDescription: document.querySelector("#roleDescription"),
   roleTitle: document.querySelector("#roleTitle"),
@@ -90,6 +93,10 @@ const copy = {
     "product.judge.title": "One account reviews the full submission",
     "product.judge.body":
       "The Judge Access account exposes the full tour: reader, agents, publisher, admin, evaluation, runtime, and architecture.",
+    "submission.eyebrow": "Submission readiness",
+    "submission.title": "Challenge evidence",
+    "submission.criteria": "Criteria",
+    "submission.deliverables": "Deliverables",
     "login.eyebrow": "Demo access",
     "login.account": "Account",
     "login.signIn": "Sign in",
@@ -207,6 +214,10 @@ const copy = {
     "product.judge.title": "Una cuenta revisa toda la entrega",
     "product.judge.body":
       "La cuenta Judge Access muestra el recorrido completo: lector, agentes, editorial, admin, evaluacion, runtime y arquitectura.",
+    "submission.eyebrow": "Preparacion de entrega",
+    "submission.title": "Evidencia del challenge",
+    "submission.criteria": "Criterios",
+    "submission.deliverables": "Entregables",
     "login.eyebrow": "Acceso demo",
     "login.account": "Cuenta",
     "login.signIn": "Entrar",
@@ -784,6 +795,7 @@ function renderCharacters(characters) {
 async function loadBook() {
   await loadAuth();
   await loadCapabilities();
+  await loadSubmission();
   await loadStorage();
   await loadAdmin();
   const data = await api("/api/v1/demo/book");
@@ -795,6 +807,49 @@ async function loadBook() {
   els.sceneCount.textContent = data.analysis.scenes.length;
   renderCharacters(state.characters);
   renderTraces(data.traces);
+}
+
+async function loadSubmission() {
+  const submission = await api("/api/v1/challenge/submission");
+  els.submissionSummary.innerHTML = `
+    <div>
+      <strong>${submission.status}</strong>
+      <span>${submission.track}</span>
+    </div>
+    <div>
+      <strong>${submission.region}</strong>
+      <span>${submission.deadline}</span>
+    </div>
+    <div>
+      <strong>${submission.recommendedJudgeAccount.name}</strong>
+      <span>${submission.recommendedJudgeAccount.role}</span>
+    </div>
+    <div>
+      <strong>public</strong>
+      <span>${submission.publicDemo}</span>
+    </div>
+  `;
+  els.submissionCriteria.innerHTML = "";
+  submission.judgingCriteria.forEach((criterion) => {
+    const item = document.createElement("article");
+    item.className = "catalog-item";
+    item.innerHTML = `
+      <strong>${criterion.name} | ${criterion.weight}</strong>
+      <p>${criterion.evidence}</p>
+    `;
+    els.submissionCriteria.appendChild(item);
+  });
+  els.submissionDeliverables.innerHTML = "";
+  submission.deliverables.forEach((deliverable) => {
+    const item = document.createElement("article");
+    item.className =
+      deliverable.status === "ready" ? "catalog-item delivery-ready" : "catalog-item";
+    item.innerHTML = `
+      <strong>${deliverable.name}</strong>
+      <p>${deliverable.status}</p>
+    `;
+    els.submissionDeliverables.appendChild(item);
+  });
 }
 
 async function loadAdmin() {

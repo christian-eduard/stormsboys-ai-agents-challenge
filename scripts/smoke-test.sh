@@ -9,6 +9,7 @@ APP_JS="$("${CURL[@]}" "${BASE_URL}/static/app.js")"
 
 grep -q "Multi-agent literary intelligence" <<<"${HOME_HTML}"
 grep -q "Choose a demo account" <<<"${HOME_HTML}"
+grep -q "Submission readiness" <<<"${HOME_HTML}"
 grep -q 'data-view="dashboard"' <<<"${HOME_HTML}"
 grep -q 'data-view="author"' <<<"${HOME_HTML}"
 grep -q "runEvaluation" <<<"${APP_JS}"
@@ -17,6 +18,7 @@ grep -q "runAuthorWorkflow" <<<"${APP_JS}"
 "${CURL[@]}" "${BASE_URL}/health" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/readiness" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/capabilities" >/dev/null
+"${CURL[@]}" "${BASE_URL}/api/v1/challenge/submission" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/storage" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/storage/demo-seed" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/auth/demo-users" >/dev/null

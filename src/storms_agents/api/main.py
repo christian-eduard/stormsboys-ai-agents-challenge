@@ -284,6 +284,63 @@ def challenge_capabilities() -> dict[str, object]:
     }
 
 
+@app.get("/api/v1/challenge/submission")
+def challenge_submission() -> dict[str, object]:
+    return {
+        "track": "Track 3 - Refactor for Google Cloud Marketplace & Gemini Enterprise",
+        "region": "EMEA",
+        "deadline": "2026-06-05 17:00 PT",
+        "status": "public-demo-ready",
+        "publicDemo": "https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app",
+        "repository": "https://github.com/christian-eduard/stormsboys-ai-agents-challenge",
+        "judgingCriteria": [
+            {
+                "name": "Technical Implementation",
+                "weight": "30%",
+                "evidence": (
+                    "Cloud Run, Gemini/Vertex, ADK-first agents, Cloud SQL pgvector, "
+                    "protected APIs."
+                ),
+            },
+            {
+                "name": "Business Case",
+                "weight": "30%",
+                "evidence": (
+                    "B2B catalog product for publishers, authors, education, and reading apps."
+                ),
+            },
+            {
+                "name": "Innovation and Creativity",
+                "weight": "20%",
+                "evidence": (
+                    "Books become governed character, scene, fiction branch, voice, "
+                    "and analytics agents."
+                ),
+            },
+            {
+                "name": "Demo and Presentation",
+                "weight": "20%",
+                "evidence": (
+                    "Judge Access role, guided dashboard, bilingual demo, runtime proof, "
+                    "and smoke-tested URL."
+                ),
+            },
+        ],
+        "deliverables": [
+            {"name": "Public repository", "status": "ready"},
+            {"name": "English description", "status": "ready"},
+            {"name": "Architecture diagram", "status": "ready"},
+            {"name": "Functional judge demo", "status": "ready"},
+            {"name": "1-2 minute English video", "status": "planned-final-step"},
+        ],
+        "recommendedJudgeAccount": {
+            "user_id": "judge-demo",
+            "name": "Judge Access",
+            "role": "judge_access",
+        },
+    }
+
+
 @app.get("/api/v1/admin/roles")
 def admin_roles() -> dict[str, object]:
     permissions = _role_permissions()

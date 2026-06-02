@@ -355,6 +355,25 @@ button.secondary:hover {
   line-height: 1.5;
 }
 
+.submission-panel {
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  background: var(--surface);
+}
+
+.submission-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.delivery-ready {
+  border-left: 4px solid var(--accent);
+}
+
 .workflow-item,
 .pipeline-item {
   border: 1px solid var(--line);
@@ -767,7 +786,8 @@ textarea {
   .marketplace-summary,
   .role-hero,
   .workflow-grid,
-  .product-grid {
+  .product-grid,
+  .submission-grid {
     grid-template-columns: 1fr;
   }
 
