@@ -22,7 +22,7 @@ No credentials required.
 
 ## Repository URL
 
-TODO: add public repository URL after publishing.
+https://github.com/christian-eduard/stormsboys-ai-agents-challenge
 
 ## Video URL
 

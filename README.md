@@ -63,6 +63,12 @@ Demo publica desplegada en Google Cloud Run:
 https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app
 ```
 
+Repositorio publico:
+
+```txt
+https://github.com/christian-eduard/stormsboys-ai-agents-challenge
+```
+
 Ya existe una API FastAPI con demo web para jueces, agente raiz ADK-first, agentes
 especializados, Cloud SQL PostgreSQL con pgvector, embeddings `gemini-embedding-001`
 via Vertex AI, Character Agent con `gemini-2.5-flash`, trazas por agente y

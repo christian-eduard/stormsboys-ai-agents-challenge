@@ -3,12 +3,13 @@
 ## Code
 
 - [x] Repositorio limpio.
-- [ ] Repositorio publico.
+- [x] Repositorio publico.
 - [x] Proyecto creado durante el periodo del concurso.
 - [x] README con setup.
 - [x] Sin secretos detectados por `check-public-ready`.
 - [x] Scripts reproducibles.
 - [x] Licencia MIT.
+- [x] Repo URL: `https://github.com/christian-eduard/stormsboys-ai-agents-challenge`.
 
 ## Video
 
