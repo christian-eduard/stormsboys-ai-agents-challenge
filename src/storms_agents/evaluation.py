@@ -4,7 +4,9 @@ from storms_agents.agents.character import CharacterAgent
 from storms_agents.agents.consistency import NarrativeConsistencyAgent
 from storms_agents.agents.literary_analysis import LiteraryAnalysisAgent
 from storms_agents.agents.retrieval import RetrievalAgent
+from storms_agents.config import Settings
 from storms_agents.demo_data import DEMO_BOOK_ID, DEMO_BOOK_TEXT, DEMO_BOOK_TITLE
+from storms_agents.tools.gemini import GeminiTool
 
 
 class EvaluationCase(BaseModel):
@@ -145,7 +147,14 @@ BASELINE_FAILURE_RISKS = {
 def run_demo_evaluation() -> EvaluationReport:
     analysis = LiteraryAnalysisAgent().run(DEMO_BOOK_TITLE, [DEMO_BOOK_TEXT]).output
     retrieval = RetrievalAgent()
-    character = CharacterAgent()
+    evaluation_gemini = GeminiTool(
+        Settings(
+            google_api_key=None,
+            google_cloud_project=None,
+            google_genai_use_vertexai=False,
+        )
+    )
+    character = CharacterAgent(gemini=evaluation_gemini)
     consistency = NarrativeConsistencyAgent()
     characters = {item.character_id: item for item in analysis.characters}
 
