@@ -9,6 +9,7 @@ Estamos creando un proyecto nuevo, aislado y autocontenido para el Google for St
 - Track: Track 2 - Optimize Existing Agents.
 - Entrega: repositorio publico, descripcion en ingles, arquitectura con diagrama, video demo de 1-2 minutos en ingles y demo funcional para jueces.
 - Regla critica: no usar codigo, configuracion, datos, rutas, IDs ni recursos de otros proyectos.
+- Nueva conclusion de producto: la demo debe pivotar hacia la app real `Stormsboys_libros/libros-ia-app` y Don Quijote sin copiar codigo a ciegas; ver `docs/08-original-app-track3-analysis.md`.
 
 ## Estado Actual
 
@@ -115,6 +116,7 @@ Ultima validacion local conocida:
 - `infra/cloud-run/plan.sh`: imprime plan de despliegue sin crear recursos.
 - `infra/cloud-run/deploy.sh`: despliegue protegido por `CONFIRM_DEPLOY=true`.
 - `docs/cloud/04-pronexus-credit-setup.md`: estado de facturacion/credito.
+- `docs/08-original-app-track3-analysis.md`: analisis de app original, Don Quijote, ADK y Track 3.
 - `tests/test_api.py`: cobertura de endpoints.
 
 ## Endpoints

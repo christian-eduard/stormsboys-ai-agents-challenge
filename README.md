@@ -54,6 +54,7 @@ flowchart LR
 5. Leer `docs/agents/01-agent-architecture.md`.
 6. Leer `docs/cloud/01-target-architecture.md`.
 7. Leer `docs/evaluation/01-evaluation-plan.md`.
+8. Leer `docs/08-original-app-track3-analysis.md` para entender como conectar la app real de libros y Don Quijote.
 
 ## Estado actual
 
