@@ -7,7 +7,7 @@ Permitir que varios agentes trabajen en paralelo sin pisarse ni duplicar decisio
 ## Reglas Generales
 
 - Cada agente debe tomar un paquete concreto.
-- Cada agente debe leer `AGENTS.md`, `docs/00-challenge-brief.md` y el documento de su area.
+- Cada agente debe leer `AGENTS.md`, `HANDOFF.md`, `docs/product/04-original-product-model.md`, `docs/track3/01-track3-marketplace-strategy.md` y el documento de su area.
 - Cada agente debe dejar notas de decision si cambia arquitectura.
 - Un agente no debe modificar areas fuera de su paquete salvo que lo documente.
 
@@ -20,6 +20,7 @@ Responsabilidad:
 - Testing access.
 - Lista de assets.
 - Capturas necesarias.
+- Mantener claro que Don Quijote es caso demo y que el producto es la plataforma.
 
 Archivos principales:
 
@@ -40,6 +41,8 @@ Responsabilidad:
 - Contratos de entrada/salida.
 - Herramientas internas.
 - Trazas de razonamiento operativo.
+- Separacion explicita entre modo canon y modo ficcion.
+- Preparacion ADK/A2A.
 
 Archivos principales:
 
@@ -62,6 +65,8 @@ Responsabilidad:
 - Books.
 - Conversations.
 - Publisher/admin.
+- Roles lector, publisher y superadmin.
+- Contratos para upload, analisis, canon chat, fiction branch y catalogos.
 
 Archivos principales:
 
@@ -128,6 +133,9 @@ Responsabilidad:
 - Sistema optimizado.
 - Reporte comparativo.
 - Metricas.
+- Casos de canon vs ficcion.
+- Casos de separacion de memoria.
+- Casos de valor B2B para publisher.
 
 Archivos principales:
 
@@ -159,3 +167,27 @@ Entregables:
 - Checklist de seguridad.
 - Revision de secretos.
 - Release checklist.
+
+## Paquete H: Track 3 / Marketplace
+
+Responsabilidad:
+
+- Agent card.
+- A2A readiness.
+- Narrativa B2B.
+- Documentacion Marketplace/Gemini Enterprise.
+- Costes y operacion para cliente enterprise.
+
+Archivos principales:
+
+- `docs/track3`
+- `docs/submission`
+- `docs/cloud`
+- `src/storms_agents/api`
+
+Entregables:
+
+- Endpoint o documento de agent card.
+- Descripcion B2B en ingles.
+- Matriz de requisitos Track 3.
+- Riesgos honestos de ADK/A2A.

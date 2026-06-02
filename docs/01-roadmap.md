@@ -4,7 +4,7 @@
 
 - Crear workspace limpio.
 - Documentar reglas para agentes.
-- Elegir track.
+- Elegir Track 3 como principal y Track 2 como evidencia de calidad.
 - Definir arquitectura objetivo.
 - Definir demo.
 
@@ -27,10 +27,12 @@
 
 ## Fase 3: Producto Demo
 
+- Don Quijote como caso demo.
 - Upload de libro.
 - Dashboard de analisis.
 - Lector.
-- Chat personaje.
+- Chat personaje modo canon.
+- Chat personaje modo ficcion.
 - Chat escena/grupo.
 - Voz/narracion.
 - Publisher/admin basico.
@@ -58,3 +60,10 @@
 - Revisar README.
 - Preparar instrucciones de testing access.
 - Revisar seguridad.
+
+## Fase 7: Track 3 Readiness
+
+- Publicar agent card o documentar A2A readiness.
+- Revisar narrativa Marketplace/Gemini Enterprise.
+- Documentar operacion B2B.
+- Confirmar que no se promete tecnologia no implementada.

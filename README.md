@@ -4,13 +4,15 @@ Proyecto nuevo para preparar la entrega de Stormsboys Libros IA al Google for St
 
 ## Decision principal
 
-- Track elegido: Track 2 - Optimize Existing Agents.
-- Producto objetivo: plataforma multi-agente que convierte libros en experiencias conversacionales con Gemini, RAG, memoria narrativa, voz y herramientas para lectores/publishers.
+- Track principal: Track 3 - Refactor for Google Cloud Marketplace & Gemini Enterprise.
+- Evidencia secundaria: Track 2 - Optimize Existing Agents, usado para demostrar calidad, evaluacion, guardrails y mejora before/after.
+- Producto objetivo: plataforma multi-agente que convierte libros y catalogos editoriales en experiencias conversacionales con Gemini, RAG, memoria narrativa, modo canon, modo ficcion, voz y herramientas para lectores, publishers y superadmin.
 - Entrega objetivo: demo de 1-2 minutos en ingles, arquitectura Cloud Run + Gemini + Cloud SQL/pgvector + capa ADK/Agent layer, evaluacion de calidad y documentacion tecnica clara.
 
 ## Reglas de separacion
 
 - No copiar codigo de otros proyectos.
+- La app original puede leerse como referencia del producto real, pero no se copia deuda tecnica ni configuracion antigua.
 - No traer deuda tecnica conocida: secretos, credenciales demo, nombres legacy, wrappers confusos o configuraciones inconsistentes.
 - No usar rutas, IDs, servicios, cuentas o datos de otros proyectos.
 - Toda decision importante debe quedar documentada en `docs/adr`.
@@ -54,7 +56,11 @@ flowchart LR
 5. Leer `docs/agents/01-agent-architecture.md`.
 6. Leer `docs/cloud/01-target-architecture.md`.
 7. Leer `docs/evaluation/01-evaluation-plan.md`.
-8. Leer `docs/08-original-app-track3-analysis.md` para entender como conectar la app real de libros y Don Quijote.
+8. Leer `docs/product/04-original-product-model.md` para entender el producto real.
+9. Leer `docs/track3/01-track3-marketplace-strategy.md` para entender la estrategia Track 3.
+10. Leer `docs/agents/04-platform-agent-operating-model.md` para entender la capa de agentes objetivo.
+11. Leer `docs/09-real-platform-implementation-plan.md` para saber que implementar primero.
+12. Leer `docs/08-original-app-track3-analysis.md` para contexto de la app original y Don Quijote.
 
 ## Estado actual
 
@@ -74,6 +80,8 @@ Ya existe una API FastAPI con demo web para jueces, agente raiz ADK-first, agent
 especializados, Cloud SQL PostgreSQL con pgvector, embeddings `gemini-embedding-001`
 via Vertex AI, Character Agent con `gemini-2.5-flash`, trazas por agente y
 evaluacion before/after para Track 2.
+
+La direccion actual es evolucionar esta base hacia la app real: upload/analisis de libros, lector, personajes con modo canon y modo ficcion, escena/grupo, voz/narracion, publisher dashboard y superadmin. Don Quijote debe usarse como caso demo principal, pero el producto es la plataforma de catalogos interactivos.
 
 La demo cubre:
 

@@ -6,10 +6,22 @@ Este archivo es el punto de entrada para cualquier agente nuevo. Si solo tienes 
 
 Estamos creando un proyecto nuevo, aislado y autocontenido para el Google for Startups AI Agents Challenge.
 
-- Track: Track 2 - Optimize Existing Agents.
+- Track principal: Track 3 - Refactor for Google Cloud Marketplace & Gemini Enterprise.
+- Track secundario/evidencia: Track 2 - Optimize Existing Agents.
 - Entrega: repositorio publico, descripcion en ingles, arquitectura con diagrama, video demo de 1-2 minutos en ingles y demo funcional para jueces.
 - Regla critica: no usar codigo, configuracion, datos, rutas, IDs ni recursos de otros proyectos.
-- Nueva conclusion de producto: la demo debe pivotar hacia la app real `Stormsboys_libros/libros-ia-app` y Don Quijote sin copiar codigo a ciegas; ver `docs/08-original-app-track3-analysis.md`.
+- Nueva conclusion de producto: no estamos construyendo solo una demo de Don Quijote. Estamos reconstruyendo de forma limpia la plataforma real de libros interactivos: upload, analisis Gemini, personajes con psicologia, modo canon, modo ficcion, lector, escena/grupo, voz, publisher y superadmin.
+- Don Quijote es el caso demo principal por ser reconocible y de dominio publico.
+
+## Lectura Obligatoria Para Otro Agente
+
+1. `AGENTS.md`
+2. `docs/product/04-original-product-model.md`
+3. `docs/track3/01-track3-marketplace-strategy.md`
+4. `docs/agents/04-platform-agent-operating-model.md`
+5. `docs/adr/0004-track-3-platform-refactor.md`
+6. `docs/09-real-platform-implementation-plan.md`
+7. `docs/08-original-app-track3-analysis.md`
 
 ## Estado Actual
 
@@ -32,6 +44,7 @@ Ya existe:
 - Dockerfile.
 - Scripts de smoke test y revision publica.
 - Documentacion de producto, agentes, cloud, evaluacion, demo, seguridad y submission.
+- Documentacion nueva de producto real, Track 3 y modelo operativo de agentes.
 - Cloud SQL PostgreSQL 16 con pgvector inicializado.
 - RetrievalAgent usa pgvector real cuando `DATABASE_URL` esta configurado y vuelve a memoria si falla.
 - Libro demo sembrado en Cloud SQL con 4 secciones y embeddings `gemini-embedding-001` via Vertex AI.
@@ -117,6 +130,11 @@ Ultima validacion local conocida:
 - `infra/cloud-run/deploy.sh`: despliegue protegido por `CONFIRM_DEPLOY=true`.
 - `docs/cloud/04-pronexus-credit-setup.md`: estado de facturacion/credito.
 - `docs/08-original-app-track3-analysis.md`: analisis de app original, Don Quijote, ADK y Track 3.
+- `docs/product/04-original-product-model.md`: definicion real del producto, roles y modos canon/ficcion.
+- `docs/track3/01-track3-marketplace-strategy.md`: estrategia Track 3 Marketplace/Gemini Enterprise.
+- `docs/agents/04-platform-agent-operating-model.md`: agentes objetivo para reconstruir la app.
+- `docs/adr/0004-track-3-platform-refactor.md`: decision formal de Track 3 principal.
+- `docs/09-real-platform-implementation-plan.md`: orden de implementacion desde demo sintetica hacia plataforma real.
 - `tests/test_api.py`: cobertura de endpoints.
 
 ## Endpoints
@@ -154,18 +172,22 @@ BASE_URL=https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app make smoke
 
 ## Prioridades Siguientes
 
-1. Conectar Gemini tambien a LiteraryAnalysisAgent o SceneOrchestratorAgent con el mismo patron seguro.
-2. Mejorar agentes para usar schemas estrictos y trazas mas utiles.
-3. Crear repo publico y limpiar metadatos.
-4. Grabar video demo 1-2 minutos en ingles.
-5. Completar testing access para jueces.
-6. Ampliar embeddings reales de Gemini a ingestion de libros subidos por usuario si se implementa upload completo.
+1. Reorientar UI/API desde libro sintetico hacia plataforma real con Don Quijote como caso demo.
+2. Implementar contrato explicito de modos `CANON` y `FICTION`.
+3. Separar memoria canon y memoria ficcion.
+4. Crear agentes nuevos o adaptar los existentes segun `docs/agents/04-platform-agent-operating-model.md`.
+5. Implementar publisher/admin como vista B2B Track 3, no solo panel decorativo.
+6. Conectar Gemini tambien a LiteraryAnalysisAgent o SceneOrchestratorAgent con schemas estrictos.
+7. Ampliar embeddings reales de Gemini a ingestion de libros subidos por usuario si se implementa upload completo.
+8. Grabar video demo 1-2 minutos en ingles al final.
 
 ## Trabajo Seguro Para Otro Agente
 
 Un agente puede trabajar en una de estas areas sin pisar a los demas:
 
 - Gemini integration: conectar agentes concretos a `src/storms_agents/tools/gemini.py`.
+- Product platform: modos canon/ficcion y roles segun `docs/product/04-original-product-model.md`.
+- Track 3: agent card/A2A readiness y B2B docs segun `docs/track3`.
 - Persistence demo: `src/storms_agents/storage` y tests nuevos.
 - Cloud scripts: `infra/cloud-run` y `scripts`.
 - Submission copy: `docs/submission`.

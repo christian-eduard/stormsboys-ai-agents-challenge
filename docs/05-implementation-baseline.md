@@ -17,7 +17,7 @@ El proyecto nuevo empieza con una capa Python-first para agentes porque ADK ofic
 
 La primera prueba funcional del proyecto expone:
 
-- Track elegido.
+- Track principal y evidencia secundaria.
 - Modo demo.
 - Regla de no mezclar proyectos.
 - Capa agentic ADK-first.
@@ -63,3 +63,13 @@ make dev
 - Publisher Insights Agent implementado.
 - Tests Docker/Python 3.11: 20.
 - Smoke publico pasa.
+
+## Cambio De Direccion
+
+La base tecnica sigue siendo valida, pero la direccion de producto cambia:
+
+- Track principal actual: Track 3.
+- Track 2 queda como evidencia de calidad.
+- La demo sintetica debe evolucionar hacia la plataforma real de libros.
+- Don Quijote sera caso demo principal.
+- Se debe implementar separacion canon/ficcion antes de presentar el producto como experiencia real.

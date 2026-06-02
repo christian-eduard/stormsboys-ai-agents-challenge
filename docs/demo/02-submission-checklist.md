@@ -54,7 +54,7 @@ Debe incluir:
 - [x] Solucion.
 - [x] Arquitectura.
 - [x] Tecnologias Google usadas.
-- [x] Track elegido.
+- [x] Track principal y evidencia secundaria.
 - [x] Caso de negocio.
 - [x] Que lo hace innovador.
 
@@ -62,6 +62,17 @@ Archivo base:
 
 - `docs/submission/01-devpost-description-en.md`
 - `docs/submission/05-devpost-fields-en.md`
+
+## Track 3 Evidence
+
+Debe incluir:
+
+- [x] Caso B2B para editoriales/catalogos.
+- [x] Cloud-native runtime.
+- [x] Gemini/Vertex como inteligencia central.
+- [ ] Agent card o A2A readiness.
+- [x] Marketplace/Gemini Enterprise narrative.
+- [ ] Separacion visible de modos canon/ficcion.
 
 ## Track 2 Evidence
 
