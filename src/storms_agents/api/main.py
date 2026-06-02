@@ -16,7 +16,7 @@ from storms_agents.agents.publisher_insights import PublisherInsightsAgent
 from storms_agents.agents.retrieval import RetrievalAgent
 from storms_agents.agents.scene_orchestrator import SceneOrchestratorAgent
 from storms_agents.config import get_settings
-from storms_agents.demo_data import DEMO_BOOK_ID, DEMO_BOOK_TEXT
+from storms_agents.demo_data import DEMO_BOOK_ID, DEMO_BOOK_TEXT, DEMO_BOOK_TITLE
 from storms_agents.evaluation import run_demo_evaluation
 from storms_agents.schemas import AgentStatus
 from storms_agents.storage.repository import StorageRepository
@@ -35,7 +35,7 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
 class CharacterChatRequest(BaseModel):
-    character_id: str = "mara"
+    character_id: str = "don_quijote"
     question: str
 
 
@@ -45,7 +45,7 @@ class SceneChatRequest(BaseModel):
 
 class NarrationRequest(BaseModel):
     scene_text: str = (
-        "Mara reads the lost names as the Silent Gate closes and Narael remembers."
+        "Don Quijote charges at the windmills while Sancho warns him from the road."
     )
 
 
@@ -67,7 +67,8 @@ def health() -> dict[str, str]:
 def challenge_readiness() -> dict[str, object]:
     gemini = GeminiTool().status
     return {
-        "track": "Track 2 - Optimize Existing Agents",
+        "track": "Track 3 - Refactor for Google Cloud Marketplace & Gemini Enterprise",
+        "trackEvidence": "Track 2 evaluation remains available for quality evidence.",
         "projectIsolation": "new-project-no-cross-project-code",
         "agentLayer": "adk-first-python",
         "gemini": gemini.__dict__,
@@ -104,6 +105,8 @@ def challenge_capabilities() -> dict[str, object]:
         "demoFlow": [
             "book analysis",
             "reader",
+            "canon character chat",
+            "fiction branch preparation",
             "character chat",
             "scene orchestration",
             "voice narration plan",
@@ -143,7 +146,7 @@ def challenge_storage_demo_seed() -> dict[str, object]:
             "sections": 0,
             "reason": status.detail,
         }
-    sections = storage.seed_demo_book(DEMO_BOOK_ID, "The Silent Gate")
+    sections = storage.seed_demo_book(DEMO_BOOK_ID, DEMO_BOOK_TITLE)
     return {
         "seeded": True,
         "bookId": DEMO_BOOK_ID,
@@ -155,7 +158,7 @@ def challenge_storage_demo_seed() -> dict[str, object]:
 @app.get("/api/v1/demo/book")
 def demo_book() -> dict[str, object]:
     ingestion = BookIngestionAgent().run(DEMO_BOOK_ID, DEMO_BOOK_TEXT)
-    analysis = LiteraryAnalysisAgent().run("The Silent Gate", ingestion.output)
+    analysis = LiteraryAnalysisAgent().run(DEMO_BOOK_TITLE, ingestion.output)
     return {
         "bookId": DEMO_BOOK_ID,
         "title": analysis.output.title,
@@ -166,7 +169,7 @@ def demo_book() -> dict[str, object]:
 
 @app.post("/api/v1/demo/chat/character")
 def demo_character_chat(request: CharacterChatRequest) -> dict[str, object]:
-    analysis = LiteraryAnalysisAgent().run("The Silent Gate", [DEMO_BOOK_TEXT]).output
+    analysis = LiteraryAnalysisAgent().run(DEMO_BOOK_TITLE, [DEMO_BOOK_TEXT]).output
     character = next(
         (item for item in analysis.characters if item.character_id == request.character_id),
         analysis.characters[0],
@@ -190,7 +193,7 @@ def demo_character_chat(request: CharacterChatRequest) -> dict[str, object]:
 
 @app.post("/api/v1/demo/chat/scene")
 def demo_scene_chat(request: SceneChatRequest) -> dict[str, object]:
-    analysis = LiteraryAnalysisAgent().run("The Silent Gate", [DEMO_BOOK_TEXT]).output
+    analysis = LiteraryAnalysisAgent().run(DEMO_BOOK_TITLE, [DEMO_BOOK_TEXT]).output
     retrieval = RetrievalAgent().run(
         DEMO_BOOK_ID,
         request.prompt,
@@ -215,7 +218,7 @@ def demo_narration(request: NarrationRequest) -> dict[str, object]:
 
 @app.get("/api/v1/demo/publisher")
 def demo_publisher() -> dict[str, object]:
-    analysis = LiteraryAnalysisAgent().run("The Silent Gate", [DEMO_BOOK_TEXT]).output
+    analysis = LiteraryAnalysisAgent().run(DEMO_BOOK_TITLE, [DEMO_BOOK_TEXT]).output
     evaluation = run_demo_evaluation()
     summary = {
         "totalCases": evaluation.total_cases,
@@ -235,7 +238,7 @@ def demo_publisher() -> dict[str, object]:
 def demo_evaluation() -> dict[str, object]:
     report = run_demo_evaluation()
     return {
-        "track": "Track 2 - Optimize Existing Agents",
+        "track": "Track 3 primary, Track 2 quality evidence",
         "summary": {
             "totalCases": report.total_cases,
             "baselinePassed": report.baseline_passed,

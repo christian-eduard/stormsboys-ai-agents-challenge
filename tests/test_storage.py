@@ -27,7 +27,7 @@ def test_storage_schema_contains_pgvector_contract() -> None:
 
 
 def test_demo_embedding_contract() -> None:
-    embedding = demo_embedding("Sarin protects the lost names.")
+    embedding = demo_embedding("Don Quijote attacks the windmills.")
 
     assert len(embedding) == 768
     assert vector_literal(embedding).startswith("[")
@@ -37,7 +37,7 @@ def test_demo_embedding_contract() -> None:
 def test_embedding_provider_falls_back_without_google_config() -> None:
     provider = EmbeddingProvider(Settings(google_api_key=None, google_cloud_project=None))
 
-    generated = provider.embed_query("Why does Sarin protect the lost names?")
+    generated = provider.embed_query("Why does Don Quijote attack the windmills?")
 
     assert provider.status.mode == "demo-fallback"
     assert generated.model == DEMO_EMBEDDING_MODEL

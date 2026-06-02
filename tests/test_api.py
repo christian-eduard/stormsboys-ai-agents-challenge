@@ -29,7 +29,7 @@ def test_challenge_readiness() -> None:
     response = client.get("/api/v1/challenge/readiness")
     assert response.status_code == 200
     body = response.json()
-    assert body["track"] == "Track 2 - Optimize Existing Agents"
+    assert body["track"] == "Track 3 - Refactor for Google Cloud Marketplace & Gemini Enterprise"
     assert body["projectIsolation"] == "new-project-no-cross-project-code"
     assert body["gemini"]["mode"] in {"gemini", "demo-fallback"}
 
@@ -42,6 +42,7 @@ def test_challenge_capabilities() -> None:
     assert body["judgingCriteria"]["technicalImplementation"] == "30%"
     assert "Cloud Run" in body["googleCloudTarget"]
     assert "voice narration plan" in body["demoFlow"]
+    assert "canon character chat" in body["demoFlow"]
 
 
 def test_demo_book() -> None:
@@ -49,7 +50,8 @@ def test_demo_book() -> None:
     response = client.get("/api/v1/demo/book")
     assert response.status_code == 200
     body = response.json()
-    assert body["bookId"] == "demo-book"
+    assert body["bookId"] == "don-quijote"
+    assert body["title"] == "Don Quijote de la Mancha"
     assert len(body["analysis"]["characters"]) == 3
     assert body["traces"]
 
@@ -58,11 +60,11 @@ def test_demo_character_chat() -> None:
     client = TestClient(app)
     response = client.post(
         "/api/v1/demo/chat/character",
-        json={"character_id": "sarin", "question": "Why do you protect the lost names?"},
+        json={"character_id": "don_quijote", "question": "Why do you attack the windmills?"},
     )
     assert response.status_code == 200
     body = response.json()
-    assert body["reply"]["character_id"] == "sarin"
+    assert body["reply"]["character_id"] == "don_quijote"
     assert body["consistency"]["checks"]["has_grounding"] is True
     assert body["traces"]
 
@@ -71,7 +73,7 @@ def test_demo_scene_chat() -> None:
     client = TestClient(app)
     response = client.post(
         "/api/v1/demo/chat/scene",
-        json={"prompt": "Discuss who made the hardest choice at the Silent Gate."},
+        json={"prompt": "Discuss whether the windmills are giants or only windmills."},
     )
     assert response.status_code == 200
     body = response.json()
@@ -83,7 +85,7 @@ def test_demo_narration() -> None:
     client = TestClient(app)
     response = client.post(
         "/api/v1/demo/narration",
-        json={"scene_text": "Mara reads the lost names at the Silent Gate."},
+        json={"scene_text": "Don Quijote charges at the windmills while Sancho warns him."},
     )
     assert response.status_code == 200
     body = response.json()
@@ -107,7 +109,7 @@ def test_demo_evaluation() -> None:
     response = client.get("/api/v1/demo/evaluation")
     assert response.status_code == 200
     body = response.json()
-    assert body["track"] == "Track 2 - Optimize Existing Agents"
+    assert body["track"] == "Track 3 primary, Track 2 quality evidence"
     assert body["summary"]["totalCases"] == 12
     assert body["summary"]["optimizedPassed"] >= body["summary"]["baselinePassed"]
     assert len(body["cases"]) == 12

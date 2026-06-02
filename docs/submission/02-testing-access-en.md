@@ -12,7 +12,7 @@ No credentials required for the challenge demo.
 
 1. Open the demo URL.
 2. Review the preloaded demo book.
-3. Ask Sarin: "Why do you protect the lost names?"
+3. Ask Don Quijote: "Why do you attack the windmills?"
 4. Confirm the trace shows `retrieval.pgvector_search`, `CharacterAgent`, and `NarrativeConsistencyAgent`.
 5. Run the out-of-canon test.
 6. Open the scene/group chat.

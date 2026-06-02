@@ -1,4 +1,5 @@
 from storms_agents.agents.base import AgentResult
+from storms_agents.demo_data import DEMO_BOOK_TITLE
 from storms_agents.observability import trace_span
 from storms_agents.schemas import BookAnalysis, CharacterProfile
 
@@ -9,42 +10,74 @@ class LiteraryAnalysisAgent:
     def run(self, title: str, sections: list[str]) -> AgentResult[BookAnalysis]:
         with trace_span(self.name, "book.analyze") as trace:
             analysis = BookAnalysis(
-                title=title,
+                title=title or DEMO_BOOK_TITLE,
                 summary=(
-                    "A young archivist, a skeptical clockmaker, and an ink guardian "
-                    "must decide whether memory should be protected or returned."
+                    "A hidalgo from La Mancha transforms himself into Don Quijote, "
+                    "a knight-errant guided by chivalric ideals. With Sancho Panza "
+                    "beside him, the story turns the conflict between imagination, "
+                    "honor, loyalty, and ordinary reality into a living literary world."
                 ),
                 characters=[
                     CharacterProfile(
-                        character_id="mara",
-                        name="Mara",
-                        description="Young archivist who believes memory belongs to people.",
-                        personality="curious, brave, careful with power",
-                        goals=["Return the lost names", "Protect Narael"],
-                        constraints=["Does not claim knowledge beyond the story"],
+                        character_id="don_quijote",
+                        name="Don Quijote",
+                        description=(
+                            "A noble hidalgo who reinvents himself as a knight-errant "
+                            "and interprets the world through chivalric ideals."
+                        ),
+                        personality="idealistic, solemn, brave, stubborn, imaginative",
+                        goals=[
+                            "Defend honor",
+                            "Serve Dulcinea",
+                            "Transform ordinary events into knightly adventures",
+                        ],
+                        constraints=[
+                            "Must not admit future events as canon unless grounded",
+                            "Interprets reality through chivalric imagination",
+                        ],
                     ),
                     CharacterProfile(
-                        character_id="eloy",
-                        name="Eloy",
-                        description="Skeptical clockmaker who trusts mechanisms before miracles.",
-                        personality="practical, doubtful, loyal when convinced",
-                        goals=["Understand the warning", "Keep Mara alive"],
-                        constraints=["Avoids mystical certainty"],
+                        character_id="sancho_panza",
+                        name="Sancho Panza",
+                        description=(
+                            "A practical farmer and squire who follows Don Quijote with "
+                            "loyalty, appetite, doubt, and common sense."
+                        ),
+                        personality="earthy, loyal, humorous, cautious, proverb-loving",
+                        goals=[
+                            "Stay alive",
+                            "Understand his master's visions",
+                            "Seek the promised insula",
+                        ],
+                        constraints=[
+                            "Speaks from practical observation",
+                            "Does not casually share Don Quijote's delusions",
+                        ],
                     ),
                     CharacterProfile(
-                        character_id="sarin",
-                        name="Sarin",
-                        description="Guardian made of ink and shadow protecting the lost names.",
-                        personality="solemn, protective, bound by duty",
-                        goals=["Prevent memory from becoming power"],
-                        constraints=["Cannot casually betray the names"],
+                        character_id="dulcinea",
+                        name="Dulcinea del Toboso",
+                        description=(
+                            "The idealized lady of Don Quijote's imagination, born from "
+                            "his transformation of Aldonza Lorenzo into a chivalric muse."
+                        ),
+                        personality="idealized, distant, symbolic, graceful in Don Quijote's mind",
+                        goals=[
+                            "Represent the ideal Don Quijote serves",
+                            "Anchor his chivalric identity",
+                        ],
+                        constraints=[
+                            "Her direct presence is limited by the book context",
+                            "Should be treated as an idealized figure unless evidence grounds more",
+                        ],
                     ),
                 ],
-                places=["Narael", "Underground archive", "Silent Gate"],
+                places=["La Mancha", "El Toboso", "Windmill field", "The inn"],
                 scenes=[
-                    "The forbidden volume answers Mara",
-                    "The tower bells ring without hands",
-                    "The confrontation at the Silent Gate",
+                    "Alonso Quijano becomes Don Quijote",
+                    "Sancho Panza joins as squire",
+                    "Don Quijote charges the windmills",
+                    "Don Quijote explains the defeat through enchantment",
                 ],
             )
             trace.input_tokens = sum(len(section.split()) for section in sections)

@@ -15,12 +15,12 @@ curl --fail --silent "${BASE_URL}/api/v1/demo/publisher" >/dev/null
 curl --fail --silent \
   -X POST "${BASE_URL}/api/v1/demo/chat/character" \
   -H "content-type: application/json" \
-  -d '{"character_id":"sarin","question":"Why do you protect the lost names?"}' \
+  -d '{"character_id":"don_quijote","question":"Why do you attack the windmills?"}' \
   >/dev/null
 curl --fail --silent \
   -X POST "${BASE_URL}/api/v1/demo/narration" \
   -H "content-type: application/json" \
-  -d '{"scene_text":"Mara reads the lost names as the Silent Gate closes."}' \
+  -d '{"scene_text":"Don Quijote charges at the windmills while Sancho warns him."}' \
   >/dev/null
 
 echo "Smoke test passed for ${BASE_URL}"

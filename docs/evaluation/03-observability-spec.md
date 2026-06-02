@@ -12,7 +12,7 @@ Cada interaccion importante debe poder explicarse despues: que agente actuo, que
   "spanId": "span_456",
   "agent": "CharacterAgent",
   "operation": "generate_reply",
-  "bookId": "demo-book",
+  "bookId": "don-quijote",
   "conversationId": "conv_123",
   "model": "gemini",
   "status": "success",

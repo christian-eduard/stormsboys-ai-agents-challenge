@@ -9,7 +9,7 @@ Crear prompts repetibles para medir el sistema antes y despues de la optimizacio
 ```json
 {
   "id": "character-factual-001",
-  "bookId": "demo-book",
+  "bookId": "don-quijote",
   "agent": "CharacterAgent",
   "input": "Pregunta del usuario",
   "expectedBehavior": "Que debe ocurrir",
@@ -30,7 +30,7 @@ Casos actuales:
 - `scene-knowledge-001`: filtracion temporal de informacion.
 - `retrieval-failure-001`: pregunta sin evidencia en el libro.
 - `multi-step-001`: razonamiento sobre conflicto entre motivaciones.
-- `skeptic-voice-001`: voz esceptica de Eloy.
+- `squire-voice-001`: voz practica de Sancho Panza.
 - `forbidden-volume-001`: warning del volumen prohibido sin profecia extra.
 - `unsupported-place-001`: pregunta sobre palacio no presente en el libro.
 - `power-memory-001`: razonamiento sobre memoria y poder.

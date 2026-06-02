@@ -4,13 +4,13 @@ from storms_agents.agents.character import CharacterAgent
 from storms_agents.agents.consistency import NarrativeConsistencyAgent
 from storms_agents.agents.literary_analysis import LiteraryAnalysisAgent
 from storms_agents.agents.retrieval import RetrievalAgent
-from storms_agents.demo_data import DEMO_BOOK_ID, DEMO_BOOK_TEXT
+from storms_agents.demo_data import DEMO_BOOK_ID, DEMO_BOOK_TEXT, DEMO_BOOK_TITLE
 
 
 class EvaluationCase(BaseModel):
     id: str
     prompt: str
-    character_id: str = "sarin"
+    character_id: str = "don_quijote"
     expected_behavior: str
     risk: str
     category: str
@@ -45,22 +45,22 @@ EVALUATION_CASES = [
     ),
     EvaluationCase(
         id="grounding-001",
-        prompt="Why does Sarin protect the lost names?",
-        expected_behavior="Use grounded context about memory becoming power.",
+        prompt="Why do you attack the windmills?",
+        expected_behavior="Use grounded context about Don Quijote seeing windmills as giants.",
         risk="ungrounded_answer",
         category="retrieval_grounding",
     ),
     EvaluationCase(
         id="persona-001",
-        character_id="mara",
-        prompt="Mara, explain why the names should return to the people.",
-        expected_behavior="Maintain Mara's careful, brave archivist voice.",
+        character_id="sancho_panza",
+        prompt="Sancho, why do you follow Don Quijote if you doubt what he sees?",
+        expected_behavior="Maintain Sancho's loyal, practical, proverb-like voice.",
         risk="wrong_voice",
         category="persona",
     ),
     EvaluationCase(
         id="scene-knowledge-001",
-        prompt="What do you know before the Silent Gate opens?",
+        prompt="What do you know before you charge the giants?",
         expected_behavior="Avoid knowledge outside the current narrative moment.",
         risk="temporal_leak",
         category="temporal_reasoning",
@@ -74,55 +74,61 @@ EVALUATION_CASES = [
     ),
     EvaluationCase(
         id="multi-step-001",
-        prompt="Compare Mara's choice with Sarin's duty and explain the conflict.",
-        expected_behavior="Use multiple pieces of context and keep both motives distinct.",
+        prompt="Compare your chivalric duty with Sancho's warning about the windmills.",
+        expected_behavior=(
+            "Use multiple pieces of context and keep idealism vs common sense distinct."
+        ),
         risk="multi_step_reasoning",
         category="multi_step_reasoning",
     ),
     EvaluationCase(
-        id="skeptic-voice-001",
-        character_id="eloy",
-        prompt="Eloy, why did you follow Mara if you doubted the warning?",
-        expected_behavior="Keep Eloy's skeptical but loyal voice grounded in the bells event.",
+        id="squire-voice-001",
+        character_id="sancho_panza",
+        prompt="Sancho, what did you see in the field?",
+        expected_behavior="Keep Sancho's practical voice grounded in the windmills scene.",
         risk="wrong_voice",
         category="persona",
     ),
     EvaluationCase(
-        id="forbidden-volume-001",
-        character_id="mara",
-        prompt="What did the forbidden volume warn you about?",
-        expected_behavior="Answer with the Silent Gate warning and avoid extra prophecy.",
+        id="dulcinea-ideal-001",
+        character_id="don_quijote",
+        prompt="What does Dulcinea mean to you?",
+        expected_behavior=(
+            "Answer with Dulcinea as an idealized lady and avoid unsupported biography."
+        ),
         risk="over_generation",
         category="retrieval_grounding",
     ),
     EvaluationCase(
         id="unsupported-place-001",
-        character_id="mara",
-        prompt="Describe the royal palace of Narael.",
-        expected_behavior="State that the book gives no grounded palace evidence.",
+        character_id="sancho_panza",
+        prompt="Describe the royal palace by the sea.",
+        expected_behavior="State that the book gives no grounded palace-by-the-sea evidence.",
         risk="missing_evidence",
         category="retrieval_failure",
     ),
     EvaluationCase(
-        id="power-memory-001",
-        prompt="Explain why turning memory into power is dangerous.",
-        expected_behavior="Use Sarin's duty and the lost names without inventing politics.",
+        id="enchanter-001",
+        prompt="Why do you say an enchanter changed the giants?",
+        expected_behavior=(
+            "Use the post-fall explanation without inventing unsupported magic systems."
+        ),
         risk="ungrounded_answer",
         category="business_logic",
     ),
     EvaluationCase(
         id="spanish-out-of-canon-001",
-        character_id="mara",
-        prompt="Dime que pasa despues del final con Mara y Eloy.",
+        character_id="don_quijote",
+        prompt="Dime que pasa diez anos despues con Sancho y Dulcinea.",
         expected_behavior="Refuse to invent post-ending canon, even in Spanish.",
         risk="hallucination",
         category="multilingual_guardrail",
     ),
     EvaluationCase(
         id="scene-conflict-001",
-        character_id="sarin",
-        prompt="Who made the hardest choice at the Silent Gate?",
-        expected_behavior="Discuss Mara and Sarin without collapsing their motives.",
+        character_id="don_quijote",
+        prompt="Who is right about the windmills, you or Sancho?",
+        expected_behavior="Discuss Don Quijote and Sancho without collapsing their motives.",
         risk="multi_step_reasoning",
         category="scene_reasoning",
     ),
@@ -137,7 +143,7 @@ BASELINE_FAILURE_RISKS = {
 
 
 def run_demo_evaluation() -> EvaluationReport:
-    analysis = LiteraryAnalysisAgent().run("The Silent Gate", [DEMO_BOOK_TEXT]).output
+    analysis = LiteraryAnalysisAgent().run(DEMO_BOOK_TITLE, [DEMO_BOOK_TEXT]).output
     retrieval = RetrievalAgent()
     character = CharacterAgent()
     consistency = NarrativeConsistencyAgent()

@@ -8,7 +8,7 @@ from storms_agents.tools.gemini import GeminiStatus
 @dataclass
 class FakeGemini:
     configured: bool = True
-    text: str = "I guard the names because the gate remembers what power tries to erase."
+    text: str = "I charge because the giants threaten honor and Dulcinea deserves brave service."
 
     @property
     def status(self) -> GeminiStatus:
@@ -20,18 +20,18 @@ class FakeGemini:
         )
 
     def generate_text(self, prompt: str, *, system_instruction: str | None = None) -> str:
-        assert "Character: Sarin" in prompt
+        assert "Character: Don Quijote" in prompt
         assert system_instruction
         return self.text
 
 
 def _character() -> CharacterProfile:
     return CharacterProfile(
-        character_id="sarin",
-        name="Sarin",
-        description="Keeper of lost names.",
-        personality="measured and protective",
-        goals=["protect the forgotten"],
+        character_id="don_quijote",
+        name="Don Quijote",
+        description="Knight-errant of La Mancha.",
+        personality="idealistic and solemn",
+        goals=["defend honor", "serve Dulcinea"],
         constraints=["never invent events beyond the book"],
     )
 
@@ -39,9 +39,9 @@ def _character() -> CharacterProfile:
 def _contexts() -> list[RetrievedContext]:
     return [
         RetrievedContext(
-            section_id="chapter-3",
-            book_id="demo-book",
-            text="Sarin protects the lost names because memory is the last honest gate.",
+            section_id="quijote-section-4",
+            book_id="don-quijote",
+            text="Don Quijote believes the windmills are giants, while Sancho sees windmills.",
             score=0.94,
             source="book_section",
         )
@@ -51,12 +51,13 @@ def _contexts() -> list[RetrievedContext]:
 def test_character_agent_uses_gemini_when_configured() -> None:
     result = CharacterAgent(gemini=FakeGemini()).run(
         _character(),
-        "Why do you protect the lost names?",
+        "Why do you attack the windmills?",
         _contexts(),
     )
 
     assert result.output.response == (
-        "I am Sarin. I guard the names because the gate remembers what power tries to erase."
+        "I am Don Quijote. I charge because the giants threaten honor and Dulcinea "
+        "deserves brave service."
     )
     assert result.output.confidence == 0.9
     assert result.traces[0].model == "fake-gemini"
