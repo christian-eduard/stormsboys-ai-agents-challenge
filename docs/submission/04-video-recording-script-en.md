@@ -20,7 +20,7 @@ Target length: 90 seconds.
 
 "Stormsboys turns books into interactive multi-agent worlds. Instead of a passive ebook, readers can talk to characters, explore scenes, and publishers can measure narrative engagement."
 
-Show the reader panel with The Silent Gate.
+Show the reader panel with Don Quijote de la Mancha.
 
 ### 0:10-0:25 Book Analysis
 
@@ -33,12 +33,12 @@ Point at characters, places, and scenes counters.
 Click `Ask character` with:
 
 ```txt
-Why do you protect the lost names?
+Why do you attack the windmills?
 ```
 
 Say:
 
-"This is not a generic chatbot. The Character Agent answers as Sarin, while the Retrieval Agent grounds the response in the book and the consistency agent checks narrative faithfulness."
+"This is not a generic chatbot. The Character Agent answers as Don Quijote, while the Retrieval Agent grounds the response in the book and the consistency agent checks narrative faithfulness."
 
 Point at the trace list.
 

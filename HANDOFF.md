@@ -47,7 +47,7 @@ Ya existe:
 - Documentacion nueva de producto real, Track 3 y modelo operativo de agentes.
 - Cloud SQL PostgreSQL 16 con pgvector inicializado.
 - RetrievalAgent usa pgvector real cuando `DATABASE_URL` esta configurado y vuelve a memoria si falla.
-- Libro demo sembrado en Cloud SQL con 4 secciones y embeddings `gemini-embedding-001` via Vertex AI.
+- Libro demo Don Quijote sembrado en Cloud SQL con 5 secciones y embeddings `gemini-embedding-001` via Vertex AI.
 - Panel web `Runtime proof` con estado Gemini, Cloud SQL/pgvector, seed y ultima traza de retrieval.
 
 ## Comandos Basicos
@@ -89,7 +89,7 @@ Ultima validacion local conocida:
 - Billing Pronexus enlazado.
 - Budget guardrail de 50 EUR creado.
 - Cloud Run desplegado: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
-- Revision Cloud Run activa: `stormsboys-agents-api-00011-xds`.
+- Revision Cloud Run activa: `stormsboys-agents-api-00013-5lk`.
 - Cloud Run usa service account nueva: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - No hay claves JSON de usuario ni credenciales antiguas en el runtime.
 - Cloud SQL instance: `stormsboys-pgvector`.
@@ -98,13 +98,13 @@ Ultima validacion local conocida:
 - Secret: `stormsboys-database-url`.
 - Cloud Run Job de schema: `stormsboys-storage-init`.
 - `/api/v1/challenge/storage`: `configured=true`, `pgvector_ready=true`.
-- `/api/v1/challenge/storage/demo-seed`: `seeded=true`, `sections=4`.
+- `/api/v1/challenge/storage/demo-seed`: `seeded=true`, `bookId=don-quijote`, `sections=5`.
 - Embeddings publicos confirmados: `mode=gemini-embedding`, `model=gemini-embedding-001`, `vertexai=true`.
 - Traza publica confirmada: `RetrievalAgent` usa `retrieval.pgvector_search`.
 - Chat publico confirmado: `CharacterAgent` usa `gemini-2.5-flash` y `NarrativeConsistencyAgent` pasa.
 - Narration publico confirmado: `VoiceNarrationAgent`, SSML y `ready_for_tts=true`.
 - Publisher publico confirmado: `PublisherInsightsAgent`, engagement y quality `100%`.
-- Smoke test publico confirmado el 2026-06-02 contra revision `stormsboys-agents-api-00011-xds`.
+- Smoke test publico confirmado el 2026-06-02 contra revision `stormsboys-agents-api-00013-5lk`.
 - Nota local: `.venv` usa Python 3.14 en este Mac y `pytest` puede quedarse colgado al arrancar importaciones de dependencias Google. Para validacion fiable usa Docker/Python 3.11, que coincide con Cloud Run.
 
 ## Mapa De Codigo

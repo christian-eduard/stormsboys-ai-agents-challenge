@@ -45,11 +45,11 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 
 - Service: `stormsboys-agents-api`.
 - Region: `us-central1`.
-- Revision: `stormsboys-agents-api-00011-xds`.
+- Revision: `stormsboys-agents-api-00013-5lk`.
 - Runtime service account: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - URL canonica: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
 - URL alternativa: `https://stormsboys-agents-api-425710112361.us-central1.run.app`.
-- Trafico: 100% a la revision `stormsboys-agents-api-00011-xds`.
+- Trafico: 100% a la revision `stormsboys-agents-api-00013-5lk`.
 - Smoke test publico: pasa el 2026-06-02.
 - Character Agent usa Gemini/Vertex real con identidad gestionada y fallback seguro.
 - Cloud Run monta Cloud SQL via `run.googleapis.com/cloudsql-instances`.
@@ -73,7 +73,7 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 - Endpoint de verificacion: `/api/v1/challenge/storage`.
 - Estado verificado: `configured=true`, `provider=cloud-sql-postgresql`, `pgvector_ready=true`.
 - Endpoint de seed: `/api/v1/challenge/storage/demo-seed`.
-- Seed verificado: `seeded=true`, `sections=4`.
+- Seed verificado: `seeded=true`, `bookId=don-quijote`, `sections=5`.
 - Retrieval verificado: traza `retrieval.pgvector_search`.
 - Chat publico verificado: `CharacterAgent` usa `gemini-2.5-flash` y consistencia pasa.
 - Narration publico verificado: `VoiceNarrationAgent`, SSML y `ready_for_tts=true`.
