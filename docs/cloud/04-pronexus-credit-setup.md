@@ -45,11 +45,11 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 
 - Service: `stormsboys-agents-api`.
 - Region: `us-central1`.
-- Revision: `stormsboys-agents-api-00013-5lk`.
+- Revision: `stormsboys-agents-api-00014-cfj`.
 - Runtime service account: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - URL canonica: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
 - URL alternativa: `https://stormsboys-agents-api-425710112361.us-central1.run.app`.
-- Trafico: 100% a la revision `stormsboys-agents-api-00013-5lk`.
+- Trafico: 100% a la revision `stormsboys-agents-api-00014-cfj`.
 - Smoke test publico: pasa el 2026-06-02.
 - Character Agent usa Gemini/Vertex real con identidad gestionada y fallback seguro.
 - Cloud Run monta Cloud SQL via `run.googleapis.com/cloudsql-instances`.
