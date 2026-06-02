@@ -48,12 +48,12 @@ flowchart LR
 
 - Project ID: `stormsboys-agents-20260602`.
 - Region: `us-central1`.
-- Cloud Run revision activa: `stormsboys-agents-api-00019-dk2`.
+- Cloud Run revision activa: `stormsboys-agents-api-00020-tvn`.
 - Public demo: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
 - Cloud SQL/pgvector: listo.
 - Embeddings: `gemini-embedding-001` via Vertex AI.
 - Character generation: `gemini-2.5-flash` via Vertex AI.
-- Tests: 33.
+- Tests: 37.
 
 ## Requisito De Demo
 
