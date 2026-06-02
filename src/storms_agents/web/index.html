@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Stormsboys AI Agents Challenge</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar" aria-label="Demo navigation">
+        <div class="brand">
+          <span class="brand-mark">S</span>
+          <div>
+            <h1>Stormsboys</h1>
+            <p>AI Agents Challenge</p>
+          </div>
+        </div>
+
+        <nav class="nav-list">
+          <a href="#reader" class="active">Reader</a>
+          <a href="#agents">Agents</a>
+          <a href="#publisher">Publisher</a>
+          <a href="#evaluation">Evaluation</a>
+          <a href="#runtime">Runtime</a>
+          <a href="#architecture">Architecture</a>
+        </nav>
+
+        <section class="status-panel">
+          <span class="status-dot"></span>
+          <div>
+            <strong>Track 2</strong>
+            <p>Optimize Existing Agents</p>
+          </div>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Judge demo</p>
+            <h2>Multi-agent literary intelligence</h2>
+          </div>
+          <button id="refreshDemo" class="icon-button" title="Refresh demo data" aria-label="Refresh demo data">
+            <span>R</span>
+          </button>
+        </header>
+
+        <section id="reader" class="reader-grid">
+          <div class="book-visual">
+            <img src="/static/silent-gate-cover.svg" alt="The Silent Gate cover" />
+          </div>
+
+          <div class="book-summary">
+            <p class="eyebrow">Demo book</p>
+            <h3 id="bookTitle">Loading book...</h3>
+            <p id="bookSummary">Preparing literary analysis.</p>
+
+            <div class="metric-row">
+              <div>
+                <strong id="characterCount">0</strong>
+                <span>Characters</span>
+              </div>
+              <div>
+                <strong id="placeCount">0</strong>
+                <span>Places</span>
+              </div>
+              <div>
+                <strong id="sceneCount">0</strong>
+                <span>Scenes</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="agents" class="split-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Character Agent</p>
+                <h3>Grounded character chat</h3>
+              </div>
+              <select id="characterSelect" aria-label="Select character"></select>
+            </div>
+
+            <label class="field-label" for="questionInput">Prompt</label>
+            <textarea id="questionInput" rows="3">Why do you protect the lost names?</textarea>
+
+            <div class="button-row">
+              <button id="askCharacter">Ask character</button>
+              <button id="askFuture" class="secondary">Out-of-canon test</button>
+            </div>
+
+            <article class="response-box" id="characterResponse">
+              Select a character and run the demo prompt.
+            </article>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Scene Orchestrator</p>
+                <h3>Multi-character response</h3>
+              </div>
+            </div>
+
+            <label class="field-label" for="scenePrompt">Scene prompt</label>
+            <textarea id="scenePrompt" rows="3">Discuss who made the hardest choice at the Silent Gate.</textarea>
+
+            <div class="button-row">
+              <button id="runScene">Run scene</button>
+            </div>
+
+            <div class="scene-list" id="sceneResponse"></div>
+          </div>
+        </section>
+
+        <section id="publisher" class="split-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Voice / Narration Agent</p>
+                <h3>Scene narration plan</h3>
+              </div>
+              <button id="runNarration" class="secondary">Prepare</button>
+            </div>
+
+            <label class="field-label" for="narrationInput">Scene text</label>
+            <textarea id="narrationInput" rows="3">Mara reads the lost names as the Silent Gate closes and Narael remembers.</textarea>
+
+            <article class="response-box" id="narrationResponse">
+              Prepare a short narration script for text-to-speech handoff.
+            </article>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Publisher Insights Agent</p>
+                <h3>Admin value view</h3>
+              </div>
+              <button id="runPublisher" class="secondary">Analyze</button>
+            </div>
+
+            <div class="publisher-metrics" id="publisherMetrics">
+              <div>
+                <strong>Waiting</strong>
+                <span>Engagement</span>
+              </div>
+              <div>
+                <strong>Waiting</strong>
+                <span>Quality</span>
+              </div>
+            </div>
+            <div class="scene-list" id="publisherResponse"></div>
+          </div>
+        </section>
+
+        <section class="split-grid">
+          <div id="evaluation" class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Track 2 evidence</p>
+                <h3>Before / after evaluation</h3>
+              </div>
+              <button id="runEvaluation" class="secondary">Run</button>
+            </div>
+            <div id="evaluationResults" class="evaluation-list"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Observability</p>
+                <h3>Agent trace</h3>
+              </div>
+            </div>
+            <div id="traceList" class="trace-list"></div>
+          </div>
+        </section>
+
+        <section id="runtime" class="runtime-grid">
+          <div class="panel runtime-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Runtime proof</p>
+                <h3>Google Cloud services</h3>
+              </div>
+            </div>
+            <div class="runtime-metrics">
+              <div>
+                <strong id="runtimeGemini">Loading</strong>
+                <span>Gemini</span>
+              </div>
+              <div>
+                <strong id="runtimeStorage">Loading</strong>
+                <span>Cloud SQL pgvector</span>
+              </div>
+              <div>
+                <strong id="runtimeSeed">Loading</strong>
+                <span>Demo book seed</span>
+              </div>
+              <div>
+                <strong id="runtimeRetrieval">Waiting</strong>
+                <span>Retrieval path</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="architecture" class="architecture-band">
+          <p class="eyebrow">Google Cloud target</p>
+          <div class="architecture-flow" aria-label="Architecture flow">
+            <span>Cloud Run Web</span>
+            <span>FastAPI</span>
+            <span>ADK Agent Layer</span>
+            <span>Gemini</span>
+            <span>Cloud SQL pgvector</span>
+            <span>Cloud Logging</span>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="/static/app.js" type="module"></script>
+  </body>
+</html>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 900" role="img" aria-label="The Silent Gate cover">
+  <defs>
+    <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#20344f"/>
+      <stop offset="0.48" stop-color="#24585c"/>
+      <stop offset="1" stop-color="#10151c"/>
+    </linearGradient>
+    <linearGradient id="gate" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#d9c89e"/>
+      <stop offset="1" stop-color="#8f7650"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="900" fill="url(#sky)"/>
+  <circle cx="506" cy="146" r="70" fill="#d6c48c" opacity="0.92"/>
+  <path d="M0 710 C130 650 221 760 352 704 C472 652 548 674 640 620 L640 900 L0 900 Z" fill="#0b1118"/>
+  <path d="M174 748 L174 348 C174 254 251 178 320 178 C389 178 466 254 466 348 L466 748 Z" fill="#121820" stroke="#d7c596" stroke-width="12"/>
+  <path d="M220 748 L220 368 C220 302 276 248 320 248 C364 248 420 302 420 368 L420 748 Z" fill="url(#gate)" opacity="0.9"/>
+  <path d="M320 248 L320 748" stroke="#3f2e22" stroke-width="8" opacity="0.65"/>
+  <path d="M244 444 L396 444 M244 552 L396 552 M244 660 L396 660" stroke="#3f2e22" stroke-width="6" opacity="0.48"/>
+  <path d="M92 210 C148 190 171 220 211 204 C258 185 298 151 352 174 C407 198 433 171 493 184" fill="none" stroke="#dfe7dc" stroke-width="10" stroke-linecap="round" opacity="0.55"/>
+  <text x="320" y="92" fill="#f4ead3" text-anchor="middle" font-family="Georgia, serif" font-size="44" letter-spacing="0">The Silent Gate</text>
+  <text x="320" y="840" fill="#f4ead3" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="24" letter-spacing="0">Demo Book</text>
+</svg>

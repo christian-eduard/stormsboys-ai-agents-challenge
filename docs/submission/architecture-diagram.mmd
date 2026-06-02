@@ -1,0 +1,29 @@
+flowchart LR
+  J["Judges / Readers"] --> WEB["Cloud Run Web Demo"]
+  WEB --> API["FastAPI API"]
+  API --> ROOT["ADK-first Agent Layer"]
+
+  ROOT --> BI["Book Ingestion Agent"]
+  ROOT --> LA["Literary Analysis Agent"]
+  ROOT --> RA["Retrieval Agent"]
+  ROOT --> CA["Character Agent"]
+  ROOT --> SO["Scene Orchestrator Agent"]
+  ROOT --> NC["Narrative Consistency Agent"]
+  ROOT --> VA["Voice Narration Agent"]
+  ROOT --> PI["Publisher Insights Agent"]
+
+  CA --> GEM["Gemini 2.5 Flash via Vertex AI"]
+  RA --> SQL["Cloud SQL PostgreSQL"]
+  SQL --> PGV["pgvector grounded retrieval"]
+  RA --> EMB["gemini-embedding-001 via Vertex AI"]
+  API --> SEC["Secret Manager"]
+  API --> LOG["Cloud Logging / Agent Traces"]
+  PI --> ADMIN["Publisher/Admin View"]
+
+  classDef cloud fill:#e8f1ff,stroke:#2c5f9e,color:#18202a;
+  classDef agent fill:#ecf8f3,stroke:#1f7a6d,color:#18202a;
+  classDef judge fill:#fff4df,stroke:#b78a3b,color:#18202a;
+
+  class J,ADMIN judge;
+  class WEB,API,GEM,SQL,PGV,EMB,SEC,LOG cloud;
+  class ROOT,BI,LA,RA,CA,SO,NC,VA,PI agent;

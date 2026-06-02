@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+dist/
+build/
+*.egg-info/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.jks
+*.p12
+service-account*.json
+credentials*.json
+
+# Node / frontend future
+node_modules/
+.next/
+out/
+
+# Local data
+data/private/
+data/uploads/
+data/audio/
+*.sqlite
+*.db
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+
