@@ -658,6 +658,16 @@ textarea {
   margin-top: 14px;
 }
 
+.operations-section {
+  margin-top: 18px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+
+.compact-header {
+  margin-bottom: 10px;
+}
+
 .role-list {
   gap: 12px;
 }

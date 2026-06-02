@@ -26,6 +26,8 @@ const els = {
   questionInput: document.querySelector("#questionInput"),
   askCharacter: document.querySelector("#askCharacter"),
   askFuture: document.querySelector("#askFuture"),
+  authorAccess: document.querySelector("#authorAccess"),
+  authorResponse: document.querySelector("#authorResponse"),
   characterResponse: document.querySelector("#characterResponse"),
   scenePrompt: document.querySelector("#scenePrompt"),
   runScene: document.querySelector("#runScene"),
@@ -38,11 +40,15 @@ const els = {
   publisherResponse: document.querySelector("#publisherResponse"),
   publisherAccess: document.querySelector("#publisherAccess"),
   refreshAdmin: document.querySelector("#refreshAdmin"),
+  refreshOperations: document.querySelector("#refreshOperations"),
   roleList: document.querySelector("#roleList"),
   marketplaceSummary: document.querySelector("#marketplaceSummary"),
   adminAccess: document.querySelector("#adminAccess"),
   catalogList: document.querySelector("#catalogList"),
+  operationsList: document.querySelector("#operationsList"),
+  operationsSummary: document.querySelector("#operationsSummary"),
   runEvaluation: document.querySelector("#runEvaluation"),
+  runAuthorWorkflow: document.querySelector("#runAuthorWorkflow"),
   evaluationResults: document.querySelector("#evaluationResults"),
   traceList: document.querySelector("#traceList"),
   refreshDemo: document.querySelector("#refreshDemo"),
@@ -98,6 +104,24 @@ const copy = {
     "top.eyebrow": "Judge demo",
     "top.title": "Multi-agent literary intelligence",
     "book.eyebrow": "Demo book",
+    "author.eyebrow": "Author Workspace",
+    "author.title": "Book submission pipeline",
+    "author.review": "Review",
+    "author.running": "Running author analysis and approval workflow.",
+    "author.current": "Current title",
+    "author.readiness": "Don Quijote readiness",
+    "author.characterAgents": "Character agents",
+    "author.modes": "Canon / Fiction modes",
+    "author.stepUpload": "1. Upload manuscript",
+    "author.stepUploadBody": "Author uploads an owned or public-domain book for analysis.",
+    "author.stepAnalysis": "2. Gemini literary analysis",
+    "author.stepAnalysisBody":
+      "Characters, scenes, places, psychology, and canon constraints are prepared.",
+    "author.stepReview": "3. Review generated agents",
+    "author.stepReviewBody": "Author validates character voice before making the book available.",
+    "author.stepPublish": "4. Submit for publishing",
+    "author.stepPublishBody":
+      "Publisher or superadmin approval moves the book into catalog availability.",
     "metrics.characters": "Characters",
     "metrics.places": "Places",
     "metrics.scenes": "Scenes",
@@ -129,6 +153,10 @@ const copy = {
     "marketplace.title": "Publisher catalog console",
     "marketplace.catalog": "Catalog",
     "marketplace.operations": "Operations",
+    "operations.eyebrow": "Superadmin operations",
+    "operations.title": "Platform controls",
+    "operations.refresh": "Refresh",
+    "operations.running": "Loading platform operations.",
     "evaluation.eyebrow": "Track 2 evidence",
     "evaluation.title": "Before / after evaluation",
     "evaluation.run": "Run",
@@ -193,6 +221,24 @@ const copy = {
     "top.eyebrow": "Demo para jueces",
     "top.title": "Inteligencia literaria multiagente",
     "book.eyebrow": "Libro demo",
+    "author.eyebrow": "Espacio de autor",
+    "author.title": "Pipeline de envio de libro",
+    "author.review": "Revisar",
+    "author.running": "Ejecutando analisis de autor y flujo de aprobacion.",
+    "author.current": "Titulo actual",
+    "author.readiness": "Preparacion de Don Quijote",
+    "author.characterAgents": "Agentes de personaje",
+    "author.modes": "Modos canon / ficcion",
+    "author.stepUpload": "1. Subir manuscrito",
+    "author.stepUploadBody": "El autor sube un libro propio o libre de derechos para analisis.",
+    "author.stepAnalysis": "2. Analisis literario con Gemini",
+    "author.stepAnalysisBody":
+      "Se preparan personajes, escenas, lugares, psicologia y restricciones canonicas.",
+    "author.stepReview": "3. Revisar agentes generados",
+    "author.stepReviewBody": "El autor valida la voz del personaje antes de publicar.",
+    "author.stepPublish": "4. Enviar a publicacion",
+    "author.stepPublishBody":
+      "La editorial o superadmin aprueba el paso del libro al catalogo.",
     "metrics.characters": "Personajes",
     "metrics.places": "Lugares",
     "metrics.scenes": "Escenas",
@@ -224,6 +270,10 @@ const copy = {
     "marketplace.title": "Consola de catalogo editorial",
     "marketplace.catalog": "Catalogo",
     "marketplace.operations": "Operaciones",
+    "operations.eyebrow": "Operaciones superadmin",
+    "operations.title": "Controles de plataforma",
+    "operations.refresh": "Actualizar",
+    "operations.running": "Cargando operaciones de plataforma.",
     "evaluation.eyebrow": "Evidencia Track 2",
     "evaluation.title": "Evaluacion antes / despues",
     "evaluation.run": "Ejecutar",
@@ -606,10 +656,18 @@ function hasPermission(permission) {
 }
 
 function applyAccess() {
+  const canAuthor = hasPermission("upload_owned_books") || hasPermission("manage_tenants");
   const canPublish = hasPermission("manage_catalog") || hasPermission("manage_tenants");
   const canOperate = hasPermission("manage_tenants");
+  els.runAuthorWorkflow.disabled = !canAuthor;
   els.runPublisher.disabled = !canPublish;
   els.refreshAdmin.disabled = !canPublish;
+  els.refreshOperations.disabled = !canOperate;
+  els.authorAccess.textContent = canAuthor
+    ? `${t("login.allowed")}: author workflow`
+    : state.session
+      ? "Author or Super Admin access required."
+      : t("login.required");
   els.publisherAccess.textContent = canPublish
     ? `${t("login.allowed")}: publisher catalog`
     : state.session
@@ -620,6 +678,7 @@ function applyAccess() {
     : state.session
       ? t("login.superRequired")
       : t("login.required");
+  els.authorAccess.className = canAuthor ? "access-box granted" : "access-box locked";
   els.publisherAccess.className = canPublish ? "access-box granted" : "access-box locked";
   els.adminAccess.className = canOperate ? "access-box granted" : "access-box locked";
   if (state.marketplace) {
@@ -741,10 +800,15 @@ async function loadBook() {
 async function loadAdmin() {
   els.roleList.textContent = t("admin.running");
   els.marketplaceSummary.textContent = t("admin.running");
+  els.operationsSummary.textContent = t("operations.running");
   const roles = await api("/api/v1/admin/roles");
   const canPublish = hasPermission("manage_catalog") || hasPermission("manage_tenants");
+  const canOperate = hasPermission("manage_tenants");
   const marketplace = canPublish
     ? await api("/api/v1/admin/marketplace", { headers: authHeaders() })
+    : null;
+  const operations = canOperate
+    ? await api("/api/v1/admin/operations", { headers: authHeaders() })
     : null;
   state.marketplace = marketplace;
   renderRoles(roles.roles);
@@ -753,6 +817,12 @@ async function loadAdmin() {
   } else {
     els.marketplaceSummary.innerHTML = "";
     els.catalogList.innerHTML = "";
+  }
+  if (operations) {
+    renderOperations(operations);
+  } else {
+    els.operationsSummary.innerHTML = "";
+    els.operationsList.innerHTML = "";
   }
 }
 
@@ -813,6 +883,64 @@ function renderMarketplace(marketplace) {
     `;
     els.catalogList.appendChild(item);
   });
+}
+
+function renderOperations(operations) {
+  els.operationsSummary.innerHTML = `
+    <div>
+      <strong>${operations.runtime.gemini}</strong>
+      <span>Gemini</span>
+    </div>
+    <div>
+      <strong>${operations.runtime.retrieval}</strong>
+      <span>Retrieval</span>
+    </div>
+    <div>
+      <strong>${operations.tenantOperations.users}</strong>
+      <span>Users</span>
+    </div>
+    <div>
+      <strong>${operations.qualityGate.optimizedCases}/${operations.qualityGate.totalCases}</strong>
+      <span>Quality gate</span>
+    </div>
+  `;
+  els.operationsList.innerHTML = "";
+  operations.governance.forEach((item) => {
+    const row = document.createElement("article");
+    row.className = "catalog-item";
+    row.innerHTML = `<strong>${item}</strong>`;
+    els.operationsList.appendChild(row);
+  });
+}
+
+async function runAuthorWorkflow() {
+  if (!(hasPermission("upload_owned_books") || hasPermission("manage_tenants"))) {
+    applyAccess();
+    return;
+  }
+  els.authorResponse.textContent = t("author.running");
+  let data;
+  try {
+    data = await api("/api/v1/demo/author-workflow", { headers: authHeaders() });
+  } catch (error) {
+    els.authorResponse.textContent = `${t("login.denied")}: ${error.message}`;
+    return;
+  }
+  els.authorResponse.innerHTML = `
+    <strong>${data.manuscript.title} | ${data.manuscript.status}</strong>
+    <p>${data.analysisSummary.characters} character agents, ${
+      data.analysisSummary.scenes
+    } scenes, ${data.analysisSummary.places} places.</p>
+    <p>${data.analysisSummary.canonMode}</p>
+    <p>${data.analysisSummary.fictionMode}</p>
+  `;
+  els.authorResponse.insertAdjacentHTML(
+    "beforeend",
+    data.approvalChecklist
+      .map((item) => `<p>${item.item}: ${item.status} | ${item.evidence}</p>`)
+      .join(""),
+  );
+  renderTraces(data.traces);
 }
 
 async function loadCapabilities() {
@@ -978,8 +1106,10 @@ document.querySelectorAll("[data-view-target]").forEach((item) => {
 els.languageSelect.addEventListener("change", () => applyLanguage(els.languageSelect.value));
 els.runScene.addEventListener("click", runScene);
 els.runNarration.addEventListener("click", runNarration);
+els.runAuthorWorkflow.addEventListener("click", runAuthorWorkflow);
 els.runPublisher.addEventListener("click", runPublisher);
 els.refreshAdmin.addEventListener("click", loadAdmin);
+els.refreshOperations.addEventListener("click", loadAdmin);
 els.runEvaluation.addEventListener("click", runEvaluation);
 els.refreshDemo.addEventListener("click", loadBook);
 

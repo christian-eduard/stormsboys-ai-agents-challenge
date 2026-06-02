@@ -27,6 +27,8 @@ The system includes:
 - A Voice/Narration Agent.
 - A Publisher Insights Agent.
 - A Marketplace Admin console for roles, permissions, catalog operations, and platform readiness.
+- A protected Author workflow that shows manuscript review, generated character agents, and approval checks.
+- A protected Super Admin operations surface for runtime, tenant, quality, and governance evidence.
 - A demo login flow with role-specific workspaces for Reader, Author, Publisher Admin, Super Admin, and a dedicated Judge Access account.
 
 Readers can ask questions to a specific character, trigger multi-character scene interactions, and receive responses grounded in the book instead of generic chatbot answers.

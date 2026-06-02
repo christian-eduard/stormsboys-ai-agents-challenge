@@ -259,6 +259,7 @@ def challenge_capabilities() -> dict[str, object]:
         "demoFlow": [
             "demo login and role switching",
             "judge access tour",
+            "author manuscript workflow",
             "book analysis",
             "reader",
             "role-based administration",
@@ -384,7 +385,7 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
             }
         ],
         "operations": {
-            "users": 4,
+            "users": len(_demo_users()),
             "tenants": 1,
             "publishedBooks": 1,
             "pendingBooks": 0,
@@ -392,6 +393,101 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
             "optimizedEvaluationCases": evaluation.optimized_passed,
             "totalEvaluationCases": evaluation.total_cases,
         },
+    }
+
+
+@app.get("/api/v1/demo/author-workflow")
+def demo_author_workflow(authorization: str | None = Header(default=None)) -> dict[str, object]:
+    user = _require_any_permission(
+        authorization,
+        {"upload_owned_books", "review_analysis", "manage_tenants"},
+    )
+    ingestion = BookIngestionAgent().run(DEMO_BOOK_ID, DEMO_BOOK_TEXT)
+    analysis = LiteraryAnalysisAgent().run(DEMO_BOOK_TITLE, ingestion.output)
+    evaluation = run_demo_evaluation()
+    return {
+        "currentUser": user,
+        "manuscript": {
+            "book_id": DEMO_BOOK_ID,
+            "title": DEMO_BOOK_TITLE,
+            "rights": "public-domain demo title",
+            "languagePolicy": ["en", "es"],
+            "status": "ready_for_publisher_review",
+        },
+        "analysisSummary": {
+            "characters": len(analysis.output.characters),
+            "places": len(analysis.output.places),
+            "scenes": len(analysis.output.scenes),
+            "canonMode": "grounded in retrieved book sections",
+            "fictionMode": "separate branch with explicit non-canon state",
+        },
+        "generatedAgents": [
+            {
+                "character_id": character.character_id,
+                "name": character.name,
+                "personality": character.personality,
+                "goals": character.goals,
+                "constraints": character.constraints,
+            }
+            for character in analysis.output.characters
+        ],
+        "approvalChecklist": [
+            {
+                "item": "ownership_or_public_domain",
+                "status": "passed",
+                "evidence": "Don Quijote public-domain demo title",
+            },
+            {
+                "item": "character_grounding",
+                "status": "passed",
+                "evidence": (
+                    f"{evaluation.optimized_passed}/{evaluation.total_cases} optimized cases"
+                ),
+            },
+            {
+                "item": "bilingual_reader_access",
+                "status": "passed",
+                "evidence": "English primary, Spanish secondary",
+            },
+        ],
+        "traces": [trace.model_dump() for trace in ingestion.traces + analysis.traces],
+    }
+
+
+@app.get("/api/v1/admin/operations")
+def admin_operations(authorization: str | None = Header(default=None)) -> dict[str, object]:
+    user = _require_any_permission(authorization, {"manage_tenants"})
+    gemini = GeminiTool().status
+    storage = StorageRepository()
+    evaluation = run_demo_evaluation()
+    return {
+        "currentUser": user,
+        "runtime": {
+            "cloudRunRevision": "managed by Cloud Run",
+            "serviceAccount": "stormsboys-agents-runtime",
+            "gemini": gemini.model if gemini.configured else "fallback",
+            "retrieval": "pgvector" if storage.status.pgvector_ready else "in-memory fallback",
+        },
+        "tenantOperations": {
+            "tenants": 1,
+            "users": len(_demo_users()),
+            "publisherCatalogs": 1,
+            "publishedBooks": 1,
+            "pendingReviews": 0,
+        },
+        "qualityGate": {
+            "optimizedCases": evaluation.optimized_passed,
+            "totalCases": evaluation.total_cases,
+            "status": (
+                "passed" if evaluation.optimized_passed == evaluation.total_cases else "review"
+            ),
+        },
+        "governance": [
+            "demo tokens only for judging",
+            "production target is Identity Platform tenant RBAC",
+            "Secret Manager supplies DATABASE_URL",
+            "no local credential files required by runtime",
+        ],
     }
 
 

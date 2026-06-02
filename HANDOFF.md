@@ -55,7 +55,9 @@ Ya existe:
 - Panel web `Runtime proof` con estado Gemini, Cloud SQL/pgvector, seed y ultima traza de retrieval.
 - Pantalla web `Testing access` con cuentas demo por rol y entrada dedicada `Judge Access`.
 - Panel web `Role dashboard` con acciones y navegacion filtradas para reader, author, publisher, superadmin y judge.
+- Vista `Author` con flujo protegido `/api/v1/demo/author-workflow`, checklist de aprobacion y agentes generados.
 - Consola web `Marketplace Admin` con roles, permisos, tenant editorial, catalogo, readiness y salud operativa.
+- Bloque `Superadmin operations` con endpoint protegido `/api/v1/admin/operations`.
 - Endpoints publisher/admin protegidos por `Authorization: Bearer demo-token:*`.
 - Endpoints auth/admin: `/api/v1/auth/demo-users`, `/api/v1/auth/demo-login`, `/api/v1/admin/roles` y `/api/v1/admin/marketplace`.
 
@@ -85,7 +87,7 @@ http://127.0.0.1:8080
 
 Ultima validacion local conocida:
 
-- Tests en contenedor Python 3.11: pasan, 33 tests.
+- Tests en contenedor Python 3.11: pasan, 37 tests.
 - `make lint`: pasa.
 - `make public-ready`: pasa.
 - `BASE_URL=http://127.0.0.1:8088 make smoke`: pasa.

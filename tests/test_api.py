@@ -51,6 +51,7 @@ def test_challenge_capabilities() -> None:
     assert "voice narration plan" in body["demoFlow"]
     assert "demo login and role switching" in body["demoFlow"]
     assert "judge access tour" in body["demoFlow"]
+    assert "author manuscript workflow" in body["demoFlow"]
     assert "role-based administration" in body["demoFlow"]
     assert "publisher catalog console" in body["demoFlow"]
     assert "superadmin operations console" in body["demoFlow"]
@@ -151,6 +152,7 @@ def test_admin_marketplace() -> None:
     assert body["catalog"][0]["book_id"] == "don-quijote"
     assert body["catalog"][0]["languages"] == ["en", "es"]
     assert body["operations"]["agentHealth"] == "healthy"
+    assert body["operations"]["users"] == 5
 
 
 def test_judge_can_access_marketplace_admin() -> None:
@@ -163,6 +165,53 @@ def test_judge_can_access_marketplace_admin() -> None:
     body = response.json()
     assert body["currentUser"]["role"] == "judge_access"
     assert body["listingReadiness"]["marketplaceStatus"].startswith("demo-ready")
+
+
+def test_demo_author_workflow_requires_author_access() -> None:
+    client = TestClient(app)
+    response = client.get(
+        "/api/v1/demo/author-workflow",
+        headers={"authorization": "Bearer demo-token:reader-demo"},
+    )
+    assert response.status_code == 403
+
+
+def test_demo_author_workflow() -> None:
+    client = TestClient(app)
+    response = client.get(
+        "/api/v1/demo/author-workflow",
+        headers={"authorization": "Bearer demo-token:author-demo"},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["currentUser"]["role"] == "author"
+    assert body["manuscript"]["status"] == "ready_for_publisher_review"
+    assert body["analysisSummary"]["characters"] == 3
+    assert len(body["generatedAgents"]) == 3
+    assert body["approvalChecklist"][0]["status"] == "passed"
+
+
+def test_admin_operations_requires_superadmin_access() -> None:
+    client = TestClient(app)
+    response = client.get(
+        "/api/v1/admin/operations",
+        headers={"authorization": "Bearer demo-token:publisher-demo"},
+    )
+    assert response.status_code == 403
+
+
+def test_admin_operations() -> None:
+    client = TestClient(app)
+    response = client.get(
+        "/api/v1/admin/operations",
+        headers={"authorization": "Bearer demo-token:superadmin-demo"},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["currentUser"]["role"] == "super_admin"
+    assert body["tenantOperations"]["users"] == 5
+    assert body["qualityGate"]["totalCases"] == 12
+    assert "Secret Manager supplies DATABASE_URL" in body["governance"]
 
 
 def test_demo_character_chat() -> None:

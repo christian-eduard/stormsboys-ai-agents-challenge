@@ -10,8 +10,10 @@ APP_JS="$("${CURL[@]}" "${BASE_URL}/static/app.js")"
 grep -q "Multi-agent literary intelligence" <<<"${HOME_HTML}"
 grep -q "Choose a demo account" <<<"${HOME_HTML}"
 grep -q 'data-view="dashboard"' <<<"${HOME_HTML}"
+grep -q 'data-view="author"' <<<"${HOME_HTML}"
 grep -q "runEvaluation" <<<"${APP_JS}"
 grep -q "judge_access" <<<"${APP_JS}"
+grep -q "runAuthorWorkflow" <<<"${APP_JS}"
 "${CURL[@]}" "${BASE_URL}/health" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/readiness" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/capabilities" >/dev/null
@@ -26,6 +28,12 @@ LOGIN_RESPONSE="$("${CURL[@]}" \
 TOKEN="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["token"])' <<<"${LOGIN_RESPONSE}")"
 "${CURL[@]}" "${BASE_URL}/api/v1/admin/roles" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/admin/marketplace" \
+  -H "authorization: Bearer ${TOKEN}" \
+  >/dev/null
+"${CURL[@]}" "${BASE_URL}/api/v1/admin/operations" \
+  -H "authorization: Bearer ${TOKEN}" \
+  >/dev/null
+"${CURL[@]}" "${BASE_URL}/api/v1/demo/author-workflow" \
   -H "authorization: Bearer ${TOKEN}" \
   >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/demo/evaluation" >/dev/null

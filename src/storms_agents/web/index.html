@@ -212,48 +212,50 @@
           <div class="panel">
             <div class="panel-header">
               <div>
-                <p class="eyebrow">Author Workspace</p>
-                <h3>Book submission pipeline</h3>
+                <p class="eyebrow" data-i18n="author.eyebrow">Author Workspace</p>
+                <h3 data-i18n="author.title">Book submission pipeline</h3>
               </div>
+              <button id="runAuthorWorkflow" class="secondary" data-i18n="author.review">Review</button>
             </div>
             <div class="pipeline-list">
               <article class="pipeline-item done">
-                <strong>1. Upload manuscript</strong>
-                <p>Author uploads an owned or public-domain book for analysis.</p>
+                <strong data-i18n="author.stepUpload">1. Upload manuscript</strong>
+                <p data-i18n="author.stepUploadBody">Author uploads an owned or public-domain book for analysis.</p>
               </article>
               <article class="pipeline-item done">
-                <strong>2. Gemini literary analysis</strong>
-                <p>Characters, scenes, places, psychology, and canon constraints are prepared.</p>
+                <strong data-i18n="author.stepAnalysis">2. Gemini literary analysis</strong>
+                <p data-i18n="author.stepAnalysisBody">Characters, scenes, places, psychology, and canon constraints are prepared.</p>
               </article>
               <article class="pipeline-item active">
-                <strong>3. Review generated agents</strong>
-                <p>Author validates character voice before making the book available.</p>
+                <strong data-i18n="author.stepReview">3. Review generated agents</strong>
+                <p data-i18n="author.stepReviewBody">Author validates character voice before making the book available.</p>
               </article>
               <article class="pipeline-item">
-                <strong>4. Submit for publishing</strong>
-                <p>Publisher or superadmin approval moves the book into catalog availability.</p>
+                <strong data-i18n="author.stepPublish">4. Submit for publishing</strong>
+                <p data-i18n="author.stepPublishBody">Publisher or superadmin approval moves the book into catalog availability.</p>
               </article>
             </div>
+            <article class="access-box" id="authorAccess"></article>
           </div>
 
           <div class="panel">
             <div class="panel-header">
               <div>
-                <p class="eyebrow">Current title</p>
-                <h3>Don Quijote readiness</h3>
+                <p class="eyebrow" data-i18n="author.current">Current title</p>
+                <h3 data-i18n="author.readiness">Don Quijote readiness</h3>
               </div>
             </div>
             <div class="publisher-metrics">
               <div>
                 <strong id="authorCharacters">3</strong>
-                <span>Character agents</span>
+                <span data-i18n="author.characterAgents">Character agents</span>
               </div>
               <div>
                 <strong id="authorModes">2</strong>
-                <span>Canon / Fiction modes</span>
+                <span data-i18n="author.modes">Canon / Fiction modes</span>
               </div>
             </div>
-            <article class="response-box">
+            <article class="response-box" id="authorResponse">
               Author view shows the clean product path for future uploads without mixing code
               from the original app into this challenge repository.
             </article>
@@ -326,6 +328,17 @@
             <div class="marketplace-summary" id="marketplaceSummary"></div>
             <article class="access-box" id="adminAccess"></article>
             <div class="catalog-list" id="catalogList"></div>
+            <div class="operations-section">
+              <div class="panel-header compact-header">
+                <div>
+                  <p class="eyebrow" data-i18n="operations.eyebrow">Superadmin operations</p>
+                  <h3 data-i18n="operations.title">Platform controls</h3>
+                </div>
+                <button id="refreshOperations" class="secondary" data-i18n="operations.refresh">Refresh</button>
+              </div>
+              <div class="marketplace-summary" id="operationsSummary"></div>
+              <div class="catalog-list" id="operationsList"></div>
+            </div>
           </div>
         </section>
 
