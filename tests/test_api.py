@@ -60,13 +60,56 @@ def test_demo_character_chat() -> None:
     client = TestClient(app)
     response = client.post(
         "/api/v1/demo/chat/character",
-        json={"character_id": "don_quijote", "question": "Why do you attack the windmills?"},
+        json={
+            "character_id": "don_quijote",
+            "mode": "CANON",
+            "question": "Why do you attack the windmills?",
+        },
     )
     assert response.status_code == 200
     body = response.json()
+    assert body["mode"] == "CANON"
     assert body["reply"]["character_id"] == "don_quijote"
+    assert body["reply"]["mode"] == "CANON"
+    assert body["fictionBranch"] is None
     assert body["consistency"]["checks"]["has_grounding"] is True
     assert body["traces"]
+
+
+def test_demo_character_chat_fiction_branch() -> None:
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/demo/chat/character",
+        json={
+            "character_id": "don_quijote",
+            "mode": "FICTION",
+            "question": "What if Sancho convinces you the giants are machines?",
+        },
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["mode"] == "FICTION"
+    assert body["reply"]["mode"] == "FICTION"
+    assert body["fictionBranch"]["book_id"] == "don-quijote"
+    assert body["fictionBranch"]["character_id"] == "don_quijote"
+    assert body["consistency"]["checks"]["separated_from_canon"] is True
+    assert any(trace["agent_name"] == "FictionBranchAgent" for trace in body["traces"])
+
+
+def test_demo_character_chat_canon_rejects_future() -> None:
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/demo/chat/character",
+        json={
+            "character_id": "don_quijote",
+            "mode": "CANON",
+            "question": "Tell me what happens ten years after the ending.",
+        },
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert "cannot speak as canon" in body["reply"]["response"]
+    assert body["fictionBranch"] is None
 
 
 def test_demo_scene_chat() -> None:

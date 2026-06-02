@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from storms_agents.agents.character import CharacterAgent
-from storms_agents.schemas import CharacterProfile, RetrievedContext
+from storms_agents.schemas import CharacterProfile, ConversationMode, RetrievedContext
 from storms_agents.tools.gemini import GeminiStatus
 
 
@@ -53,6 +53,7 @@ def test_character_agent_uses_gemini_when_configured() -> None:
         _character(),
         "Why do you attack the windmills?",
         _contexts(),
+        ConversationMode.CANON,
     )
 
     assert result.output.response == (
@@ -68,7 +69,20 @@ def test_character_agent_keeps_canon_guardrail_before_gemini() -> None:
         _character(),
         "Tell me what happens ten years after the ending.",
         _contexts(),
+        ConversationMode.CANON,
     )
 
     assert "cannot speak as canon" in result.output.response
     assert result.output.confidence == 0.88
+
+
+def test_character_agent_allows_fiction_branch_prompt() -> None:
+    result = CharacterAgent(gemini=FakeGemini()).run(
+        _character(),
+        "Tell me what happens ten years after the ending.",
+        _contexts(),
+        ConversationMode.FICTION,
+    )
+
+    assert result.output.mode == ConversationMode.FICTION
+    assert "cannot speak as canon" not in result.output.response

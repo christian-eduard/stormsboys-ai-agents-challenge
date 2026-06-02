@@ -304,6 +304,12 @@ button.secondary:hover {
   margin-bottom: 14px;
 }
 
+.select-stack {
+  display: grid;
+  gap: 8px;
+  min-width: 180px;
+}
+
 select,
 textarea {
   width: 100%;

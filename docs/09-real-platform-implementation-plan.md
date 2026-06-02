@@ -54,12 +54,12 @@ Meta: implementar la diferencia central del producto.
 
 Entregables:
 
-- Enum `ConversationMode`: `CANON`, `FICTION`.
-- Endpoint de chat acepta modo.
-- Historial separado por modo.
-- Respuesta canon usa retrieval y consistency.
-- Respuesta ficcion crea rama narrativa.
-- UI tiene selector visible Canon/Ficcion.
+- [x] Enum `ConversationMode`: `CANON`, `FICTION`.
+- [x] Endpoint de chat acepta modo.
+- [ ] Historial persistente separado por modo.
+- [x] Respuesta canon usa retrieval y consistency.
+- [x] Respuesta ficcion crea rama narrativa separada en la respuesta API.
+- [x] UI tiene selector visible Canon/Ficcion.
 - Evaluacion incluye casos de separacion.
 
 Validacion:
@@ -67,6 +67,9 @@ Validacion:
 - Una pregunta fuera de canon no contamina canon.
 - Una escena alternativa se guarda como ficcion.
 - El personaje mantiene personalidad en ambos modos.
+
+Estado actual: la separacion existe en API/UI y tests, pero la memoria persistente de ramas
+ficcionales todavia no esta guardada en base de datos.
 
 ## Fase 3: Modelo Publisher/Admin
 

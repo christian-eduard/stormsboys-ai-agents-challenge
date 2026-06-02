@@ -80,7 +80,13 @@
                 <p class="eyebrow">Character Agent</p>
                 <h3>Grounded character chat</h3>
               </div>
-              <select id="characterSelect" aria-label="Select character"></select>
+              <div class="select-stack">
+                <select id="characterSelect" aria-label="Select character"></select>
+                <select id="modeSelect" aria-label="Conversation mode">
+                  <option value="CANON">Canon</option>
+                  <option value="FICTION">Fiction</option>
+                </select>
+              </div>
             </div>
 
             <label class="field-label" for="questionInput">Prompt</label>

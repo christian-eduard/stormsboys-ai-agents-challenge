@@ -10,6 +10,7 @@ from storms_agents import __version__
 from storms_agents.agents.book_ingestion import BookIngestionAgent
 from storms_agents.agents.character import CharacterAgent
 from storms_agents.agents.consistency import NarrativeConsistencyAgent
+from storms_agents.agents.fiction_branch import FictionBranchAgent
 from storms_agents.agents.literary_analysis import LiteraryAnalysisAgent
 from storms_agents.agents.narration import VoiceNarrationAgent
 from storms_agents.agents.publisher_insights import PublisherInsightsAgent
@@ -18,7 +19,7 @@ from storms_agents.agents.scene_orchestrator import SceneOrchestratorAgent
 from storms_agents.config import get_settings
 from storms_agents.demo_data import DEMO_BOOK_ID, DEMO_BOOK_TEXT, DEMO_BOOK_TITLE
 from storms_agents.evaluation import run_demo_evaluation
-from storms_agents.schemas import AgentStatus
+from storms_agents.schemas import AgentStatus, ConversationMode
 from storms_agents.storage.repository import StorageRepository
 from storms_agents.tools.gemini import GeminiTool
 
@@ -36,6 +37,7 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 class CharacterChatRequest(BaseModel):
     character_id: str = "don_quijote"
+    mode: ConversationMode = ConversationMode.CANON
     question: str
 
 
@@ -106,7 +108,7 @@ def challenge_capabilities() -> dict[str, object]:
             "book analysis",
             "reader",
             "canon character chat",
-            "fiction branch preparation",
+            "fiction branch mode",
             "character chat",
             "scene orchestration",
             "voice narration plan",
@@ -179,14 +181,29 @@ def demo_character_chat(request: CharacterChatRequest) -> dict[str, object]:
         request.question,
         settings.max_retrieved_sections,
     )
-    reply = CharacterAgent().run(character, request.question, retrieval.output)
+    reply = CharacterAgent().run(character, request.question, retrieval.output, request.mode)
     consistency = NarrativeConsistencyAgent().run(reply.output)
+    fiction_branch = None
+    fiction_traces = []
+    if request.mode == ConversationMode.FICTION:
+        fiction = FictionBranchAgent().run(
+            DEMO_BOOK_ID,
+            character,
+            request.question,
+            retrieval.output,
+            reply.output.response,
+        )
+        fiction_branch = fiction.output.model_dump()
+        fiction_traces = fiction.traces
     return {
+        "mode": request.mode,
         "reply": reply.output.model_dump(),
+        "fictionBranch": fiction_branch,
         "consistency": consistency.output,
         "contexts": [context.model_dump() for context in retrieval.output],
         "traces": [
-            trace.model_dump() for trace in retrieval.traces + reply.traces + consistency.traces
+            trace.model_dump()
+            for trace in retrieval.traces + reply.traces + fiction_traces + consistency.traces
         ],
     }
 

@@ -41,6 +41,8 @@ Ya existe:
 - Trazas basicas por agente.
 - VoiceNarrationAgent para preparar narracion/SSML lista para TTS.
 - PublisherInsightsAgent para vista admin con engagement, calidad y recomendaciones.
+- `ConversationMode` con `CANON` y `FICTION` en API/UI.
+- `FictionBranchAgent` minimo: crea ramas alternativas separadas de canon en la respuesta API.
 - Dockerfile.
 - Scripts de smoke test y revision publica.
 - Documentacion de producto, agentes, cloud, evaluacion, demo, seguridad y submission.
@@ -115,6 +117,7 @@ Ultima validacion local conocida:
 - `src/storms_agents/agents/literary_analysis.py`: analisis literario demo.
 - `src/storms_agents/agents/retrieval.py`: retrieval demo.
 - `src/storms_agents/agents/character.py`: respuesta de personaje.
+- `src/storms_agents/agents/fiction_branch.py`: rama ficcional alternativa, separada del canon.
 - `src/storms_agents/agents/scene_orchestrator.py`: escena multi-personaje.
 - `src/storms_agents/agents/consistency.py`: validacion narrativa.
 - `src/storms_agents/agents/narration.py`: plan de voz/narracion para TTS.
@@ -173,8 +176,8 @@ BASE_URL=https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app make smoke
 ## Prioridades Siguientes
 
 1. Reorientar UI/API desde libro sintetico hacia plataforma real con Don Quijote como caso demo.
-2. Implementar contrato explicito de modos `CANON` y `FICTION`.
-3. Separar memoria canon y memoria ficcion.
+2. Persistir memoria canon y memoria ficcion en almacenamiento real.
+3. Ampliar UI para mostrar historial/rama ficcional, no solo respuesta inmediata.
 4. Crear agentes nuevos o adaptar los existentes segun `docs/agents/04-platform-agent-operating-model.md`.
 5. Implementar publisher/admin como vista B2B Track 3, no solo panel decorativo.
 6. Conectar Gemini tambien a LiteraryAnalysisAgent o SceneOrchestratorAgent con schemas estrictos.

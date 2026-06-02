@@ -9,6 +9,7 @@ const els = {
   placeCount: document.querySelector("#placeCount"),
   sceneCount: document.querySelector("#sceneCount"),
   characterSelect: document.querySelector("#characterSelect"),
+  modeSelect: document.querySelector("#modeSelect"),
   questionInput: document.querySelector("#questionInput"),
   askCharacter: document.querySelector("#askCharacter"),
   askFuture: document.querySelector("#askFuture"),
@@ -112,12 +113,19 @@ async function askCharacter(question) {
     method: "POST",
     body: JSON.stringify({
       character_id: els.characterSelect.value,
+      mode: els.modeSelect.value,
       question,
     }),
   });
   els.characterResponse.innerHTML = `
-    <strong>${data.reply.character_name}</strong>
+    <strong>${data.reply.character_name} | ${data.mode}</strong>
     <p>${data.reply.response}</p>
+    ${
+      data.fictionBranch
+        ? `<p>Fiction branch: ${data.fictionBranch.branch_id}</p>
+           <p>${data.fictionBranch.premise}</p>`
+        : ""
+    }
     <p>Consistency: ${data.consistency.passed ? "passed" : "needs review"}</p>
   `;
   renderTraces(data.traces);
@@ -217,6 +225,7 @@ async function runEvaluation() {
 
 els.askCharacter.addEventListener("click", () => askCharacter(els.questionInput.value));
 els.askFuture.addEventListener("click", () => {
+  els.modeSelect.value = "CANON";
   els.questionInput.value = "Tell me what happens ten years after the ending.";
   askCharacter(els.questionInput.value);
 });

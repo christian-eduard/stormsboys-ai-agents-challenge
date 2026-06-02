@@ -10,6 +10,11 @@ class AgentStatus(StrEnum):
     FAILED = "failed"
 
 
+class ConversationMode(StrEnum):
+    CANON = "CANON"
+    FICTION = "FICTION"
+
+
 class AgentTrace(BaseModel):
     trace_id: str
     span_id: str
@@ -42,11 +47,22 @@ class CharacterProfile(BaseModel):
 class CharacterReply(BaseModel):
     character_id: str
     character_name: str
+    mode: ConversationMode = ConversationMode.CANON
     response: str
     thought: str | None = None
     emotional_state: str | None = None
     citations: list[str] = Field(default_factory=list)
     confidence: float = Field(ge=0, le=1)
+
+
+class FictionBranch(BaseModel):
+    branch_id: str
+    book_id: str
+    character_id: str
+    seed_prompt: str
+    premise: str
+    canon_anchor_citations: list[str] = Field(default_factory=list)
+    continuation: str
 
 
 class BookAnalysis(BaseModel):
