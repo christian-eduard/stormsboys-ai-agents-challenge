@@ -78,7 +78,7 @@ flowchart LR
 
 Stormsboys targets publishers, authors, education platforms, and digital reading products. It creates new engagement layers on top of existing books, gives publishers insight into reader interests, and creates premium interactive experiences without requiring authors to rebuild their content as games or apps.
 For Track 3, the demo includes a functional Marketplace Admin surface with reader, author, publisher admin, and super admin roles; a tenant-scoped publisher catalog; title availability; evaluation health; and a production identity plan based on tenant RBAC.
-The public challenge build uses demo accounts and browser-local session state for judge access. A production Marketplace deployment would replace that layer with Identity Platform or Cloud Identity tenant-scoped RBAC.
+The public challenge build uses demo accounts, browser-local session state, and demo bearer tokens to protect publisher/admin endpoints during judging. A production Marketplace deployment would replace that layer with Identity Platform or Cloud Identity tenant-scoped RBAC.
 
 ## Innovation
 

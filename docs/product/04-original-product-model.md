@@ -62,6 +62,7 @@ siguiente fase de producto. La demo publica expone:
 
 - Login demo con cuentas de prueba para `reader`, `author`, `publisher_admin` y `super_admin`.
 - Sesion local de navegador para que los jueces cambien de rol sin credenciales privadas.
+- Token demo `Bearer demo-token:*` requerido por endpoints de operaciones publisher/admin.
 - Roles funcionales: `reader`, `author`, `publisher_admin`, `super_admin`.
 - Matriz de permisos por rol.
 - Tenant editorial demo.
@@ -69,9 +70,9 @@ siguiente fase de producto. La demo publica expone:
 - Estado de readiness para Marketplace.
 - Metricas de operacion: usuarios, tenants, libros publicados, salud de agentes y evaluacion.
 
-Regla de honestidad tecnica: esta consola es un contrato demo de producto. No sustituye un
-sistema de autenticacion productivo. La arquitectura objetivo para produccion es Cloud
-Identity / Identity Platform con RBAC por tenant.
+Regla de honestidad tecnica: esta consola usa autenticacion demo verificable para la submission.
+No sustituye un sistema de autenticacion productivo. La arquitectura objetivo para produccion es
+Cloud Identity / Identity Platform con RBAC por tenant.
 
 ## Flujo Principal
 

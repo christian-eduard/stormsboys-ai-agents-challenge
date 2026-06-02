@@ -86,6 +86,21 @@ def test_auth_demo_login() -> None:
     assert body["access"]["canOperatePlatform"] is True
 
 
+def test_protected_marketplace_requires_demo_token() -> None:
+    client = TestClient(app)
+    response = client.get("/api/v1/admin/marketplace")
+    assert response.status_code == 401
+
+
+def test_reader_cannot_access_marketplace_admin() -> None:
+    client = TestClient(app)
+    response = client.get(
+        "/api/v1/admin/marketplace",
+        headers={"authorization": "Bearer demo-token:reader-demo"},
+    )
+    assert response.status_code == 403
+
+
 def test_admin_roles() -> None:
     client = TestClient(app)
     response = client.get("/api/v1/admin/roles")
@@ -99,10 +114,14 @@ def test_admin_roles() -> None:
 
 def test_admin_marketplace() -> None:
     client = TestClient(app)
-    response = client.get("/api/v1/admin/marketplace")
+    response = client.get(
+        "/api/v1/admin/marketplace",
+        headers={"authorization": "Bearer demo-token:publisher-demo"},
+    )
     assert response.status_code == 200
     body = response.json()
     assert body["listingReadiness"]["track"].startswith("Track 3")
+    assert body["currentUser"]["role"] == "publisher_admin"
     assert body["tenant"]["plan"] == "Marketplace Pilot"
     assert body["catalog"][0]["book_id"] == "don-quijote"
     assert body["catalog"][0]["languages"] == ["en", "es"]
@@ -216,9 +235,13 @@ def test_demo_narration() -> None:
 
 def test_demo_publisher() -> None:
     client = TestClient(app)
-    response = client.get("/api/v1/demo/publisher")
+    response = client.get(
+        "/api/v1/demo/publisher",
+        headers={"authorization": "Bearer demo-token:publisher-demo"},
+    )
     assert response.status_code == 200
     body = response.json()
+    assert body["currentUser"]["role"] == "publisher_admin"
     assert body["report"]["quality_score"] == 1
     assert len(body["report"]["insights"]) == 3
     assert body["traces"][0]["agent_name"] == "PublisherInsightsAgent"

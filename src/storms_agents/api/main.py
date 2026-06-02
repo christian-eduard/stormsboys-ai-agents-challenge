@@ -1,7 +1,7 @@
 from importlib.resources import files
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -133,6 +133,27 @@ def _role_labels() -> dict[str, str]:
         "publisher_admin": "Publisher Admin",
         "super_admin": "Super Admin",
     }
+
+
+def _token_user(authorization: str | None) -> dict[str, object]:
+    if not authorization or not authorization.startswith("Bearer demo-token:"):
+        raise HTTPException(status_code=401, detail="Demo login token required.")
+    user_id = authorization.removeprefix("Bearer demo-token:")
+    user = next((item for item in _demo_users() if item["user_id"] == user_id), None)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Invalid demo login token.")
+    return user
+
+
+def _require_any_permission(
+    authorization: str | None,
+    permissions: set[str],
+) -> dict[str, object]:
+    user = _token_user(authorization)
+    user_permissions = set(user["permissions"])
+    if user_permissions.isdisjoint(permissions):
+        raise HTTPException(status_code=403, detail="Role does not have access.")
+    return user
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -289,7 +310,8 @@ def admin_roles() -> dict[str, object]:
 
 
 @app.get("/api/v1/admin/marketplace")
-def admin_marketplace() -> dict[str, object]:
+def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[str, object]:
+    user = _require_any_permission(authorization, {"manage_catalog", "manage_tenants"})
     gemini = GeminiTool().status
     storage = StorageRepository()
     analysis = LiteraryAnalysisAgent().run(DEMO_BOOK_TITLE, [DEMO_BOOK_TEXT]).output
@@ -315,6 +337,7 @@ def admin_marketplace() -> dict[str, object]:
             "region": "EMEA",
             "billing": "challenge-credit-backed demo project",
         },
+        "currentUser": user,
         "catalog": [
             {
                 "book_id": DEMO_BOOK_ID,
@@ -458,7 +481,8 @@ def demo_narration(request: NarrationRequest) -> dict[str, object]:
 
 
 @app.get("/api/v1/demo/publisher")
-def demo_publisher() -> dict[str, object]:
+def demo_publisher(authorization: str | None = Header(default=None)) -> dict[str, object]:
+    user = _require_any_permission(authorization, {"manage_catalog", "manage_tenants"})
     analysis = LiteraryAnalysisAgent().run(DEMO_BOOK_TITLE, [DEMO_BOOK_TEXT]).output
     evaluation = run_demo_evaluation()
     summary = {
@@ -469,6 +493,7 @@ def demo_publisher() -> dict[str, object]:
     }
     report = PublisherInsightsAgent().run(analysis, summary)
     return {
+        "currentUser": user,
         "report": report.output.model_dump(),
         "evaluationSummary": summary,
         "traces": [trace.model_dump() for trace in report.traces],

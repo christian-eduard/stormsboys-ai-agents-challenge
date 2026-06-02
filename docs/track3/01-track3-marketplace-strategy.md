@@ -88,7 +88,8 @@ Estado demo implementado:
 - `/api/v1/auth/demo-users`: cuentas de prueba para los cuatro roles.
 - `/api/v1/auth/demo-login`: login demo y token local para jueces.
 - `/api/v1/admin/roles`: matriz de roles `reader`, `author`, `publisher_admin`, `super_admin`.
-- `/api/v1/admin/marketplace`: tenant demo, catalogo, readiness Marketplace y metricas de operacion.
+- `/api/v1/admin/marketplace`: tenant demo, catalogo, readiness Marketplace y metricas de operacion; requiere token demo con `manage_catalog` o `manage_tenants`.
+- `/api/v1/demo/publisher`: insights publisher protegidos por token demo.
 - UI `Demo access`: selector de cuenta, login/logout y sesion local.
 - UI `Marketplace Admin`: consola visible para jueces con roles, permisos y catalogo editorial
   bloqueado/activado segun rol.

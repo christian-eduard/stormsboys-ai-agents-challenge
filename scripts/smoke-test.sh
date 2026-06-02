@@ -15,15 +15,20 @@ grep -q "runEvaluation" <<<"${APP_JS}"
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/storage" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/storage/demo-seed" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/auth/demo-users" >/dev/null
-"${CURL[@]}" \
+LOGIN_RESPONSE="$("${CURL[@]}" \
   -X POST "${BASE_URL}/api/v1/auth/demo-login" \
   -H "content-type: application/json" \
   -d '{"user_id":"superadmin-demo"}' \
-  >/dev/null
+)"
+TOKEN="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["token"])' <<<"${LOGIN_RESPONSE}")"
 "${CURL[@]}" "${BASE_URL}/api/v1/admin/roles" >/dev/null
-"${CURL[@]}" "${BASE_URL}/api/v1/admin/marketplace" >/dev/null
+"${CURL[@]}" "${BASE_URL}/api/v1/admin/marketplace" \
+  -H "authorization: Bearer ${TOKEN}" \
+  >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/demo/evaluation" >/dev/null
-"${CURL[@]}" "${BASE_URL}/api/v1/demo/publisher" >/dev/null
+"${CURL[@]}" "${BASE_URL}/api/v1/demo/publisher" \
+  -H "authorization: Bearer ${TOKEN}" \
+  >/dev/null
 "${CURL[@]}" \
   -X POST "${BASE_URL}/api/v1/demo/chat/character" \
   -H "content-type: application/json" \

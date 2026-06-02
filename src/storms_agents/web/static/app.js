@@ -69,6 +69,7 @@ const copy = {
     "login.publisherRequired": "Publisher Admin or Super Admin access required.",
     "login.superRequired": "Super Admin access required.",
     "login.allowed": "Access granted",
+    "login.denied": "Access denied by API",
     "top.eyebrow": "Judge demo",
     "top.title": "Multi-agent literary intelligence",
     "book.eyebrow": "Demo book",
@@ -148,6 +149,7 @@ const copy = {
     "login.publisherRequired": "Se requiere Publisher Admin o Super Admin.",
     "login.superRequired": "Se requiere Super Admin.",
     "login.allowed": "Acceso concedido",
+    "login.denied": "Acceso denegado por API",
     "top.eyebrow": "Demo para jueces",
     "top.title": "Inteligencia literaria multiagente",
     "book.eyebrow": "Libro demo",
@@ -238,14 +240,19 @@ function applyLanguage(language) {
 }
 
 async function api(path, options = {}) {
+  const headers = { "content-type": "application/json", ...(options.headers ?? {}) };
   const response = await fetch(path, {
-    headers: { "content-type": "application/json" },
     ...options,
+    headers,
   });
   if (!response.ok) {
     throw new Error(`Request failed: ${response.status}`);
   }
   return response.json();
+}
+
+function authHeaders() {
+  return state.session ? { authorization: `Bearer ${state.session.token}` } : {};
 }
 
 async function loadAuth() {
@@ -276,10 +283,12 @@ async function login() {
   localStorage.setItem("stormsboys-demo-session", JSON.stringify(data));
   renderSession();
   applyAccess();
+  await loadAdmin();
 }
 
 function logout() {
   state.session = null;
+  state.marketplace = null;
   localStorage.removeItem("stormsboys-demo-session");
   renderSession();
   applyAccess();
@@ -371,13 +380,19 @@ async function loadBook() {
 async function loadAdmin() {
   els.roleList.textContent = t("admin.running");
   els.marketplaceSummary.textContent = t("admin.running");
-  const [roles, marketplace] = await Promise.all([
-    api("/api/v1/admin/roles"),
-    api("/api/v1/admin/marketplace"),
-  ]);
+  const roles = await api("/api/v1/admin/roles");
+  const canPublish = hasPermission("manage_catalog") || hasPermission("manage_tenants");
+  const marketplace = canPublish
+    ? await api("/api/v1/admin/marketplace", { headers: authHeaders() })
+    : null;
   state.marketplace = marketplace;
   renderRoles(roles.roles);
-  renderMarketplace(marketplace);
+  if (marketplace) {
+    renderMarketplace(marketplace);
+  } else {
+    els.marketplaceSummary.innerHTML = "";
+    els.catalogList.innerHTML = "";
+  }
 }
 
 function renderRoles(roles = []) {
@@ -528,7 +543,13 @@ async function runPublisher() {
     return;
   }
   els.publisherResponse.textContent = t("publisher.running");
-  const data = await api("/api/v1/demo/publisher");
+  let data;
+  try {
+    data = await api("/api/v1/demo/publisher", { headers: authHeaders() });
+  } catch (error) {
+    els.publisherResponse.textContent = `${t("login.denied")}: ${error.message}`;
+    return;
+  }
   els.publisherMetrics.innerHTML = `
     <div>
       <strong>${Math.round(data.report.engagement_score * 100)}%</strong>
