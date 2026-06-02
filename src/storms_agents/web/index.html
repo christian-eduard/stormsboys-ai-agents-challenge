@@ -18,19 +18,19 @@
         </div>
 
         <nav class="nav-list">
-          <a href="#reader" class="active">Reader</a>
-          <a href="#agents">Agents</a>
-          <a href="#publisher">Publisher</a>
-          <a href="#evaluation">Evaluation</a>
-          <a href="#runtime">Runtime</a>
-          <a href="#architecture">Architecture</a>
+          <a href="#reader" class="active" data-i18n="nav.reader">Reader</a>
+          <a href="#agents" data-i18n="nav.agents">Agents</a>
+          <a href="#publisher" data-i18n="nav.publisher">Publisher</a>
+          <a href="#evaluation" data-i18n="nav.evaluation">Evaluation</a>
+          <a href="#runtime" data-i18n="nav.runtime">Runtime</a>
+          <a href="#architecture" data-i18n="nav.architecture">Architecture</a>
         </nav>
 
         <section class="status-panel">
           <span class="status-dot"></span>
           <div>
             <strong>Track 3</strong>
-            <p>Marketplace refactor</p>
+            <p data-i18n="status.track">Marketplace refactor</p>
           </div>
         </section>
       </aside>
@@ -38,12 +38,18 @@
       <section class="workspace">
         <header class="topbar">
           <div>
-            <p class="eyebrow">Judge demo</p>
-            <h2>Multi-agent literary intelligence</h2>
+            <p class="eyebrow" data-i18n="top.eyebrow">Judge demo</p>
+            <h2 data-i18n="top.title">Multi-agent literary intelligence</h2>
           </div>
-          <button id="refreshDemo" class="icon-button" title="Refresh demo data" aria-label="Refresh demo data">
-            <span>R</span>
-          </button>
+          <div class="topbar-actions">
+            <select id="languageSelect" aria-label="Language">
+              <option value="en">English</option>
+              <option value="es">Español</option>
+            </select>
+            <button id="refreshDemo" class="icon-button" title="Refresh demo data" aria-label="Refresh demo data">
+              <span>R</span>
+            </button>
+          </div>
         </header>
 
         <section id="reader" class="reader-grid">
@@ -52,22 +58,22 @@
           </div>
 
           <div class="book-summary">
-            <p class="eyebrow">Demo book</p>
+            <p class="eyebrow" data-i18n="book.eyebrow">Demo book</p>
             <h3 id="bookTitle">Loading book...</h3>
             <p id="bookSummary">Preparing literary analysis.</p>
 
             <div class="metric-row">
               <div>
                 <strong id="characterCount">0</strong>
-                <span>Characters</span>
+                <span data-i18n="metrics.characters">Characters</span>
               </div>
               <div>
                 <strong id="placeCount">0</strong>
-                <span>Places</span>
+                <span data-i18n="metrics.places">Places</span>
               </div>
               <div>
                 <strong id="sceneCount">0</strong>
-                <span>Scenes</span>
+                <span data-i18n="metrics.scenes">Scenes</span>
               </div>
             </div>
           </div>
@@ -77,8 +83,8 @@
           <div class="panel">
             <div class="panel-header">
               <div>
-                <p class="eyebrow">Character Agent</p>
-                <h3>Grounded character chat</h3>
+                <p class="eyebrow" data-i18n="character.eyebrow">Character Agent</p>
+                <h3 data-i18n="character.title">Grounded character chat</h3>
               </div>
               <div class="select-stack">
                 <select id="characterSelect" aria-label="Select character"></select>
@@ -89,12 +95,12 @@
               </div>
             </div>
 
-            <label class="field-label" for="questionInput">Prompt</label>
+            <label class="field-label" for="questionInput" data-i18n="character.prompt">Prompt</label>
             <textarea id="questionInput" rows="3">Why do you attack the windmills?</textarea>
 
             <div class="button-row">
-              <button id="askCharacter">Ask character</button>
-              <button id="askFuture" class="secondary">Out-of-canon test</button>
+              <button id="askCharacter" data-i18n="character.ask">Ask character</button>
+              <button id="askFuture" class="secondary" data-i18n="character.future">Out-of-canon test</button>
             </div>
 
             <article class="response-box" id="characterResponse">
@@ -105,16 +111,16 @@
           <div class="panel">
             <div class="panel-header">
               <div>
-                <p class="eyebrow">Scene Orchestrator</p>
-                <h3>Multi-character response</h3>
+                <p class="eyebrow" data-i18n="scene.eyebrow">Scene Orchestrator</p>
+                <h3 data-i18n="scene.title">Multi-character response</h3>
               </div>
             </div>
 
-            <label class="field-label" for="scenePrompt">Scene prompt</label>
+            <label class="field-label" for="scenePrompt" data-i18n="scene.prompt">Scene prompt</label>
             <textarea id="scenePrompt" rows="3">Discuss whether the windmills are giants or only windmills.</textarea>
 
             <div class="button-row">
-              <button id="runScene">Run scene</button>
+              <button id="runScene" data-i18n="scene.run">Run scene</button>
             </div>
 
             <div class="scene-list" id="sceneResponse"></div>
@@ -125,13 +131,13 @@
           <div class="panel">
             <div class="panel-header">
               <div>
-                <p class="eyebrow">Voice / Narration Agent</p>
-                <h3>Scene narration plan</h3>
+                <p class="eyebrow" data-i18n="voice.eyebrow">Voice / Narration Agent</p>
+                <h3 data-i18n="voice.title">Scene narration plan</h3>
               </div>
-              <button id="runNarration" class="secondary">Prepare</button>
+              <button id="runNarration" class="secondary" data-i18n="voice.prepare">Prepare</button>
             </div>
 
-            <label class="field-label" for="narrationInput">Scene text</label>
+            <label class="field-label" for="narrationInput" data-i18n="voice.sceneText">Scene text</label>
             <textarea id="narrationInput" rows="3">Don Quijote charges at the windmills while Sancho warns him from the road.</textarea>
 
             <article class="response-box" id="narrationResponse">
@@ -142,20 +148,20 @@
           <div class="panel">
             <div class="panel-header">
               <div>
-                <p class="eyebrow">Publisher Insights Agent</p>
-                <h3>Admin value view</h3>
+              <p class="eyebrow" data-i18n="publisher.eyebrow">Publisher Insights Agent</p>
+                <h3 data-i18n="publisher.title">Admin value view</h3>
               </div>
-              <button id="runPublisher" class="secondary">Analyze</button>
+              <button id="runPublisher" class="secondary" data-i18n="publisher.analyze">Analyze</button>
             </div>
 
             <div class="publisher-metrics" id="publisherMetrics">
               <div>
                 <strong>Waiting</strong>
-                <span>Engagement</span>
+                <span data-i18n="publisher.engagement">Engagement</span>
               </div>
               <div>
                 <strong>Waiting</strong>
-                <span>Quality</span>
+                <span data-i18n="publisher.quality">Quality</span>
               </div>
             </div>
             <div class="scene-list" id="publisherResponse"></div>
@@ -166,10 +172,10 @@
           <div id="evaluation" class="panel">
             <div class="panel-header">
               <div>
-                <p class="eyebrow">Track 2 evidence</p>
-                <h3>Before / after evaluation</h3>
+                <p class="eyebrow" data-i18n="evaluation.eyebrow">Track 2 evidence</p>
+                <h3 data-i18n="evaluation.title">Before / after evaluation</h3>
               </div>
-              <button id="runEvaluation" class="secondary">Run</button>
+              <button id="runEvaluation" class="secondary" data-i18n="evaluation.run">Run</button>
             </div>
             <div id="evaluationResults" class="evaluation-list"></div>
           </div>
@@ -177,8 +183,8 @@
           <div class="panel">
             <div class="panel-header">
               <div>
-                <p class="eyebrow">Observability</p>
-                <h3>Agent trace</h3>
+                <p class="eyebrow" data-i18n="trace.eyebrow">Observability</p>
+                <h3 data-i18n="trace.title">Agent trace</h3>
               </div>
             </div>
             <div id="traceList" class="trace-list"></div>
@@ -189,8 +195,8 @@
           <div class="panel runtime-panel">
             <div class="panel-header">
               <div>
-                <p class="eyebrow">Runtime proof</p>
-                <h3>Google Cloud services</h3>
+                <p class="eyebrow" data-i18n="runtime.eyebrow">Runtime proof</p>
+                <h3 data-i18n="runtime.title">Google Cloud services</h3>
               </div>
             </div>
             <div class="runtime-metrics">
@@ -204,18 +210,18 @@
               </div>
               <div>
                 <strong id="runtimeSeed">Loading</strong>
-                <span>Demo book seed</span>
+                <span data-i18n="runtime.seed">Demo book seed</span>
               </div>
               <div>
                 <strong id="runtimeRetrieval">Waiting</strong>
-                <span>Retrieval path</span>
+                <span data-i18n="runtime.retrieval">Retrieval path</span>
               </div>
             </div>
           </div>
         </section>
 
         <section id="architecture" class="architecture-band">
-          <p class="eyebrow">Google Cloud target</p>
+          <p class="eyebrow" data-i18n="architecture.eyebrow">Google Cloud target</p>
           <div class="architecture-flow" aria-label="Architecture flow">
             <span>Cloud Run Web</span>
             <span>FastAPI</span>

@@ -43,6 +43,8 @@ def test_challenge_capabilities() -> None:
     assert "Cloud Run" in body["googleCloudTarget"]
     assert "voice narration plan" in body["demoFlow"]
     assert "canon character chat" in body["demoFlow"]
+    assert "english primary language" in body["demoFlow"]
+    assert "spanish secondary language" in body["demoFlow"]
 
 
 def test_demo_book() -> None:
@@ -63,17 +65,39 @@ def test_demo_character_chat() -> None:
         json={
             "character_id": "don_quijote",
             "mode": "CANON",
+            "language": "en",
             "question": "Why do you attack the windmills?",
         },
     )
     assert response.status_code == 200
     body = response.json()
     assert body["mode"] == "CANON"
+    assert body["language"] == "en"
     assert body["reply"]["character_id"] == "don_quijote"
     assert body["reply"]["mode"] == "CANON"
+    assert body["reply"]["language"] == "en"
     assert body["fictionBranch"] is None
     assert body["consistency"]["checks"]["has_grounding"] is True
     assert body["traces"]
+
+
+def test_demo_character_chat_spanish_language() -> None:
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/demo/chat/character",
+        json={
+            "character_id": "don_quijote",
+            "mode": "CANON",
+            "language": "es",
+            "question": "Por que atacas los molinos?",
+        },
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["language"] == "es"
+    assert body["reply"]["language"] == "es"
+    assert body["reply"]["response"].startswith("Soy Don Quijote")
+    assert body["fictionBranch"] is None
 
 
 def test_demo_character_chat_fiction_branch() -> None:
@@ -83,6 +107,7 @@ def test_demo_character_chat_fiction_branch() -> None:
         json={
             "character_id": "don_quijote",
             "mode": "FICTION",
+            "language": "en",
             "question": "What if Sancho convinces you the giants are machines?",
         },
     )
@@ -103,6 +128,7 @@ def test_demo_character_chat_canon_rejects_future() -> None:
         json={
             "character_id": "don_quijote",
             "mode": "CANON",
+            "language": "en",
             "question": "Tell me what happens ten years after the ending.",
         },
     )

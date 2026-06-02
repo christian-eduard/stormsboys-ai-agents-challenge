@@ -29,12 +29,13 @@ The system includes:
 
 Readers can ask questions to a specific character, trigger multi-character scene interactions, and receive responses grounded in the book instead of generic chatbot answers.
 The demo also includes a narration handoff that produces a TTS-ready script/SSML plan, plus a publisher/admin view with engagement, quality, and commercialization insights.
+English is the primary submission language for judges, and the demo also includes a Spanish option for character chat so the product can serve Spanish-speaking readers.
 
 ## Track
 
-Track 2: Optimize Existing Agents.
+Track 3: Refactor for Google Cloud Marketplace & Gemini Enterprise.
 
-This submission focuses on taking a working agentic concept and making it more production-ready through modular agents, grounding, evaluation, observability, and Google Cloud deployment.
+This submission focuses on refactoring a working agentic product concept into a Google Cloud-ready, B2B-capable platform for publishers, authors, education platforms, and enterprise reading experiences. Track 2-style evaluation remains included as quality evidence: the demo shows grounding, guardrails, before/after cases, and visible traces.
 
 ## Technical Architecture
 
@@ -78,6 +79,7 @@ Stormsboys targets publishers, authors, education platforms, and digital reading
 ## Innovation
 
 The core innovation is treating a book as a coordinated multi-agent environment, not as a document attached to a chatbot. Characters have roles, constraints, emotional state, and narrative context. A consistency agent checks whether responses remain faithful to the source material. The system is designed to show before/after improvements for Track 2: fewer hallucinations, stronger character voice, better grounding, and visible execution traces.
+The reader can choose between canon mode, where answers stay inside the book, and fiction mode, where the system creates a clearly separated alternative branch anchored in the original text.
 
 ## What We Built During The Challenge
 

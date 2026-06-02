@@ -68,6 +68,24 @@ Puede:
 9. El libro queda disponible para lectura y conversacion.
 10. El sistema genera metricas para lector, editorial y administracion.
 
+## Idioma
+
+La experiencia principal para el challenge y Devpost es ingles, porque la descripcion, el
+video y la evaluacion de jueces deben entenderse sin friccion.
+
+El producto tambien debe ofrecer espanol como idioma secundario funcional:
+
+- La UI de demo debe permitir cambiar entre `English` y `Espanol`.
+- Los endpoints conversacionales deben aceptar `language=en|es`.
+- El Character Agent debe responder en el idioma seleccionado.
+- El modo canon y el modo ficcion deben mantener la misma regla de idioma.
+- La documentacion de producto puede estar en espanol para coordinacion interna, pero la
+  submission publica debe estar en ingles.
+
+Regla para agentes paralelos: no hardcodear textos solo en ingles dentro de flujos de usuario.
+Si se anade una pantalla o endpoint conversacional, debe respetar el idioma seleccionado o
+dejar documentado por que queda pendiente.
+
 ## Modos De Conversacion
 
 ### Modo Canon / Real

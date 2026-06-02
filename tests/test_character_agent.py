@@ -1,7 +1,12 @@
 from dataclasses import dataclass
 
 from storms_agents.agents.character import CharacterAgent
-from storms_agents.schemas import CharacterProfile, ConversationMode, RetrievedContext
+from storms_agents.schemas import (
+    CharacterProfile,
+    ConversationLanguage,
+    ConversationMode,
+    RetrievedContext,
+)
 from storms_agents.tools.gemini import GeminiStatus
 
 
@@ -60,6 +65,7 @@ def test_character_agent_uses_gemini_when_configured() -> None:
         "I am Don Quijote. I charge because the giants threaten honor and Dulcinea "
         "deserves brave service."
     )
+    assert result.output.language == ConversationLanguage.EN
     assert result.output.confidence == 0.9
     assert result.traces[0].model == "fake-gemini"
 
@@ -86,3 +92,16 @@ def test_character_agent_allows_fiction_branch_prompt() -> None:
 
     assert result.output.mode == ConversationMode.FICTION
     assert "cannot speak as canon" not in result.output.response
+
+
+def test_character_agent_respects_spanish_language() -> None:
+    result = CharacterAgent(gemini=FakeGemini(configured=False)).run(
+        _character(),
+        "Por que atacas los molinos?",
+        _contexts(),
+        ConversationMode.CANON,
+        ConversationLanguage.ES,
+    )
+
+    assert result.output.language == ConversationLanguage.ES
+    assert result.output.response.startswith("Soy Don Quijote")

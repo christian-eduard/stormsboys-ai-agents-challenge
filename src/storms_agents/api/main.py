@@ -19,7 +19,7 @@ from storms_agents.agents.scene_orchestrator import SceneOrchestratorAgent
 from storms_agents.config import get_settings
 from storms_agents.demo_data import DEMO_BOOK_ID, DEMO_BOOK_TEXT, DEMO_BOOK_TITLE
 from storms_agents.evaluation import run_demo_evaluation
-from storms_agents.schemas import AgentStatus, ConversationMode
+from storms_agents.schemas import AgentStatus, ConversationLanguage, ConversationMode
 from storms_agents.storage.repository import StorageRepository
 from storms_agents.tools.gemini import GeminiTool
 
@@ -38,6 +38,7 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 class CharacterChatRequest(BaseModel):
     character_id: str = "don_quijote"
     mode: ConversationMode = ConversationMode.CANON
+    language: ConversationLanguage = ConversationLanguage.EN
     question: str
 
 
@@ -109,6 +110,8 @@ def challenge_capabilities() -> dict[str, object]:
             "reader",
             "canon character chat",
             "fiction branch mode",
+            "english primary language",
+            "spanish secondary language",
             "character chat",
             "scene orchestration",
             "voice narration plan",
@@ -181,7 +184,13 @@ def demo_character_chat(request: CharacterChatRequest) -> dict[str, object]:
         request.question,
         settings.max_retrieved_sections,
     )
-    reply = CharacterAgent().run(character, request.question, retrieval.output, request.mode)
+    reply = CharacterAgent().run(
+        character,
+        request.question,
+        retrieval.output,
+        request.mode,
+        request.language,
+    )
     consistency = NarrativeConsistencyAgent().run(reply.output)
     fiction_branch = None
     fiction_traces = []
@@ -197,6 +206,7 @@ def demo_character_chat(request: CharacterChatRequest) -> dict[str, object]:
         fiction_traces = fiction.traces
     return {
         "mode": request.mode,
+        "language": request.language,
         "reply": reply.output.model_dump(),
         "fictionBranch": fiction_branch,
         "consistency": consistency.output,

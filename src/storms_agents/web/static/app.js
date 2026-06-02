@@ -1,5 +1,6 @@
 const state = {
   characters: [],
+  language: "en",
 };
 
 const els = {
@@ -10,6 +11,7 @@ const els = {
   sceneCount: document.querySelector("#sceneCount"),
   characterSelect: document.querySelector("#characterSelect"),
   modeSelect: document.querySelector("#modeSelect"),
+  languageSelect: document.querySelector("#languageSelect"),
   questionInput: document.querySelector("#questionInput"),
   askCharacter: document.querySelector("#askCharacter"),
   askFuture: document.querySelector("#askFuture"),
@@ -33,6 +35,150 @@ const els = {
   runtimeSeed: document.querySelector("#runtimeSeed"),
   runtimeRetrieval: document.querySelector("#runtimeRetrieval"),
 };
+
+const copy = {
+  en: {
+    "nav.reader": "Reader",
+    "nav.agents": "Agents",
+    "nav.publisher": "Publisher",
+    "nav.evaluation": "Evaluation",
+    "nav.runtime": "Runtime",
+    "nav.architecture": "Architecture",
+    "status.track": "Marketplace refactor",
+    "top.eyebrow": "Judge demo",
+    "top.title": "Multi-agent literary intelligence",
+    "book.eyebrow": "Demo book",
+    "metrics.characters": "Characters",
+    "metrics.places": "Places",
+    "metrics.scenes": "Scenes",
+    "character.eyebrow": "Character Agent",
+    "character.title": "Grounded character chat",
+    "character.prompt": "Prompt",
+    "character.ask": "Ask character",
+    "character.future": "Out-of-canon test",
+    "scene.eyebrow": "Scene Orchestrator",
+    "scene.title": "Multi-character response",
+    "scene.prompt": "Scene prompt",
+    "scene.run": "Run scene",
+    "voice.eyebrow": "Voice / Narration Agent",
+    "voice.title": "Scene narration plan",
+    "voice.prepare": "Prepare",
+    "voice.sceneText": "Scene text",
+    "publisher.eyebrow": "Publisher Insights Agent",
+    "publisher.title": "Admin value view",
+    "publisher.analyze": "Analyze",
+    "publisher.engagement": "Engagement",
+    "publisher.quality": "Quality",
+    "evaluation.eyebrow": "Track 2 evidence",
+    "evaluation.title": "Before / after evaluation",
+    "evaluation.run": "Run",
+    "trace.eyebrow": "Observability",
+    "trace.title": "Agent trace",
+    "runtime.eyebrow": "Runtime proof",
+    "runtime.title": "Google Cloud services",
+    "runtime.seed": "Demo book seed",
+    "runtime.retrieval": "Retrieval path",
+    "architecture.eyebrow": "Google Cloud target",
+    "character.initial": "Select a character and run the demo prompt.",
+    "character.running": "Running retrieval, character response, and consistency check.",
+    "scene.running": "Coordinating scene agents.",
+    "voice.running": "Preparing narration handoff.",
+    "publisher.running": "Generating publisher insights.",
+    "evaluation.running": "Running before and after evaluation.",
+    "labels.fictionBranch": "Fiction branch",
+    "labels.consistency": "Consistency",
+    "labels.passed": "passed",
+    "labels.needsReview": "needs review",
+    "labels.language": "Language",
+    questionDefault: "Why do you attack the windmills?",
+    futureDefault: "Tell me what happens ten years after the ending.",
+    sceneDefault: "Discuss whether the windmills are giants or only windmills.",
+    narrationDefault: "Don Quijote charges at the windmills while Sancho warns him from the road.",
+  },
+  es: {
+    "nav.reader": "Lector",
+    "nav.agents": "Agentes",
+    "nav.publisher": "Editorial",
+    "nav.evaluation": "Evaluacion",
+    "nav.runtime": "Runtime",
+    "nav.architecture": "Arquitectura",
+    "status.track": "Refactor Marketplace",
+    "top.eyebrow": "Demo para jueces",
+    "top.title": "Inteligencia literaria multiagente",
+    "book.eyebrow": "Libro demo",
+    "metrics.characters": "Personajes",
+    "metrics.places": "Lugares",
+    "metrics.scenes": "Escenas",
+    "character.eyebrow": "Agente de personaje",
+    "character.title": "Chat fundamentado con personaje",
+    "character.prompt": "Pregunta",
+    "character.ask": "Preguntar",
+    "character.future": "Prueba fuera de canon",
+    "scene.eyebrow": "Orquestador de escena",
+    "scene.title": "Respuesta multipersonaje",
+    "scene.prompt": "Prompt de escena",
+    "scene.run": "Ejecutar escena",
+    "voice.eyebrow": "Agente de voz / narracion",
+    "voice.title": "Plan de narracion de escena",
+    "voice.prepare": "Preparar",
+    "voice.sceneText": "Texto de escena",
+    "publisher.eyebrow": "Agente de insights editoriales",
+    "publisher.title": "Vista de valor admin",
+    "publisher.analyze": "Analizar",
+    "publisher.engagement": "Engagement",
+    "publisher.quality": "Calidad",
+    "evaluation.eyebrow": "Evidencia Track 2",
+    "evaluation.title": "Evaluacion antes / despues",
+    "evaluation.run": "Ejecutar",
+    "trace.eyebrow": "Observabilidad",
+    "trace.title": "Traza de agentes",
+    "runtime.eyebrow": "Prueba de runtime",
+    "runtime.title": "Servicios Google Cloud",
+    "runtime.seed": "Libro demo cargado",
+    "runtime.retrieval": "Ruta de recuperacion",
+    "architecture.eyebrow": "Objetivo Google Cloud",
+    "character.initial": "Selecciona un personaje y ejecuta la pregunta demo.",
+    "character.running": "Ejecutando recuperacion, respuesta del personaje y control de consistencia.",
+    "scene.running": "Coordinando agentes de escena.",
+    "voice.running": "Preparando entrega a narracion.",
+    "publisher.running": "Generando insights para editorial.",
+    "evaluation.running": "Ejecutando evaluacion antes y despues.",
+    "labels.fictionBranch": "Rama de ficcion",
+    "labels.consistency": "Consistencia",
+    "labels.passed": "aprobada",
+    "labels.needsReview": "requiere revision",
+    "labels.language": "Idioma",
+    questionDefault: "Por que atacas los molinos?",
+    futureDefault: "Cuentame que ocurre diez anos despues del final.",
+    sceneDefault: "Debatid si los molinos son gigantes o solo molinos.",
+    narrationDefault: "Don Quijote carga contra los molinos mientras Sancho le advierte desde el camino.",
+  },
+};
+
+function t(key) {
+  return copy[state.language][key] ?? copy.en[key] ?? key;
+}
+
+function applyLanguage(language) {
+  const previousCopy = copy[state.language];
+  state.language = language;
+  document.documentElement.lang = language;
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    element.textContent = t(element.dataset.i18n);
+  });
+  if (!els.questionInput.value || els.questionInput.value === previousCopy.questionDefault) {
+    els.questionInput.value = t("questionDefault");
+  }
+  if (!els.scenePrompt.value || els.scenePrompt.value === previousCopy.sceneDefault) {
+    els.scenePrompt.value = t("sceneDefault");
+  }
+  if (!els.narrationInput.value || els.narrationInput.value === previousCopy.narrationDefault) {
+    els.narrationInput.value = t("narrationDefault");
+  }
+  if (els.characterResponse.textContent.trim() === previousCopy["character.initial"]) {
+    els.characterResponse.textContent = t("character.initial");
+  }
+}
 
 async function api(path, options = {}) {
   const response = await fetch(path, {
@@ -108,31 +254,36 @@ async function loadStorage() {
 }
 
 async function askCharacter(question) {
-  els.characterResponse.textContent = "Running retrieval, character response, and consistency check.";
+  els.characterResponse.textContent = t("character.running");
   const data = await api("/api/v1/demo/chat/character", {
     method: "POST",
     body: JSON.stringify({
       character_id: els.characterSelect.value,
       mode: els.modeSelect.value,
+      language: els.languageSelect.value,
       question,
     }),
   });
   els.characterResponse.innerHTML = `
-    <strong>${data.reply.character_name} | ${data.mode}</strong>
+    <strong>${data.reply.character_name} | ${data.mode} | ${t("labels.language")}: ${
+      data.language
+    }</strong>
     <p>${data.reply.response}</p>
     ${
       data.fictionBranch
-        ? `<p>Fiction branch: ${data.fictionBranch.branch_id}</p>
+        ? `<p>${t("labels.fictionBranch")}: ${data.fictionBranch.branch_id}</p>
            <p>${data.fictionBranch.premise}</p>`
         : ""
     }
-    <p>Consistency: ${data.consistency.passed ? "passed" : "needs review"}</p>
+    <p>${t("labels.consistency")}: ${
+      data.consistency.passed ? t("labels.passed") : t("labels.needsReview")
+    }</p>
   `;
   renderTraces(data.traces);
 }
 
 async function runScene() {
-  els.sceneResponse.textContent = "Coordinating scene agents.";
+  els.sceneResponse.textContent = t("scene.running");
   const data = await api("/api/v1/demo/chat/scene", {
     method: "POST",
     body: JSON.stringify({ prompt: els.scenePrompt.value }),
@@ -151,7 +302,7 @@ async function runScene() {
 }
 
 async function runNarration() {
-  els.narrationResponse.textContent = "Preparing narration handoff.";
+  els.narrationResponse.textContent = t("voice.running");
   const data = await api("/api/v1/demo/narration", {
     method: "POST",
     body: JSON.stringify({ scene_text: els.narrationInput.value }),
@@ -168,7 +319,7 @@ async function runNarration() {
 }
 
 async function runPublisher() {
-  els.publisherResponse.textContent = "Generating publisher insights.";
+  els.publisherResponse.textContent = t("publisher.running");
   const data = await api("/api/v1/demo/publisher");
   els.publisherMetrics.innerHTML = `
     <div>
@@ -194,7 +345,7 @@ async function runPublisher() {
 }
 
 async function runEvaluation() {
-  els.evaluationResults.textContent = "Running before and after evaluation.";
+  els.evaluationResults.textContent = t("evaluation.running");
   const data = await api("/api/v1/demo/evaluation");
   els.evaluationResults.innerHTML = "";
   const summary = document.createElement("article");
@@ -226,14 +377,17 @@ async function runEvaluation() {
 els.askCharacter.addEventListener("click", () => askCharacter(els.questionInput.value));
 els.askFuture.addEventListener("click", () => {
   els.modeSelect.value = "CANON";
-  els.questionInput.value = "Tell me what happens ten years after the ending.";
+  els.questionInput.value = t("futureDefault");
   askCharacter(els.questionInput.value);
 });
+els.languageSelect.addEventListener("change", () => applyLanguage(els.languageSelect.value));
 els.runScene.addEventListener("click", runScene);
 els.runNarration.addEventListener("click", runNarration);
 els.runPublisher.addEventListener("click", runPublisher);
 els.runEvaluation.addEventListener("click", runEvaluation);
 els.refreshDemo.addEventListener("click", loadBook);
+
+applyLanguage(els.languageSelect.value);
 
 loadBook()
   .then(runEvaluation)

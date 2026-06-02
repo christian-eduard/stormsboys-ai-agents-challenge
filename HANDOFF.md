@@ -12,6 +12,7 @@ Estamos creando un proyecto nuevo, aislado y autocontenido para el Google for St
 - Regla critica: no usar codigo, configuracion, datos, rutas, IDs ni recursos de otros proyectos.
 - Nueva conclusion de producto: no estamos construyendo solo una demo de Don Quijote. Estamos reconstruyendo de forma limpia la plataforma real de libros interactivos: upload, analisis Gemini, personajes con psicologia, modo canon, modo ficcion, lector, escena/grupo, voz, publisher y superadmin.
 - Don Quijote es el caso demo principal por ser reconocible y de dominio publico.
+- Idioma: ingles es el idioma primario de submission/jueces; espanol es secundario pero debe ser una opcion funcional en la experiencia.
 
 ## Lectura Obligatoria Para Otro Agente
 
@@ -42,6 +43,7 @@ Ya existe:
 - VoiceNarrationAgent para preparar narracion/SSML lista para TTS.
 - PublisherInsightsAgent para vista admin con engagement, calidad y recomendaciones.
 - `ConversationMode` con `CANON` y `FICTION` en API/UI.
+- `ConversationLanguage` con `en` y `es` en API/UI.
 - `FictionBranchAgent` minimo: crea ramas alternativas separadas de canon en la respuesta API.
 - Dockerfile.
 - Scripts de smoke test y revision publica.
@@ -108,6 +110,7 @@ Ultima validacion local conocida:
 - Publisher publico confirmado: `PublisherInsightsAgent`, engagement y quality `100%`.
 - Smoke test publico confirmado el 2026-06-03 contra revision `stormsboys-agents-api-00014-cfj`.
 - Modos publicos confirmados: `CANON` rechaza futuro como canon y `FICTION` crea `fictionBranch`.
+- Idioma implementado en chat de personaje: English por defecto, Espanol seleccionable, API devuelve `language`.
 - Nota local: `.venv` usa Python 3.14 en este Mac y `pytest` puede quedarse colgado al arrancar importaciones de dependencias Google. Para validacion fiable usa Docker/Python 3.11, que coincide con Cloud Run.
 
 ## Mapa De Codigo

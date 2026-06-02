@@ -3,6 +3,7 @@ from storms_agents.observability import trace_span
 from storms_agents.schemas import (
     CharacterProfile,
     CharacterReply,
+    ConversationLanguage,
     ConversationMode,
     RetrievedContext,
 )
@@ -21,6 +22,7 @@ class CharacterAgent:
         question: str,
         contexts: list[RetrievedContext],
         mode: ConversationMode = ConversationMode.CANON,
+        language: ConversationLanguage = ConversationLanguage.EN,
     ) -> AgentResult[CharacterReply]:
         with trace_span(
             self.name,
@@ -30,14 +32,12 @@ class CharacterAgent:
             model=self.gemini.status.model,
         ) as trace:
             if not contexts and mode == ConversationMode.CANON:
-                response = (
-                    f"I am {character.name}. I do not have grounded evidence in the book for "
-                    "that question, so I should not invent an answer."
-                )
+                response = self._missing_evidence_response(character, language)
                 reply = CharacterReply(
                     character_id=character.character_id,
                     character_name=character.name,
                     mode=mode,
+                    language=language,
                     response=response,
                     thought="Acknowledge missing retrieval evidence instead of inventing canon.",
                     emotional_state="careful",
@@ -55,12 +55,14 @@ class CharacterAgent:
                 evidence,
                 contexts,
                 mode,
+                language,
             )
 
             reply = CharacterReply(
                 character_id=character.character_id,
                 character_name=character.name,
                 mode=mode,
+                language=language,
                 response=response,
                 thought=(
                     "Use grounded context and stay inside canon constraints."
@@ -83,29 +85,29 @@ class CharacterAgent:
         evidence: str,
         contexts: list[RetrievedContext],
         mode: ConversationMode,
+        language: ConversationLanguage,
     ) -> tuple[str, float]:
         if mode == ConversationMode.CANON and self._asks_beyond_canon(question):
             return (
-                f"I am {character.name}. I cannot speak as canon about events beyond the book. "
-                "I can only answer from what the story gives us.",
+                self._beyond_canon_response(character, language),
                 0.88,
             )
 
         if not self.gemini.status.configured:
-            return self._deterministic_response(character, evidence, mode), 0.82
+            return self._deterministic_response(character, evidence, mode, language), 0.82
 
-        prompt = self._build_prompt(character, question, evidence, contexts, mode)
+        prompt = self._build_prompt(character, question, evidence, contexts, mode, language)
         try:
             generated = self.gemini.generate_text(
                 prompt,
-                system_instruction=self._system_instruction(character, mode),
+                system_instruction=self._system_instruction(character, mode, language),
             ).strip()
         except Exception:
-            return self._deterministic_response(character, evidence, mode), 0.7
+            return self._deterministic_response(character, evidence, mode, language), 0.7
 
         if not generated:
-            return self._deterministic_response(character, evidence, mode), 0.7
-        return self._ensure_character_voice(character, generated), 0.9
+            return self._deterministic_response(character, evidence, mode, language), 0.7
+        return self._ensure_character_voice(character, generated, language), 0.9
 
     def _build_prompt(
         self,
@@ -114,8 +116,14 @@ class CharacterAgent:
         evidence: str,
         contexts: list[RetrievedContext],
         mode: ConversationMode,
+        language: ConversationLanguage,
     ) -> str:
         citations = ", ".join(context.section_id for context in contexts) or "none"
+        language_rule = (
+            "Answer in English."
+            if language == ConversationLanguage.EN
+            else "Responde en espanol."
+        )
         mode_rules = (
             "Mode: CANON. Use only the supplied evidence. Do not invent plot events."
             if mode == ConversationMode.CANON
@@ -131,24 +139,35 @@ class CharacterAgent:
             f"Goals: {', '.join(character.goals) or 'unknown'}\n"
             f"Constraints: {', '.join(character.constraints) or 'stay in canon'}\n"
             f"{mode_rules}\n"
+            f"Language: {language.value}. {language_rule}\n"
             f"Evidence citations: {citations}\n"
             f"Evidence: {evidence}\n"
             f"Reader question: {question}\n"
             "Answer in 2-4 sentences."
         )
 
-    def _system_instruction(self, character: CharacterProfile, mode: ConversationMode) -> str:
+    def _system_instruction(
+        self,
+        character: CharacterProfile,
+        mode: ConversationMode,
+        language: ConversationLanguage,
+    ) -> str:
+        language_rule = (
+            f"Answer in English and start with 'I am {character.name}.'"
+            if language == ConversationLanguage.EN
+            else f"Responde siempre en espanol y empieza con 'Soy {character.name}.'"
+        )
         if mode == ConversationMode.FICTION:
             return (
                 "You are a fiction-branch literary character agent. Answer in first person as "
-                f"the character. Start with 'I am {character.name}.' Build an explicitly "
+                "the character. Build an explicitly "
                 "alternative continuation anchored in the supplied book evidence. Never claim "
-                "the new branch is canon."
+                f"the new branch is canon. {language_rule}"
             )
         return (
             "You are a grounded literary character agent. Answer in first person as the "
-            f"character. Start with 'I am {character.name}.' Use only the supplied "
-            "evidence. Do not invent plot events."
+            f"character. Use only the supplied evidence. Do not invent plot events. "
+            f"{language_rule}"
         )
 
     def _deterministic_response(
@@ -156,20 +175,69 @@ class CharacterAgent:
         character: CharacterProfile,
         evidence: str,
         mode: ConversationMode,
+        language: ConversationLanguage,
     ) -> str:
         if mode == ConversationMode.FICTION:
+            if language == ConversationLanguage.ES:
+                return (
+                    f"Soy {character.name}. En esta rama alternativa, parto del recuerdo del "
+                    f"libro: {evidence} Desde ahi podemos imaginar un camino nuevo, marcado "
+                    "como ficcion."
+                )
             return (
                 f"I am {character.name}. In this alternative branch, I begin from the book's "
                 f"memory: {evidence} From there, we may imagine a new path, marked as fiction."
+            )
+        if language == ConversationLanguage.ES:
+            return (
+                f"Soy {character.name}. Desde mi lugar en la historia, esto importa porque "
+                f"{evidence}"
             )
         return (
             f"I am {character.name}. From my place in the story, this matters because "
             f"{evidence}"
         )
 
-    def _ensure_character_voice(self, character: CharacterProfile, response: str) -> str:
+    def _missing_evidence_response(
+        self,
+        character: CharacterProfile,
+        language: ConversationLanguage,
+    ) -> str:
+        if language == ConversationLanguage.ES:
+            return (
+                f"Soy {character.name}. No tengo evidencia fundamentada en el libro para "
+                "esa pregunta, asi que no debo inventar una respuesta."
+            )
+        return (
+            f"I am {character.name}. I do not have grounded evidence in the book for "
+            "that question, so I should not invent an answer."
+        )
+
+    def _beyond_canon_response(
+        self,
+        character: CharacterProfile,
+        language: ConversationLanguage,
+    ) -> str:
+        if language == ConversationLanguage.ES:
+            return (
+                f"Soy {character.name}. No puedo hablar como canon sobre acontecimientos "
+                "posteriores al libro. Solo puedo responder desde lo que la historia nos da."
+            )
+        return (
+            f"I am {character.name}. I cannot speak as canon about events beyond the book. "
+            "I can only answer from what the story gives us."
+        )
+
+    def _ensure_character_voice(
+        self,
+        character: CharacterProfile,
+        response: str,
+        language: ConversationLanguage,
+    ) -> str:
         if character.name.lower() in response.lower():
             return response
+        if language == ConversationLanguage.ES:
+            return f"Soy {character.name}. {response}"
         return f"I am {character.name}. {response}"
 
     def _asks_beyond_canon(self, question: str) -> bool:

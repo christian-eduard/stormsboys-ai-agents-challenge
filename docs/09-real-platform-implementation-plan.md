@@ -12,6 +12,7 @@ Tener una app funcional para jueces que demuestre:
 - Lector.
 - Chat canon.
 - Chat ficcion.
+- Selector English/Espanol con ingles como idioma primario.
 - Escena/grupo.
 - Voz/narracion.
 - Publisher dashboard.
@@ -26,6 +27,7 @@ Tener una app funcional para jueces que demuestre:
 - Cada flujo debe verse en la demo.
 - Don Quijote es el primer libro real.
 - El modo canon y ficcion deben estar separados desde el modelo.
+- Ingles es el idioma primario de la submission; espanol debe existir como opcion funcional.
 
 ## Fase 1: Base Real De Libro
 
@@ -70,6 +72,26 @@ Validacion:
 
 Estado actual: la separacion existe en API/UI y tests, pero la memoria persistente de ramas
 ficcionales todavia no esta guardada en base de datos.
+
+## Fase 2.5: Idioma De Producto
+
+Meta: convertir la demo en una experiencia bilingue controlada, sin esconder que la entrega
+publica es en ingles.
+
+Entregables:
+
+- [x] Enum `ConversationLanguage`: `en`, `es`.
+- [x] Endpoint de chat acepta `language`.
+- [x] Character Agent responde en ingles o espanol segun contrato.
+- [x] UI tiene selector visible English/Espanol.
+- [x] Smoke test cubre chat canon en ingles y espanol.
+- [ ] Extender idioma a upload, publisher, superadmin y flujos futuros cuando existan.
+
+Validacion:
+
+- Al seleccionar English, la demo mantiene copy y respuestas aptas para jueces.
+- Al seleccionar Espanol, el usuario puede preguntar a Don Quijote y recibir respuesta en espanol.
+- Ningun agente debe eliminar esta capacidad al tocar chat/personajes.
 
 ## Fase 3: Modelo Publisher/Admin
 

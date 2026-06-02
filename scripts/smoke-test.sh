@@ -16,12 +16,17 @@ CURL=(curl --max-time 60 --fail --silent)
 "${CURL[@]}" \
   -X POST "${BASE_URL}/api/v1/demo/chat/character" \
   -H "content-type: application/json" \
-  -d '{"character_id":"don_quijote","mode":"CANON","question":"Why do you attack the windmills?"}' \
+  -d '{"character_id":"don_quijote","mode":"CANON","language":"en","question":"Why do you attack the windmills?"}' \
   >/dev/null
 "${CURL[@]}" \
   -X POST "${BASE_URL}/api/v1/demo/chat/character" \
   -H "content-type: application/json" \
-  -d '{"character_id":"don_quijote","mode":"FICTION","question":"What if Sancho convinces you the giants are machines?"}' \
+  -d '{"character_id":"don_quijote","mode":"CANON","language":"es","question":"Por que atacas los molinos?"}' \
+  >/dev/null
+"${CURL[@]}" \
+  -X POST "${BASE_URL}/api/v1/demo/chat/character" \
+  -H "content-type: application/json" \
+  -d '{"character_id":"don_quijote","mode":"FICTION","language":"en","question":"What if Sancho convinces you the giants are machines?"}' \
   >/dev/null
 "${CURL[@]}" \
   -X POST "${BASE_URL}/api/v1/demo/narration" \

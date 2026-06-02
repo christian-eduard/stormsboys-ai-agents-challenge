@@ -15,6 +15,11 @@ class ConversationMode(StrEnum):
     FICTION = "FICTION"
 
 
+class ConversationLanguage(StrEnum):
+    EN = "en"
+    ES = "es"
+
+
 class AgentTrace(BaseModel):
     trace_id: str
     span_id: str
@@ -48,6 +53,7 @@ class CharacterReply(BaseModel):
     character_id: str
     character_name: str
     mode: ConversationMode = ConversationMode.CANON
+    language: ConversationLanguage = ConversationLanguage.EN
     response: str
     thought: str | None = None
     emotional_state: str | None = None

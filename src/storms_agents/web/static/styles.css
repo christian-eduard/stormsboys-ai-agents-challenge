@@ -160,10 +160,18 @@ button.secondary:hover {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 14px;
 }
 
 .topbar h2 {
   font-size: 28px;
+}
+
+.topbar-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 10px;
+  align-items: center;
 }
 
 .eyebrow {
@@ -462,5 +470,10 @@ textarea {
   .topbar h2,
   .book-summary h3 {
     font-size: 22px;
+  }
+
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
