@@ -87,7 +87,7 @@ http://127.0.0.1:8080
 
 Ultima validacion local conocida:
 
-- Tests en contenedor Python 3.11: pasan, 37 tests.
+- Tests en contenedor Python 3.11: pasan, 38 tests.
 - `make lint`: pasa.
 - `make public-ready`: pasa.
 - `BASE_URL=http://127.0.0.1:8088 make smoke`: pasa.
@@ -100,7 +100,7 @@ Ultima validacion local conocida:
 - Billing Pronexus enlazado.
 - Budget guardrail de 50 EUR creado.
 - Cloud Run desplegado: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
-- Revision Cloud Run activa: `stormsboys-agents-api-00020-tvn`.
+- Revision Cloud Run activa: `stormsboys-agents-api-00021-lr4`.
 - Cloud Run usa service account nueva: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - No hay claves JSON de usuario ni credenciales antiguas en el runtime.
 - Cloud SQL instance: `stormsboys-pgvector`.
@@ -116,7 +116,7 @@ Ultima validacion local conocida:
 - Narration publico confirmado: `VoiceNarrationAgent`, SSML y `ready_for_tts=true`.
 - Publisher publico confirmado: `PublisherInsightsAgent`, engagement y quality `100%`.
 - Admin publico confirmado: login demo, tokens demo, roles `reader`, `author`, `publisher_admin`, `super_admin`, `judge_access`, tenant demo, catalogo y readiness Marketplace.
-- Smoke test publico confirmado el 2026-06-03 contra revision `stormsboys-agents-api-00020-tvn`.
+- Smoke test publico confirmado el 2026-06-03 contra revision `stormsboys-agents-api-00021-lr4`.
 - Modos publicos confirmados: `CANON` rechaza futuro como canon y `FICTION` crea `fictionBranch`.
 - Idioma publico confirmado: English por defecto, Espanol seleccionable, API devuelve `language` y Don Quijote responde en espanol cuando `language=es`.
 - Nota local: `.venv` usa Python 3.14 en este Mac y `pytest` puede quedarse colgado al arrancar importaciones de dependencias Google. Para validacion fiable usa Docker/Python 3.11, que coincide con Cloud Run.

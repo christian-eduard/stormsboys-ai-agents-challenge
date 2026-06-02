@@ -45,11 +45,11 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 
 - Service: `stormsboys-agents-api`.
 - Region: `us-central1`.
-- Revision: `stormsboys-agents-api-00020-tvn`.
+- Revision: `stormsboys-agents-api-00021-lr4`.
 - Runtime service account: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - URL canonica: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
 - URL alternativa: `https://stormsboys-agents-api-425710112361.us-central1.run.app`.
-- Trafico: 100% a la revision `stormsboys-agents-api-00020-tvn`.
+- Trafico: 100% a la revision `stormsboys-agents-api-00021-lr4`.
 - Smoke test publico: pasa el 2026-06-03.
 - Admin publico confirmado: login demo, tokens demo protegidos, roles, catalogo, tenant demo y readiness Marketplace.
 - Idioma publico confirmado: `language=en` y `language=es` en chat de personaje.
