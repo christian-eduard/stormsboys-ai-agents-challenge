@@ -1,6 +1,9 @@
 const state = {
   characters: [],
+  demoUsers: [],
   language: "en",
+  marketplace: null,
+  session: null,
 };
 
 const els = {
@@ -12,6 +15,10 @@ const els = {
   characterSelect: document.querySelector("#characterSelect"),
   modeSelect: document.querySelector("#modeSelect"),
   languageSelect: document.querySelector("#languageSelect"),
+  userSelect: document.querySelector("#userSelect"),
+  loginButton: document.querySelector("#loginButton"),
+  logoutButton: document.querySelector("#logoutButton"),
+  activeUser: document.querySelector("#activeUser"),
   questionInput: document.querySelector("#questionInput"),
   askCharacter: document.querySelector("#askCharacter"),
   askFuture: document.querySelector("#askFuture"),
@@ -25,9 +32,11 @@ const els = {
   runPublisher: document.querySelector("#runPublisher"),
   publisherMetrics: document.querySelector("#publisherMetrics"),
   publisherResponse: document.querySelector("#publisherResponse"),
+  publisherAccess: document.querySelector("#publisherAccess"),
   refreshAdmin: document.querySelector("#refreshAdmin"),
   roleList: document.querySelector("#roleList"),
   marketplaceSummary: document.querySelector("#marketplaceSummary"),
+  adminAccess: document.querySelector("#adminAccess"),
   catalogList: document.querySelector("#catalogList"),
   runEvaluation: document.querySelector("#runEvaluation"),
   evaluationResults: document.querySelector("#evaluationResults"),
@@ -50,6 +59,16 @@ const copy = {
     "nav.runtime": "Runtime",
     "nav.architecture": "Architecture",
     "status.track": "Marketplace refactor",
+    "login.eyebrow": "Demo access",
+    "login.account": "Account",
+    "login.signIn": "Sign in",
+    "login.signOut": "Sign out",
+    "login.none": "Not signed in",
+    "login.active": "Signed in as",
+    "login.required": "Sign in with a demo account to use role-based access.",
+    "login.publisherRequired": "Publisher Admin or Super Admin access required.",
+    "login.superRequired": "Super Admin access required.",
+    "login.allowed": "Access granted",
     "top.eyebrow": "Judge demo",
     "top.title": "Multi-agent literary intelligence",
     "book.eyebrow": "Demo book",
@@ -119,6 +138,16 @@ const copy = {
     "nav.runtime": "Runtime",
     "nav.architecture": "Arquitectura",
     "status.track": "Refactor Marketplace",
+    "login.eyebrow": "Acceso demo",
+    "login.account": "Cuenta",
+    "login.signIn": "Entrar",
+    "login.signOut": "Salir",
+    "login.none": "Sin sesion iniciada",
+    "login.active": "Sesion iniciada como",
+    "login.required": "Inicia sesion con una cuenta demo para usar accesos por rol.",
+    "login.publisherRequired": "Se requiere Publisher Admin o Super Admin.",
+    "login.superRequired": "Se requiere Super Admin.",
+    "login.allowed": "Acceso concedido",
     "top.eyebrow": "Demo para jueces",
     "top.title": "Inteligencia literaria multiagente",
     "book.eyebrow": "Libro demo",
@@ -204,6 +233,8 @@ function applyLanguage(language) {
   if (els.characterResponse.textContent.trim() === previousCopy["character.initial"]) {
     els.characterResponse.textContent = t("character.initial");
   }
+  renderSession();
+  applyAccess();
 }
 
 async function api(path, options = {}) {
@@ -215,6 +246,80 @@ async function api(path, options = {}) {
     throw new Error(`Request failed: ${response.status}`);
   }
   return response.json();
+}
+
+async function loadAuth() {
+  const data = await api("/api/v1/auth/demo-users");
+  state.demoUsers = data.users;
+  els.userSelect.innerHTML = "";
+  data.users.forEach((user) => {
+    const option = document.createElement("option");
+    option.value = user.user_id;
+    option.textContent = `${user.name} (${user.role})`;
+    els.userSelect.appendChild(option);
+  });
+  const savedSession = localStorage.getItem("stormsboys-demo-session");
+  if (savedSession) {
+    state.session = JSON.parse(savedSession);
+    els.userSelect.value = state.session.user.user_id;
+  }
+  renderSession();
+  applyAccess();
+}
+
+async function login() {
+  const data = await api("/api/v1/auth/demo-login", {
+    method: "POST",
+    body: JSON.stringify({ user_id: els.userSelect.value }),
+  });
+  state.session = data;
+  localStorage.setItem("stormsboys-demo-session", JSON.stringify(data));
+  renderSession();
+  applyAccess();
+}
+
+function logout() {
+  state.session = null;
+  localStorage.removeItem("stormsboys-demo-session");
+  renderSession();
+  applyAccess();
+}
+
+function renderSession() {
+  if (!state.session) {
+    els.activeUser.textContent = t("login.none");
+    els.activeUser.className = "active-user";
+    return;
+  }
+  const { user } = state.session;
+  els.activeUser.textContent = `${t("login.active")} ${user.name} | ${user.role}`;
+  els.activeUser.className = "active-user signed-in";
+}
+
+function hasPermission(permission) {
+  return Boolean(state.session?.user?.permissions?.includes(permission));
+}
+
+function applyAccess() {
+  const canPublish = hasPermission("manage_catalog") || hasPermission("manage_tenants");
+  const canOperate = hasPermission("manage_tenants");
+  els.runPublisher.disabled = !canPublish;
+  els.refreshAdmin.disabled = !canPublish;
+  els.publisherAccess.textContent = canPublish
+    ? `${t("login.allowed")}: publisher catalog`
+    : state.session
+      ? t("login.publisherRequired")
+      : t("login.required");
+  els.adminAccess.textContent = canOperate
+    ? `${t("login.allowed")}: platform operations`
+    : state.session
+      ? t("login.superRequired")
+      : t("login.required");
+  els.publisherAccess.className = canPublish ? "access-box granted" : "access-box locked";
+  els.adminAccess.className = canOperate ? "access-box granted" : "access-box locked";
+  if (state.marketplace) {
+    renderMarketplace(state.marketplace);
+  }
 }
 
 function renderTraces(traces = []) {
@@ -248,6 +353,7 @@ function renderCharacters(characters) {
 }
 
 async function loadBook() {
+  await loadAuth();
   await loadCapabilities();
   await loadStorage();
   await loadAdmin();
@@ -269,6 +375,7 @@ async function loadAdmin() {
     api("/api/v1/admin/roles"),
     api("/api/v1/admin/marketplace"),
   ]);
+  state.marketplace = marketplace;
   renderRoles(roles.roles);
   renderMarketplace(marketplace);
 }
@@ -291,6 +398,12 @@ function renderRoles(roles = []) {
 }
 
 function renderMarketplace(marketplace) {
+  const canPublish = hasPermission("manage_catalog") || hasPermission("manage_tenants");
+  if (!canPublish) {
+    els.marketplaceSummary.innerHTML = "";
+    els.catalogList.innerHTML = "";
+    return;
+  }
   const readiness = marketplace.listingReadiness;
   const operations = marketplace.operations;
   els.marketplaceSummary.innerHTML = `
@@ -410,6 +523,10 @@ async function runNarration() {
 }
 
 async function runPublisher() {
+  if (!(hasPermission("manage_catalog") || hasPermission("manage_tenants"))) {
+    applyAccess();
+    return;
+  }
   els.publisherResponse.textContent = t("publisher.running");
   const data = await api("/api/v1/demo/publisher");
   els.publisherMetrics.innerHTML = `
@@ -471,6 +588,8 @@ els.askFuture.addEventListener("click", () => {
   els.questionInput.value = t("futureDefault");
   askCharacter(els.questionInput.value);
 });
+els.loginButton.addEventListener("click", login);
+els.logoutButton.addEventListener("click", logout);
 els.languageSelect.addEventListener("change", () => applyLanguage(els.languageSelect.value));
 els.runScene.addEventListener("click", runScene);
 els.runNarration.addEventListener("click", runNarration);

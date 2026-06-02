@@ -45,6 +45,11 @@ button:hover {
   background: var(--accent-strong);
 }
 
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 button.secondary {
   color: var(--ink);
   background: #e5ebf1;
@@ -131,6 +136,39 @@ button.secondary:hover {
   border: 1px solid #344758;
   border-radius: 8px;
   padding: 14px;
+}
+
+.login-panel {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  border: 1px solid #344758;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.login-panel select {
+  max-width: 100%;
+}
+
+.button-row.compact {
+  margin-top: 2px;
+}
+
+.button-row.compact button {
+  flex: 1 1 80px;
+}
+
+.active-user {
+  margin: 0;
+  color: #b7c6d3;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.active-user.signed-in {
+  color: #d8f3e7;
+  font-weight: 700;
 }
 
 .status-dot {
@@ -371,6 +409,7 @@ textarea {
 }
 
 .response-box,
+.access-box,
 .scene-item,
 .role-item,
 .catalog-item,
@@ -385,6 +424,20 @@ textarea {
 .response-box {
   margin-top: 14px;
   line-height: 1.5;
+}
+
+.access-box {
+  margin-top: 14px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.access-box.granted {
+  border-left: 4px solid var(--accent);
+}
+
+.access-box.locked {
+  border-left: 4px solid var(--danger);
 }
 
 .scene-list,

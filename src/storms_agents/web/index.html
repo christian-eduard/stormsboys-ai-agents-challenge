@@ -34,6 +34,17 @@
             <p data-i18n="status.track">Marketplace refactor</p>
           </div>
         </section>
+
+        <section class="login-panel">
+          <p class="eyebrow" data-i18n="login.eyebrow">Demo access</p>
+          <label class="field-label" for="userSelect" data-i18n="login.account">Account</label>
+          <select id="userSelect" aria-label="Demo account"></select>
+          <div class="button-row compact">
+            <button id="loginButton" data-i18n="login.signIn">Sign in</button>
+            <button id="logoutButton" class="secondary" data-i18n="login.signOut">Sign out</button>
+          </div>
+          <p id="activeUser" class="active-user">Not signed in</p>
+        </section>
       </aside>
 
       <section class="workspace">
@@ -165,6 +176,7 @@
                 <span data-i18n="publisher.quality">Quality</span>
               </div>
             </div>
+            <article class="access-box" id="publisherAccess"></article>
             <div class="scene-list" id="publisherResponse"></div>
           </div>
         </section>
@@ -191,6 +203,7 @@
             </div>
 
             <div class="marketplace-summary" id="marketplaceSummary"></div>
+            <article class="access-box" id="adminAccess"></article>
             <div class="catalog-list" id="catalogList"></div>
           </div>
         </section>

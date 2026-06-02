@@ -14,6 +14,12 @@ grep -q "runEvaluation" <<<"${APP_JS}"
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/capabilities" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/storage" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/challenge/storage/demo-seed" >/dev/null
+"${CURL[@]}" "${BASE_URL}/api/v1/auth/demo-users" >/dev/null
+"${CURL[@]}" \
+  -X POST "${BASE_URL}/api/v1/auth/demo-login" \
+  -H "content-type: application/json" \
+  -d '{"user_id":"superadmin-demo"}' \
+  >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/admin/roles" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/admin/marketplace" >/dev/null
 "${CURL[@]}" "${BASE_URL}/api/v1/demo/evaluation" >/dev/null

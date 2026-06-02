@@ -60,6 +60,8 @@ Puede:
 La entrega del challenge debe mostrar una consola operable, aunque el login real quede como
 siguiente fase de producto. La demo publica expone:
 
+- Login demo con cuentas de prueba para `reader`, `author`, `publisher_admin` y `super_admin`.
+- Sesion local de navegador para que los jueces cambien de rol sin credenciales privadas.
 - Roles funcionales: `reader`, `author`, `publisher_admin`, `super_admin`.
 - Matriz de permisos por rol.
 - Tenant editorial demo.

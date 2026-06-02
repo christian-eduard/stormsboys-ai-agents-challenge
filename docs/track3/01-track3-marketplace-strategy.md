@@ -85,9 +85,13 @@ El proyecto debe documentar:
 
 Estado demo implementado:
 
+- `/api/v1/auth/demo-users`: cuentas de prueba para los cuatro roles.
+- `/api/v1/auth/demo-login`: login demo y token local para jueces.
 - `/api/v1/admin/roles`: matriz de roles `reader`, `author`, `publisher_admin`, `super_admin`.
 - `/api/v1/admin/marketplace`: tenant demo, catalogo, readiness Marketplace y metricas de operacion.
-- UI `Marketplace Admin`: consola visible para jueces con roles, permisos y catalogo editorial.
+- UI `Demo access`: selector de cuenta, login/logout y sesion local.
+- UI `Marketplace Admin`: consola visible para jueces con roles, permisos y catalogo editorial
+  bloqueado/activado segun rol.
 - Produccion objetivo: Cloud Identity / Identity Platform con RBAC por tenant.
 
 ## Demo De 1-2 Minutos

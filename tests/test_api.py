@@ -16,6 +16,7 @@ def test_web_demo() -> None:
     assert response.status_code == 200
     assert "Multi-agent literary intelligence" in response.text
     assert "Marketplace Admin" in response.text
+    assert "Demo access" in response.text
 
 
 def test_static_asset() -> None:
@@ -23,6 +24,7 @@ def test_static_asset() -> None:
     response = client.get("/static/app.js")
     assert response.status_code == 200
     assert "runEvaluation" in response.text
+    assert "demo-login" in response.text
 
 
 def test_challenge_readiness() -> None:
@@ -43,6 +45,7 @@ def test_challenge_capabilities() -> None:
     assert body["judgingCriteria"]["technicalImplementation"] == "30%"
     assert "Cloud Run" in body["googleCloudTarget"]
     assert "voice narration plan" in body["demoFlow"]
+    assert "demo login and role switching" in body["demoFlow"]
     assert "role-based administration" in body["demoFlow"]
     assert "publisher catalog console" in body["demoFlow"]
     assert "superadmin operations console" in body["demoFlow"]
@@ -60,6 +63,27 @@ def test_demo_book() -> None:
     assert body["title"] == "Don Quijote de la Mancha"
     assert len(body["analysis"]["characters"]) == 3
     assert body["traces"]
+
+
+def test_auth_demo_users() -> None:
+    client = TestClient(app)
+    response = client.get("/api/v1/auth/demo-users")
+    assert response.status_code == 200
+    body = response.json()
+    users = {user["user_id"]: user for user in body["users"]}
+    assert {"reader-demo", "author-demo", "publisher-demo", "superadmin-demo"} <= set(users)
+    assert users["publisher-demo"]["role"] == "publisher_admin"
+    assert "manage_catalog" in users["publisher-demo"]["permissions"]
+
+
+def test_auth_demo_login() -> None:
+    client = TestClient(app)
+    response = client.post("/api/v1/auth/demo-login", json={"user_id": "superadmin-demo"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["token"] == "demo-token:superadmin-demo"
+    assert body["user"]["role"] == "super_admin"
+    assert body["access"]["canOperatePlatform"] is True
 
 
 def test_admin_roles() -> None:

@@ -42,6 +42,10 @@ class CharacterChatRequest(BaseModel):
     question: str
 
 
+class DemoLoginRequest(BaseModel):
+    user_id: str
+
+
 class SceneChatRequest(BaseModel):
     prompt: str
 
@@ -50,6 +54,85 @@ class NarrationRequest(BaseModel):
     scene_text: str = (
         "Don Quijote charges at the windmills while Sancho warns him from the road."
     )
+
+
+def _role_permissions() -> dict[str, list[str]]:
+    return {
+        "reader": [
+            "read_public_books",
+            "chat_with_characters",
+            "create_fiction_branches",
+            "listen_to_narration",
+        ],
+        "author": [
+            "upload_owned_books",
+            "review_analysis",
+            "test_character_agents",
+            "submit_for_publication",
+        ],
+        "publisher_admin": [
+            "manage_catalog",
+            "publish_titles",
+            "view_engagement_metrics",
+            "review_agent_quality",
+            "export_catalog_insights",
+        ],
+        "super_admin": [
+            "manage_tenants",
+            "manage_users",
+            "audit_books",
+            "monitor_agent_runtime",
+            "review_costs",
+            "configure_marketplace_listing",
+        ],
+    }
+
+
+def _demo_users() -> list[dict[str, object]]:
+    permissions = _role_permissions()
+    return [
+        {
+            "user_id": "reader-demo",
+            "name": "Reader Demo",
+            "email": "reader@stormsdemo.dev",
+            "role": "reader",
+            "tenant_id": "public-readers",
+            "permissions": permissions["reader"],
+        },
+        {
+            "user_id": "author-demo",
+            "name": "Author Demo",
+            "email": "author@stormsdemo.dev",
+            "role": "author",
+            "tenant_id": "independent-authors",
+            "permissions": permissions["author"],
+        },
+        {
+            "user_id": "publisher-demo",
+            "name": "Publisher Admin Demo",
+            "email": "publisher@pronexus.demo",
+            "role": "publisher_admin",
+            "tenant_id": "publisher-demo-pronexus",
+            "permissions": permissions["publisher_admin"],
+        },
+        {
+            "user_id": "superadmin-demo",
+            "name": "Super Admin Demo",
+            "email": "admin@stormsdemo.dev",
+            "role": "super_admin",
+            "tenant_id": "platform",
+            "permissions": permissions["super_admin"],
+        },
+    ]
+
+
+def _role_labels() -> dict[str, str]:
+    return {
+        "reader": "Reader",
+        "author": "Author",
+        "publisher_admin": "Publisher Admin",
+        "super_admin": "Super Admin",
+    }
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -63,6 +146,32 @@ def health() -> dict[str, str]:
         "status": "ok",
         "version": __version__,
         "environment": settings.app_env,
+    }
+
+
+@app.get("/api/v1/auth/demo-users")
+def auth_demo_users() -> dict[str, object]:
+    return {
+        "authModel": "demo-login",
+        "productionTarget": "Identity Platform or Cloud Identity with tenant RBAC",
+        "users": _demo_users(),
+    }
+
+
+@app.post("/api/v1/auth/demo-login")
+def auth_demo_login(request: DemoLoginRequest) -> dict[str, object]:
+    user = next((item for item in _demo_users() if item["user_id"] == request.user_id), None)
+    if user is None:
+        user = _demo_users()[0]
+    return {
+        "token": f"demo-token:{user['user_id']}",
+        "user": user,
+        "access": {
+            "canRead": "read_public_books" in user["permissions"],
+            "canChat": "chat_with_characters" in user["permissions"],
+            "canPublish": "manage_catalog" in user["permissions"],
+            "canOperatePlatform": "manage_tenants" in user["permissions"],
+        },
     }
 
 
@@ -106,6 +215,7 @@ def challenge_capabilities() -> dict[str, object]:
             "Secret Manager",
         ],
         "demoFlow": [
+            "demo login and role switching",
             "book analysis",
             "reader",
             "role-based administration",
@@ -132,68 +242,47 @@ def challenge_capabilities() -> dict[str, object]:
 
 @app.get("/api/v1/admin/roles")
 def admin_roles() -> dict[str, object]:
+    permissions = _role_permissions()
+    labels = _role_labels()
     return {
         "accessModel": "demo-role-console",
         "productionTarget": "Cloud Identity / Identity Platform with tenant-scoped RBAC",
         "roles": [
             {
                 "role": "reader",
-                "label": "Reader",
+                "label": labels["reader"],
                 "description": (
                     "Reads available books, chats with characters, explores scenes, "
                     "and saves progress."
                 ),
-                "permissions": [
-                    "read_public_books",
-                    "chat_with_characters",
-                    "create_fiction_branches",
-                    "listen_to_narration",
-                ],
+                "permissions": permissions["reader"],
             },
             {
                 "role": "author",
-                "label": "Author",
+                "label": labels["author"],
                 "description": (
                     "Uploads owned or public-domain books and reviews generated analysis "
                     "before publishing."
                 ),
-                "permissions": [
-                    "upload_owned_books",
-                    "review_analysis",
-                    "test_character_agents",
-                    "submit_for_publication",
-                ],
+                "permissions": permissions["author"],
             },
             {
                 "role": "publisher_admin",
-                "label": "Publisher Admin",
+                "label": labels["publisher_admin"],
                 "description": (
                     "Manages a publisher catalog, availability, engagement metrics, "
                     "and title-level quality."
                 ),
-                "permissions": [
-                    "manage_catalog",
-                    "publish_titles",
-                    "view_engagement_metrics",
-                    "review_agent_quality",
-                    "export_catalog_insights",
-                ],
+                "permissions": permissions["publisher_admin"],
             },
             {
                 "role": "super_admin",
-                "label": "Super Admin",
+                "label": labels["super_admin"],
                 "description": (
                     "Operates the whole platform, tenants, users, costs, agent health, "
                     "and compliance state."
                 ),
-                "permissions": [
-                    "manage_tenants",
-                    "manage_users",
-                    "audit_books",
-                    "monitor_agent_runtime",
-                    "review_costs",
-                    "configure_marketplace_listing",
-                ],
+                "permissions": permissions["super_admin"],
             },
         ],
     }

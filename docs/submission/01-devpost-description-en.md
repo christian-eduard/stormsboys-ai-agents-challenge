@@ -27,6 +27,7 @@ The system includes:
 - A Voice/Narration Agent.
 - A Publisher Insights Agent.
 - A Marketplace Admin console for roles, permissions, catalog operations, and platform readiness.
+- A demo login flow where judges can switch between Reader, Author, Publisher Admin, and Super Admin accounts.
 
 Readers can ask questions to a specific character, trigger multi-character scene interactions, and receive responses grounded in the book instead of generic chatbot answers.
 The demo also includes a narration handoff that produces a TTS-ready script/SSML plan, plus a publisher/admin view with engagement, quality, and commercialization insights.
@@ -77,6 +78,7 @@ flowchart LR
 
 Stormsboys targets publishers, authors, education platforms, and digital reading products. It creates new engagement layers on top of existing books, gives publishers insight into reader interests, and creates premium interactive experiences without requiring authors to rebuild their content as games or apps.
 For Track 3, the demo includes a functional Marketplace Admin surface with reader, author, publisher admin, and super admin roles; a tenant-scoped publisher catalog; title availability; evaluation health; and a production identity plan based on tenant RBAC.
+The public challenge build uses demo accounts and browser-local session state for judge access. A production Marketplace deployment would replace that layer with Identity Platform or Cloud Identity tenant-scoped RBAC.
 
 ## Innovation
 
