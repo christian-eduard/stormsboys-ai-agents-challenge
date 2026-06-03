@@ -71,6 +71,8 @@ Ya existe:
 - Bloque `Superadmin operations` con endpoint protegido `/api/v1/admin/operations`.
 - Endpoints publisher/admin protegidos por `Authorization: Bearer demo-token:*`.
 - Endpoints auth/admin: `/api/v1/auth/demo-users`, `/api/v1/auth/demo-login`, `/api/v1/admin/roles` y `/api/v1/admin/marketplace`.
+- Endpoint superadmin para limpiar solo memoria/rama de una sesion demo:
+  `DELETE /api/v1/admin/demo-sessions/{session_id}`.
 
 ## Comandos Basicos
 
@@ -98,7 +100,7 @@ http://127.0.0.1:8080
 
 Ultima validacion local conocida:
 
-- Tests en contenedor Python 3.11: pasan, 43 tests.
+- Tests en contenedor Python 3.11: pasan, 45 tests.
 - Ruff en contenedor Python 3.11: pasa.
 - `node --check src/storms_agents/web/static/app.js`: pasa.
 - `make public-ready`: pasa.
@@ -114,7 +116,7 @@ Ultima validacion local conocida:
 - Billing Pronexus enlazado.
 - Budget guardrail de 50 EUR creado.
 - Cloud Run desplegado: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
-- Revision Cloud Run activa: `stormsboys-agents-api-00028-wk4`.
+- Revision Cloud Run activa: `stormsboys-agents-api-00029-2fz`.
 - Cloud Run usa service account nueva: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - No hay claves JSON de usuario ni credenciales antiguas en el runtime.
 - Cloud SQL instance: `stormsboys-pgvector`.
@@ -130,7 +132,7 @@ Ultima validacion local conocida:
 - Narration publico confirmado: `VoiceNarrationAgent`, SSML y `ready_for_tts=true`.
 - Publisher publico confirmado: `PublisherInsightsAgent`, engagement y quality `100%`.
 - Admin publico confirmado: login demo, tokens demo, roles `reader`, `author`, `publisher_admin`, `super_admin`, `judge_access`, tenant demo, catalogo y readiness Marketplace.
-- Smoke test publico confirmado el 2026-06-03 contra revision `stormsboys-agents-api-00028-wk4`.
+- Smoke test publico confirmado el 2026-06-03 contra revision `stormsboys-agents-api-00029-2fz`.
 - Chat publico confirmado: Don Quijote responde en espanol con psicologia visible,
   memoria de sesion, consistencia `passed=true` y citas separadas sin IDs inline.
 - Memoria publica confirmada: `/api/v1/demo/chat/memory` devuelve historial desde
@@ -138,6 +140,9 @@ Ultima validacion local conocida:
 - Ramas ficcionales publicas confirmadas: una llamada `FICTION` crea `fictionBranch`,
   `/api/v1/demo/fiction/branches` devuelve `provider=cloud-sql-postgresql`, continuidad,
   citas canon separadas y `consistency.passed=true`.
+- Cleanup publico confirmado: `DELETE /api/v1/admin/demo-sessions/{session_id}` con
+  `superadmin-demo` borra solo `conversation_memory_events` y `fiction_branches` para una
+  sesion temporal; despues historial y ramas devuelven listas vacias.
 - Guardrail canonico corregido: preguntas ancladas dentro de una escena, como
   "after the windmills", ya no se tratan como futuro fuera de canon; preguntas como
   "ten years after the ending" siguen bloqueadas en modo `CANON`.
@@ -195,6 +200,7 @@ Ultima validacion local conocida:
 - `POST /api/v1/demo/chat/character`
 - `GET /api/v1/demo/chat/memory`
 - `GET /api/v1/demo/fiction/branches`
+- `DELETE /api/v1/admin/demo-sessions/{session_id}`
 - `POST /api/v1/demo/chat/scene`
 - `POST /api/v1/demo/narration`
 - `GET /api/v1/demo/publisher`
@@ -221,8 +227,8 @@ BASE_URL=https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app make smoke
 ## Prioridades Siguientes
 
 1. Reorientar UI/API desde libro sintetico hacia plataforma real con Don Quijote como caso demo.
-2. Crear endpoint admin para limpiar sesiones demo antiguas si se generan muchas pruebas.
-3. Convertir el timeline ficcional en una vista editable por usuario/publisher.
+2. Convertir el timeline ficcional en una vista editable por usuario/publisher.
+3. Mejorar la UI del panel Admin para disparar cleanup de sesiones desde formulario protegido.
 4. Crear agentes nuevos o adaptar los existentes segun `docs/agents/04-platform-agent-operating-model.md`.
 5. Implementar publisher/admin como vista B2B Track 3, no solo panel decorativo.
 6. Conectar Gemini tambien a LiteraryAnalysisAgent o SceneOrchestratorAgent con schemas estrictos.

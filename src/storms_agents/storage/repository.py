@@ -371,6 +371,32 @@ class StorageRepository:
             for row in rows
         ]
 
+    def delete_demo_session(self, session_id: str) -> dict[str, int]:
+        self.initialize_schema()
+        with self.engine.begin() as connection:
+            memory_result = connection.execute(
+                text(
+                    """
+                    DELETE FROM conversation_memory_events
+                    WHERE session_id = :session_id
+                    """
+                ),
+                {"session_id": session_id},
+            )
+            fiction_result = connection.execute(
+                text(
+                    """
+                    DELETE FROM fiction_branches
+                    WHERE session_id = :session_id
+                    """
+                ),
+                {"session_id": session_id},
+            )
+        return {
+            "memory_events": memory_result.rowcount or 0,
+            "fiction_branches": fiction_result.rowcount or 0,
+        }
+
     def append_fiction_branch(
         self,
         session_id: str,

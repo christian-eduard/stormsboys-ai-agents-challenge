@@ -612,7 +612,37 @@ def admin_operations(authorization: str | None = Header(default=None)) -> dict[s
             "production target is Identity Platform tenant RBAC",
             "Secret Manager supplies DATABASE_URL",
             "no local credential files required by runtime",
+            "superadmin can clear demo session memory and fiction branches",
         ],
+    }
+
+
+@app.delete("/api/v1/admin/demo-sessions/{session_id}")
+def admin_delete_demo_session(
+    session_id: str,
+    authorization: str | None = Header(default=None),
+) -> dict[str, object]:
+    user = _require_any_permission(authorization, {"manage_tenants"})
+    storage = StorageRepository()
+    deleted = None
+    provider = "local-process-memory"
+    if storage.status.configured:
+        try:
+            deleted = storage.delete_demo_session(session_id)
+            provider = "cloud-sql-postgresql"
+        except Exception:
+            deleted = None
+    if deleted is None:
+        deleted = {
+            "memory_events": ConversationMemoryStore().delete_session(session_id),
+            "fiction_branches": FictionBranchStore().delete_session(session_id),
+        }
+    return {
+        "currentUser": user,
+        "session_id": session_id,
+        "provider": provider,
+        "deleted": deleted,
+        "scope": "demo memory and fiction branches only",
     }
 
 

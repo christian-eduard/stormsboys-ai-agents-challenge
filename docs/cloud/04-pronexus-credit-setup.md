@@ -45,11 +45,11 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 
 - Service: `stormsboys-agents-api`.
 - Region: `us-central1`.
-- Revision: `stormsboys-agents-api-00028-wk4`.
+- Revision: `stormsboys-agents-api-00029-2fz`.
 - Runtime service account: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - URL canonica: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
 - URL alternativa: `https://stormsboys-agents-api-425710112361.us-central1.run.app`.
-- Trafico: 100% a la revision `stormsboys-agents-api-00028-wk4`.
+- Trafico: 100% a la revision `stormsboys-agents-api-00029-2fz`.
 - Smoke test publico: pasa el 2026-06-03.
 - Admin publico confirmado: login demo, tokens demo protegidos, roles, catalogo, tenant demo y readiness Marketplace.
 - Idioma publico confirmado: `language=en` y `language=es` en chat de personaje.
@@ -88,6 +88,8 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 - Ramas ficcionales persistentes verificadas: `fiction_branches` existe en Cloud SQL y
   `/api/v1/demo/fiction/branches` devuelve continuidad, citas canon y proveedor
   `cloud-sql-postgresql`.
+- Cleanup superadmin verificado: `DELETE /api/v1/admin/demo-sessions/{session_id}`
+  borra solo memoria conversacional y ramas ficcionales de la sesion indicada.
 - Guardrail canonico verificado: preguntas ancladas en la escena de los molinos responden
   con voz de Don Quijote; futuro fuera del libro sigue bloqueado en modo `CANON`.
 - Narration publico verificado: `VoiceNarrationAgent`, SSML y `ready_for_tts=true`.
@@ -132,6 +134,7 @@ curl -s https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app/api/v1/challenge/s
 curl -s https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app/api/v1/challenge/storage/demo-seed
 curl -s "https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app/api/v1/demo/chat/memory?session_id=judge-demo-session&character_id=don_quijote&mode=CANON"
 curl -s "https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app/api/v1/demo/fiction/branches?session_id=judge-demo-session&character_id=don_quijote"
+curl -s -X DELETE "https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app/api/v1/admin/demo-sessions/example-session" -H "Authorization: Bearer demo-token:superadmin-demo"
 gcloud iam service-accounts keys list --iam-account=stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com --project=stormsboys-agents-20260602
 BASE_URL=https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app make smoke
 ```

@@ -83,6 +83,13 @@ class ConversationMemoryStore:
     def reset(self) -> None:
         self._buckets.clear()
 
+    def delete_session(self, session_id: str) -> int:
+        matching_keys = [key for key in self._buckets if key[0] == session_id]
+        deleted_events = sum(self._buckets[key].turn_count for key in matching_keys)
+        for key in matching_keys:
+            del self._buckets[key]
+        return deleted_events
+
     def history(
         self,
         session_id: str,

@@ -52,6 +52,11 @@ class FictionBranchStore:
     def reset(self) -> None:
         self._branches.clear()
 
+    def delete_session(self, session_id: str) -> int:
+        deleted = len(self._branches.get(session_id, []))
+        self._branches.pop(session_id, None)
+        return deleted
+
     def _record_persisted(
         self,
         session_id: str,

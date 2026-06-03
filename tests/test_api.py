@@ -394,6 +394,65 @@ def test_demo_character_chat_fiction_branch() -> None:
     assert timeline_body["branches"][0]["branch_id"] == body["fictionBranch"]["branch_id"]
 
 
+def test_admin_delete_demo_session_requires_superadmin_access() -> None:
+    client = TestClient(app)
+    response = client.delete(
+        "/api/v1/admin/demo-sessions/test-session",
+        headers={"authorization": "Bearer demo-token:reader-demo"},
+    )
+
+    assert response.status_code == 403
+
+
+def test_admin_delete_demo_session_clears_memory_and_fiction_branch() -> None:
+    client = TestClient(app)
+    session_id = "test-cleanup-session-001"
+    client.post(
+        "/api/v1/demo/chat/character",
+        json={
+            "character_id": "don_quijote",
+            "mode": "CANON",
+            "language": "en",
+            "session_id": session_id,
+            "question": "Explain your psychology near the windmills.",
+        },
+    )
+    client.post(
+        "/api/v1/demo/chat/character",
+        json={
+            "character_id": "don_quijote",
+            "mode": "FICTION",
+            "language": "en",
+            "session_id": session_id,
+            "question": "What if Sancho convinces you the giants are machines?",
+        },
+    )
+
+    response = client.delete(
+        f"/api/v1/admin/demo-sessions/{session_id}",
+        headers={"authorization": "Bearer demo-token:superadmin-demo"},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["deleted"]["memory_events"] >= 1
+    assert body["deleted"]["fiction_branches"] >= 1
+    memory = client.get(
+        "/api/v1/demo/chat/memory",
+        params={
+            "session_id": session_id,
+            "character_id": "don_quijote",
+            "mode": "CANON",
+        },
+    ).json()
+    branches = client.get(
+        "/api/v1/demo/fiction/branches",
+        params={"session_id": session_id, "character_id": "don_quijote"},
+    ).json()
+    assert memory["events"] == []
+    assert branches["branches"] == []
+
+
 def test_demo_character_chat_canon_rejects_future() -> None:
     client = TestClient(app)
     response = client.post(
