@@ -38,9 +38,9 @@ English is the primary submission language for judges, and the demo also include
 
 ## Track
 
-Track 3: Refactor for Google Cloud Marketplace & Gemini Enterprise.
+Track 1 + Track 2 + Track 3: Build, Optimize, and Refactor.
 
-This submission focuses on refactoring a working agentic product concept into a Google Cloud-ready, B2B-capable platform for publishers, authors, education platforms, and enterprise reading experiences. Track 2-style evaluation remains included as quality evidence: the demo shows grounding, guardrails, before/after cases, and visible traces.
+This submission presents one product across the three challenge tracks. Track 1 is represented by the new ADK-first literary agent layer and upload pipeline. Track 2 is represented by grounding, guardrails, before/after evaluation, memory separation, and visible traces. Track 3 is represented by the Google Cloud-ready, B2B-capable architecture for publishers, authors, education platforms, and enterprise reading experiences.
 
 ## Technical Architecture
 

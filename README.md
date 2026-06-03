@@ -4,8 +4,10 @@ Proyecto nuevo para preparar la entrega de Stormsboys Libros IA al Google for St
 
 ## Decision principal
 
-- Track principal: Track 3 - Refactor for Google Cloud Marketplace & Gemini Enterprise.
-- Evidencia secundaria: Track 2 - Optimize Existing Agents, usado para demostrar calidad, evaluacion, guardrails y mejora before/after.
+- Estrategia de entrega: cubrir Track 1, Track 2 y Track 3 en una demo integrada.
+- Track 1: nueva capa agentica ADK-first, upload de libros y agentes literarios.
+- Track 2: evaluacion de calidad, guardrails, grounding y mejora before/after.
+- Track 3: refactor cloud-native para Marketplace/Gemini Enterprise con roles B2B.
 - Producto objetivo: plataforma multi-agente que convierte libros y catalogos editoriales en experiencias conversacionales con Gemini, RAG, memoria narrativa, modo canon, modo ficcion, voz y herramientas para lectores, publishers y superadmin.
 - Entrega objetivo: demo de 1-2 minutos en ingles, arquitectura Cloud Run + Gemini + Cloud SQL/pgvector + capa ADK/Agent layer, evaluacion de calidad y documentacion tecnica clara.
 

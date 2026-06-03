@@ -42,7 +42,8 @@ def test_challenge_readiness() -> None:
     response = client.get("/api/v1/challenge/readiness")
     assert response.status_code == 200
     body = response.json()
-    assert body["track"] == "Track 3 - Refactor for Google Cloud Marketplace & Gemini Enterprise"
+    assert body["track"] == "All tracks - Build, Optimize, and Refactor"
+    assert len(body["trackPortfolio"]) == 3
     assert body["projectIsolation"] == "new-project-no-cross-project-code"
     assert body["gemini"]["mode"] in {"gemini", "demo-fallback"}
 
@@ -71,7 +72,12 @@ def test_challenge_submission() -> None:
     response = client.get("/api/v1/challenge/submission")
     assert response.status_code == 200
     body = response.json()
-    assert body["track"].startswith("Track 3")
+    assert body["track"] == "All tracks - Build, Optimize, and Refactor"
+    assert {item["track"] for item in body["trackPortfolio"]} == {
+        "Track 1 - Build",
+        "Track 2 - Optimize",
+        "Track 3 - Refactor",
+    }
     assert body["status"] == "public-demo-ready"
     assert body["recommendedJudgeAccount"]["user_id"] == "judge-demo"
     assert len(body["judgingCriteria"]) == 4
@@ -84,7 +90,8 @@ def test_agent_card_is_public_track3_evidence() -> None:
     response = client.get("/.well-known/agent-card.json")
     assert response.status_code == 200
     body = response.json()
-    assert body["track"].startswith("Track 3")
+    assert body["track"] == "All tracks - Build, Optimize, and Refactor"
+    assert len(body["trackPortfolio"]) == 3
     capabilities = {item["id"] for item in body["capabilities"]}
     assert {"analyze_book", "chat_as_character", "create_fiction_branch"} <= capabilities
     assert body["googleCloud"]["runtime"] == "Cloud Run"
@@ -238,7 +245,7 @@ def test_admin_marketplace() -> None:
     )
     assert response.status_code == 200
     body = response.json()
-    assert body["listingReadiness"]["track"].startswith("Track 3")
+    assert body["listingReadiness"]["track"] == "Track 1 + Track 2 + Track 3 challenge evidence"
     assert body["currentUser"]["role"] == "publisher_admin"
     assert body["tenant"]["plan"] == "Marketplace Pilot"
     assert body["catalog"][0]["book_id"] == "don-quijote"
@@ -593,7 +600,7 @@ def test_demo_evaluation() -> None:
     response = client.get("/api/v1/demo/evaluation")
     assert response.status_code == 200
     body = response.json()
-    assert body["track"] == "Track 3 primary, Track 2 quality evidence"
+    assert body["track"] == "Track 2 optimization evidence within the all-tracks submission"
     assert body["summary"]["totalCases"] == 12
     assert body["summary"]["optimizedPassed"] >= body["summary"]["baselinePassed"]
     assert len(body["cases"]) == 12

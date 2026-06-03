@@ -45,13 +45,13 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 
 - Service: `stormsboys-agents-api`.
 - Region: `us-central1`.
-- Revision: `stormsboys-agents-api-00033-6s6`.
+- Revision: `stormsboys-agents-api-00034-wkj`.
 - Runtime service account: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - URL canonica: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
 - URL alternativa: `https://stormsboys-agents-api-425710112361.us-central1.run.app`.
-- Trafico: 100% a la revision `stormsboys-agents-api-00033-6s6`.
+- Trafico: 100% a la revision `stormsboys-agents-api-00034-wkj`.
 - Ultimo image digest desplegado:
-  `sha256:344f85495834bea85a6ce2025dfc0abd4ddfad17ee6f09644de8f99439998aaf`.
+  `sha256:0b65ad80903d3ce08bfccc903a281af779bb132796d15f3b2795730d1d9dd8e9`.
 - Smoke test publico: pasa el 2026-06-04.
 - Upload publico: pasa el 2026-06-04 con manuscrito textual, catalogo y chat por `book_id`.
 - Admin publico confirmado: login demo, tokens demo protegidos, roles, catalogo, tenant demo y readiness Marketplace.
@@ -95,7 +95,7 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
   `cloud-sql-postgresql`; `/api/v1/demo/fiction/branches/{branch_id}` devuelve el detalle
   de una rama concreta.
 - Timeline de ficcion verificado en UI publica contra revision
-  `stormsboys-agents-api-00033-6s6`: cada rama se expande con premisa, continuacion,
+  `stormsboys-agents-api-00034-wkj`: cada rama se expande con premisa, continuacion,
   memoria/psicologia aprendida y anclajes canonicos.
 - Cleanup superadmin verificado: `DELETE /api/v1/admin/demo-sessions/{session_id}`
   borra solo memoria conversacional y ramas ficcionales de la sesion indicada.

@@ -277,7 +277,15 @@ def _agent_card() -> dict[str, object]:
         "provider": {"organization": "Pronexus / Stormsboys", "region": "EMEA"},
         "url": "https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app",
         "protocols": ["A2A-ready agent card", "HTTP JSON"],
-        "track": "Track 3 - Refactor for Google Cloud Marketplace & Gemini Enterprise",
+        "track": "All tracks - Build, Optimize, and Refactor",
+        "trackPortfolio": [
+            "Track 1 - Build: new ADK-first literary agent layer and manuscript upload flow.",
+            "Track 2 - Optimize: before/after quality evaluation, grounding, and guardrails.",
+            (
+                "Track 3 - Refactor: Cloud Run, Gemini, pgvector, roles, A2A card, "
+                "and Marketplace path."
+            ),
+        ],
         "authentication": {
             "demo": "Public reader endpoints plus demo bearer tokens for protected admin views.",
             "productionTarget": "Identity Platform or Cloud Identity tenant RBAC.",
@@ -367,8 +375,16 @@ def auth_demo_login(request: DemoLoginRequest) -> dict[str, object]:
 def challenge_readiness() -> dict[str, object]:
     gemini = GeminiTool().status
     return {
-        "track": "Track 3 - Refactor for Google Cloud Marketplace & Gemini Enterprise",
-        "trackEvidence": "Track 2 evaluation remains available for quality evidence.",
+        "track": "All tracks - Build, Optimize, and Refactor",
+        "trackEvidence": (
+            "Track 1 net-new agent layer, Track 2 optimization evidence, and Track 3 "
+            "Marketplace/Gemini Enterprise refactor are all represented in the demo."
+        ),
+        "trackPortfolio": [
+            "Track 1 - Build",
+            "Track 2 - Optimize",
+            "Track 3 - Refactor",
+        ],
         "projectIsolation": "new-project-no-cross-project-code",
         "agentLayer": "adk-first-python",
         "memory": "Cloud SQL persisted when DATABASE_URL is configured, local fallback otherwise",
@@ -421,7 +437,9 @@ def challenge_capabilities() -> dict[str, object]:
             "scene orchestration",
             "voice narration plan",
             "publisher insights",
+            "Track 1 new agent layer",
             "Track 2 evaluation",
+            "Track 3 marketplace refactor",
         ],
         "runtime": {
             "geminiMode": gemini.mode,
@@ -435,7 +453,30 @@ def challenge_capabilities() -> dict[str, object]:
 @app.get("/api/v1/challenge/submission")
 def challenge_submission() -> dict[str, object]:
     return {
-        "track": "Track 3 - Refactor for Google Cloud Marketplace & Gemini Enterprise",
+        "track": "All tracks - Build, Optimize, and Refactor",
+        "trackPortfolio": [
+            {
+                "track": "Track 1 - Build",
+                "evidence": (
+                    "New ADK-first literary agent layer, upload pipeline, character/scene/"
+                    "publisher/admin agents, and MCP/A2A-ready contracts."
+                ),
+            },
+            {
+                "track": "Track 2 - Optimize",
+                "evidence": (
+                    "Before/after evaluation, grounded retrieval, consistency guardrails, "
+                    "memory separation, and visible traces."
+                ),
+            },
+            {
+                "track": "Track 3 - Refactor",
+                "evidence": (
+                    "Cloud Run runtime, Gemini via Vertex AI, Cloud SQL pgvector, Secret "
+                    "Manager, role workspaces, and Marketplace readiness."
+                ),
+            },
+        ],
         "region": "EMEA",
         "deadline": "2026-06-05 17:00 PT",
         "status": "public-demo-ready",
@@ -557,7 +598,7 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
     uploaded_catalog = _uploaded_catalog_for_user(user)
     return {
         "listingReadiness": {
-            "track": "Track 3 - Google Cloud Marketplace & Gemini Enterprise",
+            "track": "Track 1 + Track 2 + Track 3 challenge evidence",
             "businessModel": (
                 "B2B SaaS for publishers, authors, education platforms, and reading apps"
             ),
@@ -1085,7 +1126,7 @@ def demo_publisher(authorization: str | None = Header(default=None)) -> dict[str
 def demo_evaluation() -> dict[str, object]:
     report = run_demo_evaluation()
     return {
-        "track": "Track 3 primary, Track 2 quality evidence",
+        "track": "Track 2 optimization evidence within the all-tracks submission",
         "summary": {
             "totalCases": report.total_cases,
             "baselinePassed": report.baseline_passed,

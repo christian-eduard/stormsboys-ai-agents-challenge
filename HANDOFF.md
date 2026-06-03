@@ -6,8 +6,10 @@ Este archivo es el punto de entrada para cualquier agente nuevo. Si solo tienes 
 
 Estamos creando un proyecto nuevo, aislado y autocontenido para el Google for Startups AI Agents Challenge.
 
-- Track principal: Track 3 - Refactor for Google Cloud Marketplace & Gemini Enterprise.
-- Track secundario/evidencia: Track 2 - Optimize Existing Agents.
+- Estrategia de entrega: demostrar los tres tracks del challenge en un producto unico.
+- Track 1 - Build: nueva capa agentica ADK-first y flujo real de upload/analisis.
+- Track 2 - Optimize: evaluacion before/after, grounding, guardrails, memoria y trazas.
+- Track 3 - Refactor: Cloud Run, Gemini/Vertex, Cloud SQL pgvector, roles B2B, A2A card y Marketplace readiness.
 - Entrega: repositorio publico, descripcion en ingles, arquitectura con diagrama, video demo de 1-2 minutos en ingles y demo funcional para jueces.
 - Regla critica: no usar codigo, configuracion, datos, rutas, IDs ni recursos de otros proyectos.
 - Nueva conclusion de producto: no estamos construyendo solo una demo de Don Quijote. Estamos reconstruyendo de forma limpia la plataforma real de libros interactivos: upload, analisis Gemini, personajes con psicologia, modo canon, modo ficcion, lector, escena/grupo, voz, publisher y superadmin.
@@ -121,7 +123,7 @@ Ultima validacion local conocida:
 - Billing Pronexus enlazado.
 - Budget guardrail de 50 EUR creado.
 - Cloud Run desplegado: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
-- Revision Cloud Run activa: `stormsboys-agents-api-00033-6s6`.
+- Revision Cloud Run activa: `stormsboys-agents-api-00034-wkj`.
 - Cloud Run usa service account nueva: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - No hay claves JSON de usuario ni credenciales antiguas en el runtime.
 - Cloud SQL instance: `stormsboys-pgvector`.
@@ -137,7 +139,10 @@ Ultima validacion local conocida:
 - Narration publico confirmado: `VoiceNarrationAgent`, SSML y `ready_for_tts=true`.
 - Publisher publico confirmado: `PublisherInsightsAgent`, engagement y quality `100%`.
 - Admin publico confirmado: login demo, tokens demo, roles `reader`, `author`, `publisher_admin`, `super_admin`, `judge_access`, tenant demo, catalogo y readiness Marketplace.
-- Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00033-6s6`.
+- Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00034-wkj`.
+- UI publica confirmada el 2026-06-04: sidebar muestra Build, Optimize y Refactor;
+  vista Reader tiene hero de producto, CTAs para chat/upload/publisher y carga
+  Don Quijote correctamente.
 - Upload publico confirmado el 2026-06-04: `POST /api/v1/books/upload` subio
   `The Orchard of Mirrors`, creo `book_id=upload-the-orchard-of-mirrors-46f285dceb`,
   lo guardo en `provider=cloud-sql-postgresql`, lo mostro en catalogo y permitio chat

@@ -56,11 +56,27 @@
           <button class="nav-item" data-view-target="architecture" data-i18n="nav.architecture">Architecture</button>
         </nav>
 
-        <section class="status-panel">
-          <span class="status-dot"></span>
-          <div>
-            <strong>Track 3</strong>
-            <p data-i18n="status.track">Marketplace refactor</p>
+        <section class="status-panel track-stack" aria-label="Challenge tracks">
+          <div class="track-chip build">
+            <span>1</span>
+            <div>
+              <strong>Build</strong>
+              <p data-i18n="track.build">new agent layer</p>
+            </div>
+          </div>
+          <div class="track-chip optimize">
+            <span>2</span>
+            <div>
+              <strong>Optimize</strong>
+              <p data-i18n="track.optimize">quality evidence</p>
+            </div>
+          </div>
+          <div class="track-chip refactor">
+            <span>3</span>
+            <div>
+              <strong>Refactor</strong>
+              <p data-i18n="track.refactor">Marketplace ready</p>
+            </div>
           </div>
         </section>
 
@@ -153,28 +169,74 @@
           </div>
         </section>
 
-        <section id="reader" class="reader-grid view-panel" data-view="reader">
-          <div class="book-visual">
-            <img src="/static/silent-gate-cover.svg" alt="Don Quijote de la Mancha cover" />
+        <section id="reader" class="reader-view view-panel" data-view="reader">
+          <div class="reader-hero">
+            <div class="reader-copy">
+              <p class="eyebrow" data-i18n="reader.eyebrow">Interactive library</p>
+              <h3 data-i18n="reader.title">Read, listen, and speak with the world inside a book</h3>
+              <p data-i18n="reader.body">
+                Don Quijote is the public-domain demo title. The same pipeline now supports
+                uploaded manuscripts, generated character psychology, canon chat, fiction
+                branches, scene orchestration, voice handoff, and publisher review.
+              </p>
+              <div class="reader-actions">
+                <button type="button" data-jump-view="agents" data-i18n="reader.chat">Chat with characters</button>
+                <button type="button" class="secondary" data-jump-view="author" data-i18n="reader.upload">Upload a book</button>
+                <button type="button" class="secondary" data-jump-view="publisher" data-i18n="reader.publisher">Publisher view</button>
+              </div>
+            </div>
+            <div class="hero-cover">
+              <img src="/static/silent-gate-cover.svg" alt="Don Quijote de la Mancha cover" />
+              <div class="cover-badge">
+                <strong>CANON</strong>
+                <span>FICTION</span>
+              </div>
+            </div>
           </div>
 
-          <div class="book-summary">
-            <p class="eyebrow" data-i18n="book.eyebrow">Demo book</p>
-            <h3 id="bookTitle">Loading book...</h3>
-            <p id="bookSummary">Preparing literary analysis.</p>
+          <div class="reader-grid">
+            <div class="book-visual">
+              <img src="/static/silent-gate-cover.svg" alt="Don Quijote de la Mancha cover" />
+              <div class="book-status-list">
+                <span data-i18n="reader.available">Available in catalog</span>
+                <span data-i18n="reader.languages">English and Spanish</span>
+                <span data-i18n="reader.memory">Memory separated by mode</span>
+              </div>
+            </div>
 
-            <div class="metric-row">
-              <div>
-                <strong id="characterCount">0</strong>
-                <span data-i18n="metrics.characters">Characters</span>
+            <div class="book-summary">
+              <p class="eyebrow" data-i18n="book.eyebrow">Demo book</p>
+              <h3 id="bookTitle">Loading book...</h3>
+              <p id="bookSummary">Preparing literary analysis.</p>
+
+              <div class="metric-row">
+                <div>
+                  <strong id="characterCount">0</strong>
+                  <span data-i18n="metrics.characters">Characters</span>
+                </div>
+                <div>
+                  <strong id="placeCount">0</strong>
+                  <span data-i18n="metrics.places">Places</span>
+                </div>
+                <div>
+                  <strong id="sceneCount">0</strong>
+                  <span data-i18n="metrics.scenes">Scenes</span>
+                </div>
               </div>
-              <div>
-                <strong id="placeCount">0</strong>
-                <span data-i18n="metrics.places">Places</span>
-              </div>
-              <div>
-                <strong id="sceneCount">0</strong>
-                <span data-i18n="metrics.scenes">Scenes</span>
+
+              <div class="experience-lanes">
+                <article>
+                  <strong data-i18n="reader.laneCanon">Canon conversation</strong>
+                  <p data-i18n="reader.laneCanonBody">Answers stay grounded in retrieved book sections.</p>
+                </article>
+                <article>
+                  <strong data-i18n="reader.laneFiction">Fiction branch</strong>
+                  <p data-i18n="reader.laneFictionBody">Alternative story paths are saved separately from canon.</p>
+                </article>
+                <article>
+                  <strong data-i18n="reader.laneBusiness">Publisher signal</strong>
+                  <p data-i18n="reader.laneBusinessBody">Reader interactions become measurable catalog insight.</p>
+                </article>
               </div>
             </div>
           </div>

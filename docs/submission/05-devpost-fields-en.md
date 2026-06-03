@@ -10,7 +10,7 @@ Books become interactive multi-agent worlds powered by Gemini, Cloud Run, and pg
 
 ## Track
 
-Track 3: Refactor for Google Cloud Marketplace & Gemini Enterprise
+Track 1 + Track 2 + Track 3: Build, Optimize, and Refactor
 
 ## Demo URL
 
@@ -30,7 +30,7 @@ TODO: add public demo video URL after recording.
 
 ## Short Description
 
-Stormsboys transforms books into interactive literary worlds. Authors and publishers can upload owned or public-domain manuscripts, Gemini prepares characters with psychology and canon constraints, readers can talk to grounded character agents, and publishers can review engagement and quality insights. The system targets Track 3 Marketplace readiness while also showing Track 2-style optimization through agent traces, consistency checks, and baseline-versus-optimized evaluation.
+Stormsboys transforms books into interactive literary worlds. Authors and publishers can upload owned or public-domain manuscripts, Gemini prepares characters with psychology and canon constraints, readers can talk to grounded character agents, and publishers can review engagement and quality insights. The system covers Track 1 with a new agent layer, Track 2 with optimization evidence, and Track 3 with Marketplace-oriented cloud refactor work.
 
 ## Google Cloud Services
 

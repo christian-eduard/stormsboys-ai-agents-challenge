@@ -66,7 +66,6 @@ const els = {
   evaluationResults: document.querySelector("#evaluationResults"),
   traceList: document.querySelector("#traceList"),
   refreshDemo: document.querySelector("#refreshDemo"),
-  runtimeStatus: document.querySelector(".status-panel p"),
   runtimeGemini: document.querySelector("#runtimeGemini"),
   runtimeStorage: document.querySelector("#runtimeStorage"),
   runtimeSeed: document.querySelector("#runtimeSeed"),
@@ -93,7 +92,9 @@ const copy = {
     "nav.evaluation": "Evaluation",
     "nav.runtime": "Runtime",
     "nav.architecture": "Architecture",
-    "status.track": "Marketplace refactor",
+    "track.build": "new agent layer",
+    "track.optimize": "quality evidence",
+    "track.refactor": "Marketplace ready",
     "dashboard.eyebrow": "Role workspace",
     "product.case.eyebrow": "Business case",
     "product.case.title": "Literary IP becomes interactive catalog revenue",
@@ -125,6 +126,22 @@ const copy = {
     "top.eyebrow": "Judge demo",
     "top.title": "Multi-agent literary intelligence",
     "book.eyebrow": "Demo book",
+    "reader.eyebrow": "Interactive library",
+    "reader.title": "Read, listen, and speak with the world inside a book",
+    "reader.body":
+      "Don Quijote is the public-domain demo title. The same pipeline now supports uploaded manuscripts, generated character psychology, canon chat, fiction branches, scene orchestration, voice handoff, and publisher review.",
+    "reader.chat": "Chat with characters",
+    "reader.upload": "Upload a book",
+    "reader.publisher": "Publisher view",
+    "reader.available": "Available in catalog",
+    "reader.languages": "English and Spanish",
+    "reader.memory": "Memory separated by mode",
+    "reader.laneCanon": "Canon conversation",
+    "reader.laneCanonBody": "Answers stay grounded in retrieved book sections.",
+    "reader.laneFiction": "Fiction branch",
+    "reader.laneFictionBody": "Alternative story paths are saved separately from canon.",
+    "reader.laneBusiness": "Publisher signal",
+    "reader.laneBusinessBody": "Reader interactions become measurable catalog insight.",
     "author.eyebrow": "Author Workspace",
     "author.title": "Book submission pipeline",
     "author.review": "Review",
@@ -218,7 +235,9 @@ const copy = {
     "nav.evaluation": "Evaluacion",
     "nav.runtime": "Runtime",
     "nav.architecture": "Arquitectura",
-    "status.track": "Refactor Marketplace",
+    "track.build": "nueva capa de agentes",
+    "track.optimize": "evidencia de calidad",
+    "track.refactor": "listo para Marketplace",
     "dashboard.eyebrow": "Espacio por rol",
     "product.case.eyebrow": "Caso de negocio",
     "product.case.title": "La propiedad literaria se convierte en ingresos de catalogo interactivo",
@@ -250,6 +269,22 @@ const copy = {
     "top.eyebrow": "Demo para jueces",
     "top.title": "Inteligencia literaria multiagente",
     "book.eyebrow": "Libro demo",
+    "reader.eyebrow": "Biblioteca interactiva",
+    "reader.title": "Lee, escucha y habla con el mundo dentro de un libro",
+    "reader.body":
+      "Don Quijote es el titulo demo de dominio publico. El mismo pipeline ya soporta manuscritos subidos, psicologia de personajes, chat canonico, ramas de ficcion, orquestacion de escenas, voz y revision editorial.",
+    "reader.chat": "Hablar con personajes",
+    "reader.upload": "Subir libro",
+    "reader.publisher": "Vista editorial",
+    "reader.available": "Disponible en catalogo",
+    "reader.languages": "Ingles y espanol",
+    "reader.memory": "Memoria separada por modo",
+    "reader.laneCanon": "Conversacion canonica",
+    "reader.laneCanonBody": "Las respuestas se anclan en secciones recuperadas del libro.",
+    "reader.laneFiction": "Rama de ficcion",
+    "reader.laneFictionBody": "Las rutas alternativas se guardan separadas del canon.",
+    "reader.laneBusiness": "Senal editorial",
+    "reader.laneBusinessBody": "Las interacciones se convierten en insight medible de catalogo.",
     "author.eyebrow": "Espacio de autor",
     "author.title": "Pipeline de envio de libro",
     "author.review": "Revisar",
@@ -541,7 +576,7 @@ const roleContent = {
 
 const viewTitles = {
   dashboard: ["Workspace", "Role dashboard"],
-  reader: ["Reader", "Book experience"],
+  reader: ["Reader", "Interactive book experience"],
   agents: ["Agents", "Character and scene agents"],
   author: ["Author", "Book submission pipeline"],
   publisher: ["Publisher", "Catalog and engagement"],
@@ -867,6 +902,17 @@ async function loadSubmission() {
     </div>
   `;
   els.submissionCriteria.innerHTML = "";
+  if (submission.trackPortfolio?.length) {
+    submission.trackPortfolio.forEach((track) => {
+      const item = document.createElement("article");
+      item.className = "catalog-item delivery-ready";
+      item.innerHTML = `
+        <strong>${track.track}</strong>
+        <p>${track.evidence}</p>
+      `;
+      els.submissionCriteria.appendChild(item);
+    });
+  }
   submission.judgingCriteria.forEach((criterion) => {
     const item = document.createElement("article");
     item.className = "catalog-item";
@@ -1128,7 +1174,6 @@ async function uploadBook() {
 
 async function loadCapabilities() {
   const data = await api("/api/v1/challenge/capabilities");
-  els.runtimeStatus.textContent = `${data.runtime.geminiMode} | ${data.runtime.geminiModel}`;
   els.runtimeGemini.textContent = data.runtime.configured ? data.runtime.geminiModel : "fallback";
 }
 
@@ -1392,6 +1437,9 @@ els.loginButton.addEventListener("click", login);
 els.logoutButton.addEventListener("click", logout);
 document.querySelectorAll("[data-view-target]").forEach((item) => {
   item.addEventListener("click", () => setView(item.dataset.viewTarget));
+});
+document.querySelectorAll("[data-jump-view]").forEach((item) => {
+  item.addEventListener("click", () => setView(item.dataset.jumpView));
 });
 els.languageSelect.addEventListener("change", () => applyLanguage(els.languageSelect.value));
 els.runScene.addEventListener("click", runScene);
