@@ -24,4 +24,3 @@ def trace_span(agent_name: str, operation: str, model: str | None = None) -> Ite
         raise
     finally:
         trace.latency_ms = int((perf_counter() - start) * 1000)
-

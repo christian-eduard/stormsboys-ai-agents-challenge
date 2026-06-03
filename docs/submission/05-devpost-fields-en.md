@@ -10,7 +10,7 @@ Books become interactive multi-agent worlds powered by Gemini, Cloud Run, and pg
 
 ## Track
 
-Track 2: Optimize Existing Agents
+Track 3: Refactor for Google Cloud Marketplace & Gemini Enterprise
 
 ## Demo URL
 
@@ -30,7 +30,7 @@ TODO: add public demo video URL after recording.
 
 ## Short Description
 
-Stormsboys transforms books into interactive literary worlds. Readers can talk to grounded character agents, explore multi-character scenes, prepare narration handoffs, and publishers can review engagement and quality insights. The system demonstrates Track 2 optimization through agent traces, consistency checks, and baseline-versus-optimized evaluation.
+Stormsboys transforms books into interactive literary worlds. Authors and publishers can upload owned or public-domain manuscripts, Gemini prepares characters with psychology and canon constraints, readers can talk to grounded character agents, and publishers can review engagement and quality insights. The system targets Track 3 Marketplace readiness while also showing Track 2-style optimization through agent traces, consistency checks, and baseline-versus-optimized evaluation.
 
 ## Google Cloud Services
 
@@ -48,11 +48,11 @@ Stormsboys transforms books into interactive literary worlds. Readers can talk t
 - Character generation with `gemini-2.5-flash`.
 - Retrieval embeddings with `gemini-embedding-001`.
 - Cloud SQL PostgreSQL with pgvector retrieval.
+- Real manuscript upload, catalog insertion, uploaded-book retrieval, and chat by `book_id`.
 - Agent traces for retrieval, character generation, consistency, narration, and publisher insights.
 - Track 2 evaluation across 12 cases.
 
 ## Known Limitations
 
-- The deployed judge demo uses a controlled sample book.
 - The narration feature currently produces a TTS-ready SSML plan, not streamed audio playback.
-- Uploading arbitrary public books is intentionally out of scope for this short challenge demo.
+- Upload currently accepts text-based `.txt`, `.md`, and text-extractable `.pdf` files; scanned-image PDFs would need OCR in a production Marketplace version.

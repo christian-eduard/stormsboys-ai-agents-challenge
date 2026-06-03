@@ -288,6 +288,26 @@
                 <p data-i18n="author.stepPublishBody">Publisher or superadmin approval moves the book into catalog availability.</p>
               </article>
             </div>
+            <div class="upload-panel">
+              <label class="field-label" for="uploadTitle">Title</label>
+              <input id="uploadTitle" type="text" value="Judge sample manuscript" />
+
+              <label class="field-label" for="uploadAuthor">Author</label>
+              <input id="uploadAuthor" type="text" value="Challenge Author" />
+
+              <label class="field-label" for="uploadRights">Rights</label>
+              <select id="uploadRights">
+                <option value="owned_or_public_domain">Owned or public domain</option>
+                <option value="publisher_catalog_rights">Publisher catalog rights</option>
+              </select>
+
+              <label class="field-label" for="uploadFile">Manuscript file</label>
+              <input id="uploadFile" type="file" accept=".txt,.md,.pdf,text/plain,application/pdf" />
+
+              <div class="button-row">
+                <button id="uploadBook" type="button">Upload and analyze</button>
+              </div>
+            </div>
             <article class="access-box" id="authorAccess"></article>
           </div>
 

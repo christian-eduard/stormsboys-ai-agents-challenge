@@ -8,10 +8,12 @@ from sqlalchemy.exc import SQLAlchemyError
 from storms_agents.config import Settings, get_settings
 from storms_agents.demo_data import DEMO_BOOK_SECTIONS
 from storms_agents.schemas import (
+    BookAnalysis,
     ConversationMemory,
     ConversationMode,
     FictionBranch,
     RetrievedContext,
+    UploadedBook,
 )
 from storms_agents.storage.embedding import (
     EmbeddingProvider,
@@ -48,6 +50,25 @@ SCHEMA_STATEMENTS = [
     """
     CREATE INDEX IF NOT EXISTS section_embeddings_vector_idx
       ON section_embeddings USING ivfflat (embedding vector_cosine_ops)
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS uploaded_books (
+      book_id TEXT PRIMARY KEY REFERENCES books(book_id) ON DELETE CASCADE,
+      title TEXT NOT NULL,
+      author TEXT NOT NULL DEFAULT 'Unknown',
+      rights TEXT NOT NULL,
+      owner_user_id TEXT NOT NULL,
+      tenant_id TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'ready_for_review',
+      language TEXT NOT NULL DEFAULT 'en',
+      analysis JSONB NOT NULL,
+      sections INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS uploaded_books_tenant_idx
+      ON uploaded_books (tenant_id, created_at)
     """,
     """
     CREATE TABLE IF NOT EXISTS conversation_memory_events (
@@ -207,6 +228,181 @@ class StorageRepository:
                     },
                 )
         return len(DEMO_BOOK_SECTIONS)
+
+    def upsert_uploaded_book(
+        self,
+        book_id: str,
+        title: str,
+        author: str,
+        rights: str,
+        owner_user_id: str,
+        tenant_id: str,
+        language: str,
+        sections: list[str],
+        analysis: BookAnalysis,
+    ) -> UploadedBook:
+        self.initialize_schema()
+        with self.engine.begin() as connection:
+            connection.execute(
+                text(
+                    """
+                    INSERT INTO books (book_id, title)
+                    VALUES (:book_id, :title)
+                    ON CONFLICT (book_id) DO UPDATE SET title = EXCLUDED.title
+                    """
+                ),
+                {"book_id": book_id, "title": title},
+            )
+            connection.execute(
+                text("DELETE FROM book_sections WHERE book_id = :book_id"),
+                {"book_id": book_id},
+            )
+            for index, section in enumerate(sections):
+                section_id = f"{book_id}-section-{index + 1}"
+                connection.execute(
+                    text(
+                        """
+                        INSERT INTO book_sections (
+                          section_id, book_id, section_index, text, source
+                        )
+                        VALUES (:section_id, :book_id, :section_index, :text, 'book_section')
+                        """
+                    ),
+                    {
+                        "section_id": section_id,
+                        "book_id": book_id,
+                        "section_index": index,
+                        "text": section,
+                    },
+                )
+                embedding = self.embedding_provider.embed_document(section)
+                connection.execute(
+                    text(
+                        """
+                        INSERT INTO section_embeddings (section_id, embedding, model)
+                        VALUES (:section_id, CAST(:embedding AS vector), :model)
+                        """
+                    ),
+                    {
+                        "section_id": section_id,
+                        "embedding": vector_literal(embedding.vector),
+                        "model": embedding.model,
+                    },
+                )
+            connection.execute(
+                text(
+                    """
+                    INSERT INTO uploaded_books (
+                      book_id, title, author, rights, owner_user_id, tenant_id,
+                      status, language, analysis, sections
+                    )
+                    VALUES (
+                      :book_id, :title, :author, :rights, :owner_user_id, :tenant_id,
+                      'ready_for_review', :language, CAST(:analysis AS jsonb), :sections
+                    )
+                    ON CONFLICT (book_id) DO UPDATE SET
+                      title = EXCLUDED.title,
+                      author = EXCLUDED.author,
+                      rights = EXCLUDED.rights,
+                      status = EXCLUDED.status,
+                      language = EXCLUDED.language,
+                      analysis = EXCLUDED.analysis,
+                      sections = EXCLUDED.sections
+                    """
+                ),
+                {
+                    "book_id": book_id,
+                    "title": title,
+                    "author": author,
+                    "rights": rights,
+                    "owner_user_id": owner_user_id,
+                    "tenant_id": tenant_id,
+                    "language": language,
+                    "analysis": analysis.model_dump_json(),
+                    "sections": len(sections),
+                },
+            )
+        return UploadedBook(
+            book_id=book_id,
+            title=title,
+            author=author,
+            rights=rights,
+            owner_user_id=owner_user_id,
+            tenant_id=tenant_id,
+            language=language,
+            sections=len(sections),
+            characters=len(analysis.characters),
+            scenes=len(analysis.scenes),
+        )
+
+    def list_uploaded_books(self, tenant_id: str | None = None) -> list[UploadedBook]:
+        self.initialize_schema()
+        tenant_filter = "WHERE tenant_id = :tenant_id" if tenant_id else ""
+        params = {"tenant_id": tenant_id} if tenant_id else {}
+        with self.engine.connect() as connection:
+            rows = list(
+                connection.execute(
+                    text(
+                        f"""
+                        SELECT
+                          book_id, title, author, rights, owner_user_id, tenant_id,
+                          status, language, analysis, sections, created_at
+                        FROM uploaded_books
+                        {tenant_filter}
+                        ORDER BY created_at DESC, title ASC
+                        """
+                    ),
+                    params,
+                ).mappings()
+            )
+        return [self._uploaded_book_from_row(row) for row in rows]
+
+    def get_uploaded_book_analysis(self, book_id: str) -> BookAnalysis | None:
+        self.initialize_schema()
+        with self.engine.connect() as connection:
+            row = (
+                connection.execute(
+                    text(
+                        """
+                    SELECT analysis
+                    FROM uploaded_books
+                    WHERE book_id = :book_id
+                    """
+                    ),
+                    {"book_id": book_id},
+                )
+                .mappings()
+                .first()
+            )
+        if row is None:
+            return None
+        analysis = row["analysis"]
+        if isinstance(analysis, str):
+            return BookAnalysis.model_validate_json(analysis)
+        return BookAnalysis.model_validate(analysis)
+
+    def get_uploaded_book(self, book_id: str) -> UploadedBook | None:
+        self.initialize_schema()
+        with self.engine.connect() as connection:
+            row = (
+                connection.execute(
+                    text(
+                        """
+                    SELECT
+                      book_id, title, author, rights, owner_user_id, tenant_id,
+                      status, language, analysis, sections, created_at
+                    FROM uploaded_books
+                    WHERE book_id = :book_id
+                    """
+                    ),
+                    {"book_id": book_id},
+                )
+                .mappings()
+                .first()
+            )
+        if row is None:
+            return None
+        return self._uploaded_book_from_row(row)
 
     def search_sections(self, book_id: str, query: str, limit: int) -> list[RetrievedContext]:
         query_embedding = vector_literal(self.embedding_provider.embed_query(query).vector)
@@ -493,9 +689,10 @@ class StorageRepository:
     ) -> dict[str, object] | None:
         self.initialize_schema()
         with self.engine.connect() as connection:
-            row = connection.execute(
-                text(
-                    """
+            row = (
+                connection.execute(
+                    text(
+                        """
                     SELECT
                       branch_id,
                       book_id,
@@ -509,9 +706,12 @@ class StorageRepository:
                     WHERE session_id = :session_id
                       AND branch_id = :branch_id
                     """
-                ),
-                {"session_id": session_id, "branch_id": branch_id},
-            ).mappings().first()
+                    ),
+                    {"session_id": session_id, "branch_id": branch_id},
+                )
+                .mappings()
+                .first()
+            )
         if row is None:
             return None
         return {
@@ -538,6 +738,29 @@ class StorageRepository:
             if isinstance(parsed, list):
                 return [str(item) for item in parsed]
         return []
+
+    def _uploaded_book_from_row(self, row: object) -> UploadedBook:
+        analysis_value = row["analysis"]
+        if isinstance(analysis_value, str):
+            analysis = BookAnalysis.model_validate_json(analysis_value)
+        else:
+            analysis = BookAnalysis.model_validate(analysis_value)
+        return UploadedBook(
+            book_id=row["book_id"],
+            title=row["title"],
+            author=row["author"],
+            rights=row["rights"],
+            owner_user_id=row["owner_user_id"],
+            tenant_id=row["tenant_id"],
+            status=row["status"],
+            language=row["language"],
+            sections=row["sections"],
+            characters=len(analysis.characters),
+            scenes=len(analysis.scenes),
+            created_at=row["created_at"].isoformat()
+            if hasattr(row["created_at"], "isoformat")
+            else str(row["created_at"]),
+        )
 
     def _memory_model(
         self,

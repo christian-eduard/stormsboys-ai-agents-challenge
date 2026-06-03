@@ -50,6 +50,11 @@ const els = {
   cleanupSession: document.querySelector("#cleanupSession"),
   cleanupSessionInput: document.querySelector("#cleanupSessionInput"),
   cleanupResult: document.querySelector("#cleanupResult"),
+  uploadTitle: document.querySelector("#uploadTitle"),
+  uploadAuthor: document.querySelector("#uploadAuthor"),
+  uploadRights: document.querySelector("#uploadRights"),
+  uploadFile: document.querySelector("#uploadFile"),
+  uploadBook: document.querySelector("#uploadBook"),
   roleList: document.querySelector("#roleList"),
   marketplaceSummary: document.querySelector("#marketplaceSummary"),
   adminAccess: document.querySelector("#adminAccess"),
@@ -591,7 +596,11 @@ function applyLanguage(language) {
 }
 
 async function api(path, options = {}) {
-  const headers = { "content-type": "application/json", ...(options.headers ?? {}) };
+  const isFormData = options.body instanceof FormData;
+  const headers = {
+    ...(isFormData ? {} : { "content-type": "application/json" }),
+    ...(options.headers ?? {}),
+  };
   const response = await fetch(path, {
     ...options,
     headers,
@@ -1059,6 +1068,61 @@ async function runAuthorWorkflow() {
       .map((item) => `<p>${item.item}: ${item.status} | ${item.evidence}</p>`)
       .join(""),
   );
+  if (data.uploadedCatalog?.length) {
+    els.authorResponse.insertAdjacentHTML(
+      "beforeend",
+      `<p><strong>Uploaded catalog:</strong> ${data.uploadedCatalog
+        .map((book) => `${book.title} (${book.characters} agents)`)
+        .join(", ")}</p>`,
+    );
+  }
+  renderTraces(data.traces);
+}
+
+async function uploadBook() {
+  if (!(hasPermission("upload_owned_books") || hasPermission("manage_tenants"))) {
+    applyAccess();
+    return;
+  }
+  const file = els.uploadFile.files?.[0];
+  if (!file) {
+    els.authorResponse.textContent = "Choose a .txt, .md, or .pdf manuscript first.";
+    return;
+  }
+  const form = new FormData();
+  form.append("title", els.uploadTitle.value.trim() || file.name);
+  form.append("author", els.uploadAuthor.value.trim() || "Unknown");
+  form.append("rights", els.uploadRights.value);
+  form.append("language", els.languageSelect.value);
+  form.append("file", file);
+  els.authorResponse.textContent = "Uploading, chunking, embedding, and generating agents.";
+  let data;
+  try {
+    data = await api("/api/v1/books/upload", {
+      method: "POST",
+      headers: authHeaders(),
+      body: form,
+    });
+  } catch (error) {
+    els.authorResponse.textContent = `Upload failed: ${error.message}`;
+    return;
+  }
+  state.characters = data.analysis.characters;
+  renderCharacters(state.characters);
+  els.bookTitle.textContent = data.book.title;
+  els.bookSummary.textContent = data.analysis.summary;
+  els.characterCount.textContent = data.analysis.characters.length;
+  els.placeCount.textContent = data.analysis.places.length;
+  els.sceneCount.textContent = data.analysis.scenes.length;
+  els.authorResponse.innerHTML = `
+    <strong>${data.book.title} | ${data.book.status}</strong>
+    <p>${data.provider} | ${data.book.sections} section(s) | ${
+      data.book.characters
+    } character agent(s)</p>
+    <p>${data.pipeline.ingestion} | ${data.pipeline.analysis} | ${data.pipeline.catalog}</p>
+    <p>Use book_id <strong>${data.book.book_id}</strong> for uploaded-book chat API calls.</p>
+  `;
+  await loadAdmin();
   renderTraces(data.traces);
 }
 
@@ -1333,6 +1397,7 @@ els.languageSelect.addEventListener("change", () => applyLanguage(els.languageSe
 els.runScene.addEventListener("click", runScene);
 els.runNarration.addEventListener("click", runNarration);
 els.runAuthorWorkflow.addEventListener("click", runAuthorWorkflow);
+els.uploadBook.addEventListener("click", uploadBook);
 els.runPublisher.addEventListener("click", runPublisher);
 els.refreshAdmin.addEventListener("click", loadAdmin);
 els.refreshOperations.addEventListener("click", loadAdmin);

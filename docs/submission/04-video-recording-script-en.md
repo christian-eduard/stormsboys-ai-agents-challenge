@@ -88,7 +88,7 @@ Say:
 
 ## Do Not Say
 
-- Do not claim arbitrary book upload is fully supported in the deployed demo.
+- Do not claim scanned PDFs or OCR are supported in the deployed demo.
 - Do not claim real audio playback unless Google TTS is added.
 - Do not mention unrelated local projects.
 - Do not mention private billing details.

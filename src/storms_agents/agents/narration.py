@@ -15,8 +15,8 @@ class VoiceNarrationAgent:
         with trace_span(self.name, "voice.prepare_narration") as trace:
             script = " ".join(scene_text.split())[:420]
             ssml = (
-                f"<speak><voice name=\"{voice_id}\">"
-                f"<prosody rate=\"medium\" pitch=\"-1st\">{script}</prosody>"
+                f'<speak><voice name="{voice_id}">'
+                f'<prosody rate="medium" pitch="-1st">{script}</prosody>'
                 "</voice></speak>"
             )
             plan = NarrationPlan(

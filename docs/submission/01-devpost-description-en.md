@@ -28,10 +28,11 @@ The system includes:
 - A Publisher Insights Agent.
 - A Marketplace Admin console for roles, permissions, catalog operations, and platform readiness.
 - A protected Author workflow that shows manuscript review, generated character agents, and approval checks.
+- A real upload flow for owned, publisher-controlled, or public-domain manuscripts.
 - A protected Super Admin operations surface for runtime, tenant, quality, and governance evidence.
 - A demo login flow with role-specific workspaces for Reader, Author, Publisher Admin, Super Admin, and a dedicated Judge Access account.
 
-Readers can ask questions to a specific character, trigger multi-character scene interactions, and receive responses grounded in the book instead of generic chatbot answers.
+Authors and publishers can upload a manuscript, have it chunked, embedded, analyzed, and added to the catalog; readers can then ask questions to a specific generated character, trigger multi-character scene interactions, and receive responses grounded in that book instead of generic chatbot answers.
 The demo also includes a narration handoff that produces a TTS-ready script/SSML plan, plus a publisher/admin view with engagement, quality, and commercialization insights.
 English is the primary submission language for judges, and the demo also includes a Spanish option for character chat so the product can serve Spanish-speaking readers.
 
@@ -91,10 +92,12 @@ The reader can choose between canon mode, where answers stay inside the book, an
 
 This repository is a new challenge-specific implementation. It is intentionally isolated from unrelated projects and avoids reused secrets, legacy configuration, or cross-project dependencies.
 
+During the challenge we deployed the app on Cloud Run, connected it to Cloud SQL PostgreSQL with pgvector, enabled Gemini via Vertex AI, added role-specific workspaces, and implemented a working manuscript upload pipeline that stores uploaded sections, embeddings, analysis metadata, generated characters, and chat grounding by `book_id`.
+
 ## Demo Access
 
 - Demo URL: https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app
 - Demo username: not required.
 - Demo password: not required.
 - Runtime: Cloud Run, Vertex/Gemini, Cloud SQL PostgreSQL, pgvector, and Secret Manager are active in the deployed demo.
-- Known limitations: the demo uses a controlled sample book rather than arbitrary uploads. Retrieval uses Cloud SQL pgvector with Gemini embeddings through Vertex AI, and the app keeps a deterministic local fallback for resilience.
+- Known limitations: the narration feature currently prepares a TTS-ready script/SSML handoff rather than streaming audio playback in the judge build. Retrieval uses Cloud SQL pgvector with Gemini embeddings through Vertex AI, and the app keeps a deterministic local fallback for resilience.

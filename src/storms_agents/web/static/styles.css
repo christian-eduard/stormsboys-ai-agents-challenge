@@ -694,6 +694,14 @@ textarea {
   margin-top: 14px;
 }
 
+.upload-panel {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+
 .cleanup-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

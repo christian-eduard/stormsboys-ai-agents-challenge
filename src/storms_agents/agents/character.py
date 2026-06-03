@@ -150,9 +150,7 @@ class CharacterAgent:
         citations = ", ".join(context.section_id for context in contexts) or "none"
         memory_summary = memory.relationship_summary if memory else "No prior memory."
         language_rule = (
-            "Answer in English."
-            if language == ConversationLanguage.EN
-            else "Responde en espanol."
+            "Answer in English." if language == ConversationLanguage.EN else "Responde en espanol."
         )
         mode_rules = (
             "Mode: CANON. Use only the supplied evidence. Do not invent plot events."

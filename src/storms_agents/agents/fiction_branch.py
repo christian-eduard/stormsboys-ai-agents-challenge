@@ -30,8 +30,7 @@ class FictionBranchAgent:
                 ),
                 canon_anchor_citations=citations,
                 continuation=(
-                    f"Canon anchor: {anchor}\n\n"
-                    f"Fiction continuation: {character_response}"
+                    f"Canon anchor: {anchor}\n\nFiction continuation: {character_response}"
                 ),
             )
             trace.input_tokens = len(prompt.split()) + sum(

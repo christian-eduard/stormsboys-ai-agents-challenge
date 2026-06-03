@@ -1,7 +1,11 @@
+import hashlib
+import re
 from importlib.resources import files
+from io import BytesIO
+from typing import Annotated
 
 import uvicorn
-from fastapi import FastAPI, Header, HTTPException, Query
+from fastapi import FastAPI, File, Form, Header, HTTPException, Query, UploadFile
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -21,13 +25,19 @@ from storms_agents.demo_data import DEMO_BOOK_ID, DEMO_BOOK_TEXT, DEMO_BOOK_TITL
 from storms_agents.evaluation import run_demo_evaluation
 from storms_agents.fiction_history import FictionBranchStore
 from storms_agents.memory import ConversationMemoryStore
-from storms_agents.schemas import AgentStatus, ConversationLanguage, ConversationMode
+from storms_agents.schemas import (
+    AgentStatus,
+    BookAnalysis,
+    ConversationLanguage,
+    ConversationMode,
+)
 from storms_agents.storage.repository import StorageRepository
 from storms_agents.tools.gemini import GeminiTool
 
 settings = get_settings()
 WEB_DIR = files("storms_agents").joinpath("web")
 STATIC_DIR = WEB_DIR.joinpath("static")
+LOCAL_UPLOADED_BOOKS: dict[str, dict[str, object]] = {}
 
 app = FastAPI(
     title="Stormsboys AI Agents Challenge API",
@@ -38,6 +48,7 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
 class CharacterChatRequest(BaseModel):
+    book_id: str = DEMO_BOOK_ID
     character_id: str = "don_quijote"
     mode: ConversationMode = ConversationMode.CANON
     language: ConversationLanguage = ConversationLanguage.EN
@@ -54,9 +65,79 @@ class SceneChatRequest(BaseModel):
 
 
 class NarrationRequest(BaseModel):
-    scene_text: str = (
-        "Don Quijote charges at the windmills while Sancho warns him from the road."
+    scene_text: str = "Don Quijote charges at the windmills while Sancho warns him from the road."
+
+
+def _slug(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+    return slug or "uploaded-book"
+
+
+def _book_id_for_upload(title: str, text: str) -> str:
+    digest = hashlib.sha256(f"{title}\n{text[:4000]}".encode()).hexdigest()[:10]
+    return f"upload-{_slug(title)[:42]}-{digest}"
+
+
+def _decode_uploaded_text(file_name: str, content_type: str | None, payload: bytes) -> str:
+    name = file_name.lower()
+    content_type = content_type or ""
+    if name.endswith(".pdf") or content_type == "application/pdf":
+        from pypdf import PdfReader
+
+        reader = PdfReader(BytesIO(payload))
+        pages = [page.extract_text() or "" for page in reader.pages[:80]]
+        return "\n\n".join(page.strip() for page in pages if page.strip())
+    if (
+        name.endswith(".txt")
+        or name.endswith(".md")
+        or content_type.startswith("text/")
+        or content_type in {"application/octet-stream", ""}
+    ):
+        for encoding in ("utf-8", "utf-16", "latin-1"):
+            try:
+                return payload.decode(encoding)
+            except UnicodeDecodeError:
+                continue
+    raise HTTPException(
+        status_code=415,
+        detail="Only .txt, .md, and basic text-extractable .pdf uploads are supported.",
     )
+
+
+def _load_book_analysis(book_id: str) -> BookAnalysis:
+    if book_id == DEMO_BOOK_ID:
+        return LiteraryAnalysisAgent().run(DEMO_BOOK_TITLE, [DEMO_BOOK_TEXT]).output
+    storage = StorageRepository()
+    if storage.status.configured:
+        try:
+            analysis = storage.get_uploaded_book_analysis(book_id)
+            if analysis is not None:
+                return analysis
+        except Exception:
+            pass
+    cached = LOCAL_UPLOADED_BOOKS.get(book_id)
+    if cached:
+        return cached["analysis"]  # type: ignore[return-value]
+    raise HTTPException(status_code=404, detail="Book not found.")
+
+
+def _uploaded_catalog_for_user(user: dict[str, object]) -> list[dict[str, object]]:
+    tenant_id = str(user["tenant_id"])
+    can_manage_all = "manage_tenants" in user["permissions"]
+    storage = StorageRepository()
+    books = []
+    if storage.status.configured:
+        try:
+            uploaded = storage.list_uploaded_books(None if can_manage_all else tenant_id)
+            books.extend(book.model_dump() for book in uploaded)
+        except Exception:
+            books = []
+    if not books:
+        for book in LOCAL_UPLOADED_BOOKS.values():
+            metadata = book["metadata"]
+            if can_manage_all or metadata["tenant_id"] == tenant_id:
+                books.append(metadata)
+    return books
 
 
 def _role_permissions() -> dict[str, list[str]]:
@@ -473,6 +554,7 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
     storage = StorageRepository()
     analysis = LiteraryAnalysisAgent().run(DEMO_BOOK_TITLE, [DEMO_BOOK_TEXT]).output
     evaluation = run_demo_evaluation()
+    uploaded_catalog = _uploaded_catalog_for_user(user)
     return {
         "listingReadiness": {
             "track": "Track 3 - Google Cloud Marketplace & Gemini Enterprise",
@@ -508,16 +590,169 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
                 "agent_modes": ["CANON", "FICTION"],
                 "quality_score": round(evaluation.optimized_passed / evaluation.total_cases, 2),
             }
+        ]
+        + [
+            {
+                "book_id": book["book_id"],
+                "title": book["title"],
+                "rights": book["rights"],
+                "owner_role": "uploaded_catalog",
+                "availability": book["status"],
+                "characters": book["characters"],
+                "scenes": book["scenes"],
+                "languages": [book["language"], "es"] if book["language"] != "es" else ["es", "en"],
+                "agent_modes": ["CANON", "FICTION"],
+                "quality_score": 0.82,
+            }
+            for book in uploaded_catalog
         ],
         "operations": {
             "users": len(_demo_users()),
             "tenants": 1,
-            "publishedBooks": 1,
-            "pendingBooks": 0,
+            "publishedBooks": 1 + len(uploaded_catalog),
+            "pendingBooks": len(
+                [book for book in uploaded_catalog if book["status"] != "published"]
+            ),
             "agentHealth": "healthy",
             "optimizedEvaluationCases": evaluation.optimized_passed,
             "totalEvaluationCases": evaluation.total_cases,
         },
+    }
+
+
+@app.post("/api/v1/books/upload")
+async def upload_book(
+    title: Annotated[str, Form()],
+    file: Annotated[UploadFile, File()],
+    author: Annotated[str, Form()] = "Unknown",
+    rights: Annotated[str, Form()] = "owned_or_public_domain",
+    language: Annotated[ConversationLanguage, Form()] = ConversationLanguage.EN,
+    authorization: str | None = Header(default=None),
+) -> dict[str, object]:
+    user = _require_any_permission(
+        authorization,
+        {"upload_owned_books", "manage_catalog", "manage_tenants"},
+    )
+    payload = await file.read()
+    if not payload:
+        raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+    if len(payload) > 8 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Upload limit is 8 MB for the demo.")
+    text = _decode_uploaded_text(file.filename or title, file.content_type, payload)
+    words = text.split()
+    if len(words) < 40:
+        raise HTTPException(
+            status_code=400,
+            detail="Upload needs at least 40 words so agents have enough context.",
+        )
+    book_id = _book_id_for_upload(title, text)
+    ingestion = BookIngestionAgent().run(book_id, text)
+    analysis = LiteraryAnalysisAgent().run(title, ingestion.output)
+    storage = StorageRepository()
+    provider = "local-process-memory"
+    stored = {
+        "book_id": book_id,
+        "title": title,
+        "author": author,
+        "rights": rights,
+        "owner_user_id": user["user_id"],
+        "tenant_id": user["tenant_id"],
+        "status": "ready_for_review",
+        "language": language.value,
+        "sections": len(ingestion.output),
+        "characters": len(analysis.output.characters),
+        "scenes": len(analysis.output.scenes),
+        "created_at": None,
+    }
+    if storage.status.configured:
+        try:
+            uploaded = storage.upsert_uploaded_book(
+                book_id=book_id,
+                title=title,
+                author=author,
+                rights=rights,
+                owner_user_id=str(user["user_id"]),
+                tenant_id=str(user["tenant_id"]),
+                language=language.value,
+                sections=ingestion.output,
+                analysis=analysis.output,
+            )
+            stored = uploaded.model_dump()
+            provider = "cloud-sql-postgresql"
+        except Exception:
+            provider = "local-process-memory"
+    if provider == "local-process-memory":
+        LOCAL_UPLOADED_BOOKS[book_id] = {
+            "metadata": stored,
+            "analysis": analysis.output,
+            "sections": ingestion.output,
+        }
+    return {
+        "currentUser": user,
+        "provider": provider,
+        "book": stored,
+        "analysis": analysis.output.model_dump(),
+        "pipeline": {
+            "upload": "accepted",
+            "ingestion": f"{len(ingestion.output)} section(s)",
+            "analysis": "ready_for_review",
+            "catalog": "available_to_author_and_publisher",
+            "chat": "use book_id with /api/v1/demo/chat/character",
+        },
+        "traces": [trace.model_dump() for trace in ingestion.traces + analysis.traces],
+    }
+
+
+@app.get("/api/v1/books/catalog")
+def uploaded_books_catalog(authorization: str | None = Header(default=None)) -> dict[str, object]:
+    user = _require_any_permission(
+        authorization,
+        {"upload_owned_books", "manage_catalog", "manage_tenants", "read_public_books"},
+    )
+    uploaded = _uploaded_catalog_for_user(user)
+    return {
+        "currentUser": user,
+        "demoBook": {
+            "book_id": DEMO_BOOK_ID,
+            "title": DEMO_BOOK_TITLE,
+            "rights": "public-domain demo title",
+            "status": "published",
+        },
+        "uploadedBooks": uploaded,
+    }
+
+
+@app.get("/api/v1/books/{book_id}")
+def uploaded_book_detail(
+    book_id: str,
+    authorization: str | None = Header(default=None),
+) -> dict[str, object]:
+    user = _require_any_permission(
+        authorization,
+        {"upload_owned_books", "manage_catalog", "manage_tenants", "read_public_books"},
+    )
+    analysis = _load_book_analysis(book_id)
+    metadata = None
+    storage = StorageRepository()
+    if book_id == DEMO_BOOK_ID:
+        metadata = {
+            "book_id": DEMO_BOOK_ID,
+            "title": DEMO_BOOK_TITLE,
+            "rights": "public-domain demo title",
+            "status": "published",
+        }
+    elif storage.status.configured:
+        try:
+            uploaded = storage.get_uploaded_book(book_id)
+            metadata = uploaded.model_dump() if uploaded else None
+        except Exception:
+            metadata = None
+    if metadata is None and book_id in LOCAL_UPLOADED_BOOKS:
+        metadata = LOCAL_UPLOADED_BOOKS[book_id]["metadata"]
+    return {
+        "currentUser": user,
+        "book": metadata,
+        "analysis": analysis.model_dump(),
     }
 
 
@@ -530,6 +765,7 @@ def demo_author_workflow(authorization: str | None = Header(default=None)) -> di
     ingestion = BookIngestionAgent().run(DEMO_BOOK_ID, DEMO_BOOK_TEXT)
     analysis = LiteraryAnalysisAgent().run(DEMO_BOOK_TITLE, ingestion.output)
     evaluation = run_demo_evaluation()
+    uploaded_catalog = _uploaded_catalog_for_user(user)
     return {
         "currentUser": user,
         "manuscript": {
@@ -575,6 +811,7 @@ def demo_author_workflow(authorization: str | None = Header(default=None)) -> di
                 "evidence": "English primary, Spanish secondary",
             },
         ],
+        "uploadedCatalog": uploaded_catalog,
         "traces": [trace.model_dump() for trace in ingestion.traces + analysis.traces],
     }
 
@@ -697,7 +934,7 @@ def demo_book() -> dict[str, object]:
 
 @app.post("/api/v1/demo/chat/character")
 def demo_character_chat(request: CharacterChatRequest) -> dict[str, object]:
-    analysis = LiteraryAnalysisAgent().run(DEMO_BOOK_TITLE, [DEMO_BOOK_TEXT]).output
+    analysis = _load_book_analysis(request.book_id)
     character = next(
         (item for item in analysis.characters if item.character_id == request.character_id),
         analysis.characters[0],
@@ -709,7 +946,7 @@ def demo_character_chat(request: CharacterChatRequest) -> dict[str, object]:
         request.mode,
     )
     retrieval = RetrievalAgent().run(
-        DEMO_BOOK_ID,
+        request.book_id,
         request.question,
         settings.max_retrieved_sections,
     )
@@ -733,7 +970,7 @@ def demo_character_chat(request: CharacterChatRequest) -> dict[str, object]:
     fiction_traces = []
     if request.mode == ConversationMode.FICTION:
         fiction = FictionBranchAgent().run(
-            DEMO_BOOK_ID,
+            request.book_id,
             character,
             request.question,
             retrieval.output,
@@ -744,6 +981,7 @@ def demo_character_chat(request: CharacterChatRequest) -> dict[str, object]:
         fiction_traces = fiction.traces
     return {
         "mode": request.mode,
+        "bookId": request.book_id,
         "language": request.language,
         "sessionId": request.session_id,
         "characterProfile": character.model_dump(),

@@ -68,6 +68,10 @@ Ya existe:
 - Pantalla web `Testing access` con cuentas demo por rol y entrada dedicada `Judge Access`.
 - Panel web `Role dashboard` con acciones y navegacion filtradas para reader, author, publisher, superadmin y judge.
 - Vista `Author` con flujo protegido `/api/v1/demo/author-workflow`, checklist de aprobacion y agentes generados.
+- Upload real de libros desde vista `Author` y API `POST /api/v1/books/upload`.
+- Catalogo real `GET /api/v1/books/catalog` que combina Don Quijote demo y libros subidos por tenant/usuario.
+- Detalle de libro subido `GET /api/v1/books/{book_id}` con analisis, personajes, escenas y lugares.
+- Chat de personaje acepta `book_id`, por lo que puede conversar contra Don Quijote o contra un libro subido.
 - Consola web `Marketplace Admin` con roles, permisos, tenant editorial, catalogo, readiness y salud operativa.
 - Bloque `Superadmin operations` con endpoint protegido `/api/v1/admin/operations`.
 - Endpoints publisher/admin protegidos por `Authorization: Bearer demo-token:*`.
@@ -101,7 +105,7 @@ http://127.0.0.1:8080
 
 Ultima validacion local conocida:
 
-- Tests en contenedor Python 3.11: pasan, 45 tests.
+- Tests en contenedor Python 3.11: pasan, 46 tests.
 - Ruff en contenedor Python 3.11: pasa.
 - `node --check src/storms_agents/web/static/app.js`: pasa.
 - `make public-ready`: pasa.
@@ -117,7 +121,7 @@ Ultima validacion local conocida:
 - Billing Pronexus enlazado.
 - Budget guardrail de 50 EUR creado.
 - Cloud Run desplegado: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
-- Revision Cloud Run activa: `stormsboys-agents-api-00030-8p6`.
+- Revision Cloud Run activa: `stormsboys-agents-api-00033-6s6`.
 - Cloud Run usa service account nueva: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - No hay claves JSON de usuario ni credenciales antiguas en el runtime.
 - Cloud SQL instance: `stormsboys-pgvector`.
@@ -133,7 +137,11 @@ Ultima validacion local conocida:
 - Narration publico confirmado: `VoiceNarrationAgent`, SSML y `ready_for_tts=true`.
 - Publisher publico confirmado: `PublisherInsightsAgent`, engagement y quality `100%`.
 - Admin publico confirmado: login demo, tokens demo, roles `reader`, `author`, `publisher_admin`, `super_admin`, `judge_access`, tenant demo, catalogo y readiness Marketplace.
-- Smoke test publico confirmado el 2026-06-03 contra revision `stormsboys-agents-api-00031-lkc`.
+- Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00033-6s6`.
+- Upload publico confirmado el 2026-06-04: `POST /api/v1/books/upload` subio
+  `The Orchard of Mirrors`, creo `book_id=upload-the-orchard-of-mirrors-46f285dceb`,
+  lo guardo en `provider=cloud-sql-postgresql`, lo mostro en catalogo y permitio chat
+  canonico con `character_id=elena`.
 - Chat publico confirmado: Don Quijote responde en espanol con psicologia visible,
   memoria de sesion, consistencia `passed=true` y citas separadas sin IDs inline.
 - Memoria publica confirmada: `/api/v1/demo/chat/memory` devuelve historial desde
@@ -163,6 +171,8 @@ Ultima validacion local conocida:
 - `src/storms_agents/agents/root_agent.py`: agente raiz ADK.
 - `src/storms_agents/agents/book_ingestion.py`: ingestion demo.
 - `src/storms_agents/agents/literary_analysis.py`: analisis literario demo.
+- `src/storms_agents/agents/literary_analysis.py`: tambien infiere personajes,
+  psicologia, escenas y lugares desde manuscritos subidos.
 - `src/storms_agents/agents/retrieval.py`: retrieval demo.
 - `src/storms_agents/agents/character.py`: respuesta de personaje.
 - `src/storms_agents/agents/fiction_branch.py`: rama ficcional alternativa, separada del canon.
@@ -174,7 +184,7 @@ Ultima validacion local conocida:
 - `src/storms_agents/api/main.py`: tambien expone contratos demo de roles y Marketplace admin.
 - `src/storms_agents/evaluation.py`: before/after Track 2.
 - `src/storms_agents/storage/repository.py`: contrato Cloud SQL/pgvector, schema,
-  retrieval y memoria persistente.
+  retrieval, memoria persistente y tabla `uploaded_books`.
 - `src/storms_agents/memory.py`: store de memoria con Cloud SQL y fallback local.
 - `src/storms_agents/storage/embedding.py`: proveedor de embeddings Vertex/Gemini con fallback determinista de 768 dimensiones.
 - `src/storms_agents/tools/gemini.py`: adaptador Gemini con fallback demo.
@@ -202,6 +212,9 @@ Ultima validacion local conocida:
 - `GET /api/v1/challenge/storage/demo-seed`
 - `GET /.well-known/agent-card.json`
 - `GET /a2a/agent-card.json`
+- `POST /api/v1/books/upload`
+- `GET /api/v1/books/catalog`
+- `GET /api/v1/books/{book_id}`
 - `GET /api/v1/demo/book`
 - `POST /api/v1/demo/chat/character`
 - `GET /api/v1/demo/chat/memory`
@@ -233,14 +246,11 @@ BASE_URL=https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app make smoke
 
 ## Prioridades Siguientes
 
-1. Reorientar UI/API desde libro sintetico hacia plataforma real con Don Quijote como caso demo.
+1. Pulir UI/UX visual para que parezca producto premium, no solo consola tecnica.
 2. Convertir el timeline ficcional en una vista editable por usuario/publisher.
-3. Crear vista editable para el timeline ficcional por usuario/publisher.
-4. Crear agentes nuevos o adaptar los existentes segun `docs/agents/04-platform-agent-operating-model.md`.
-5. Implementar publisher/admin como vista B2B Track 3, no solo panel decorativo.
-6. Conectar Gemini tambien a LiteraryAnalysisAgent o SceneOrchestratorAgent con schemas estrictos.
-7. Ampliar embeddings reales de Gemini a ingestion de libros subidos por usuario si se implementa upload completo.
-8. Grabar video demo 1-2 minutos en ingles al final.
+3. Conectar Gemini tambien a LiteraryAnalysisAgent o SceneOrchestratorAgent con schemas estrictos.
+4. Preparar datos demo con Don Quijote y al menos un libro subido desde la UI antes de grabar.
+5. Grabar video demo 1-2 minutos en ingles al final.
 
 ## Trabajo Seguro Para Otro Agente
 

@@ -78,15 +78,19 @@ https://github.com/christian-eduard/stormsboys-ai-agents-challenge
 
 Ya existe una API FastAPI con demo web para jueces, agente raiz ADK-first, agentes
 especializados, Cloud SQL PostgreSQL con pgvector, embeddings `gemini-embedding-001`
-via Vertex AI, Character Agent con `gemini-2.5-flash`, trazas por agente y
-evaluacion before/after para Track 2.
+via Vertex AI, Character Agent con `gemini-2.5-flash`, subida real de manuscritos,
+trazas por agente y evaluacion before/after para Track 2.
 
-La direccion actual es evolucionar esta base hacia la app real: upload/analisis de libros, lector, personajes con modo canon y modo ficcion, escena/grupo, voz/narracion, publisher dashboard y superadmin. Don Quijote debe usarse como caso demo principal, pero el producto es la plataforma de catalogos interactivos.
+La direccion actual es consolidar esta base como app real: upload/analisis de libros,
+lector, personajes con modo canon y modo ficcion, escena/grupo, voz/narracion,
+publisher dashboard y superadmin. Don Quijote se usa como caso demo principal, pero
+el producto es la plataforma de catalogos interactivos.
 
 La demo cubre:
 
 - Lector con libro demo.
-- Analisis literario.
+- Upload y analisis de manuscritos `.txt`, `.md` y PDFs textuales.
+- Analisis literario con personajes, psicologia, escenas, lugares y constraints.
 - Chat con personaje.
 - Escena multi-personaje.
 - Plan de voz/narracion.
@@ -115,6 +119,9 @@ BASE_URL=http://127.0.0.1:8080 make smoke
 - `GET /`
 - `GET /api/v1/challenge/readiness`
 - `GET /api/v1/challenge/capabilities`
+- `POST /api/v1/books/upload`
+- `GET /api/v1/books/catalog`
+- `GET /api/v1/books/{book_id}`
 - `GET /api/v1/demo/book`
 - `POST /api/v1/demo/chat/character`
 - `POST /api/v1/demo/chat/scene`
@@ -133,10 +140,11 @@ BASE_URL=https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app make smoke
 
 Ultima validacion conocida:
 
-- Tests Docker/Python 3.11: 20 passed.
+- Tests Docker/Python 3.11: 46 passed.
 - Lint: passed.
 - Public-ready scan: passed.
 - Public smoke test: passed.
+- Public upload smoke test: passed against Cloud SQL/pgvector.
 
 ## Estado De Implementacion
 
@@ -150,4 +158,5 @@ Ultima validacion conocida:
 - Gemini real: activo via Vertex AI con identidad gestionada.
 - Cloud Run real: desplegado.
 - Cloud SQL/pgvector: activo.
-- Tests: 20 tests pasan en Python 3.11.
+- Upload real: activo en Cloud Run con catalogo, analisis y chat por `book_id`.
+- Tests: 46 tests pasan en Python 3.11.

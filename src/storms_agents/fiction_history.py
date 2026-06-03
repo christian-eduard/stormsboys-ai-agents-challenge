@@ -43,10 +43,7 @@ class FictionBranchStore:
             "session_id": session_id,
             "character_id": character_id,
             "provider": "local-process-memory",
-            "branches": [
-                branch.model_dump()
-                for branch in reversed(branches[-limit:])
-            ],
+            "branches": [branch.model_dump() for branch in reversed(branches[-limit:])],
         }
 
     def get(self, session_id: str, branch_id: str) -> dict[str, object] | None:
@@ -58,11 +55,7 @@ class FictionBranchStore:
                 "branch": persisted,
             }
         branch = next(
-            (
-                item
-                for item in self._branches.get(session_id, [])
-                if item.branch_id == branch_id
-            ),
+            (item for item in self._branches.get(session_id, []) if item.branch_id == branch_id),
             None,
         )
         if branch is None:

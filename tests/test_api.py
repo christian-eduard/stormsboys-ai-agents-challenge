@@ -135,6 +135,63 @@ def test_auth_demo_login() -> None:
     assert body["access"]["canOperatePlatform"] is True
 
 
+def test_author_can_upload_manuscript_and_chat_with_generated_character() -> None:
+    client = TestClient(app)
+    sample = (
+        "Mara crossed the Silent Bridge at dawn. Mara carried a small atlas and a "
+        "promise to return the lost bell to the city. Tomas waited near the archive, "
+        "afraid that Mara would discover the council's secret. The city listened as "
+        "the river moved below them. Mara wanted truth, Tomas wanted safety, and both "
+        "knew the bridge would decide who could be trusted. "
+    )
+
+    upload = client.post(
+        "/api/v1/books/upload",
+        headers={"authorization": "Bearer demo-token:author-demo"},
+        data={
+            "title": "The Silent Bridge",
+            "author": "Challenge Author",
+            "rights": "owned_or_public_domain",
+            "language": "en",
+        },
+        files={"file": ("silent-bridge.txt", sample, "text/plain")},
+    )
+
+    assert upload.status_code == 200
+    body = upload.json()
+    assert body["book"]["book_id"].startswith("upload-the-silent-bridge")
+    assert body["book"]["sections"] >= 1
+    assert body["analysis"]["title"] == "The Silent Bridge"
+    assert body["analysis"]["characters"]
+    first_character = body["analysis"]["characters"][0]["character_id"]
+
+    catalog = client.get(
+        "/api/v1/books/catalog",
+        headers={"authorization": "Bearer demo-token:author-demo"},
+    )
+    assert catalog.status_code == 200
+    assert any(
+        item["book_id"] == body["book"]["book_id"] for item in catalog.json()["uploadedBooks"]
+    )
+
+    chat = client.post(
+        "/api/v1/demo/chat/character",
+        json={
+            "book_id": body["book"]["book_id"],
+            "character_id": first_character,
+            "mode": "CANON",
+            "language": "en",
+            "session_id": "uploaded-chat-test",
+            "question": "What do you want near the bridge?",
+        },
+    )
+    assert chat.status_code == 200
+    chat_body = chat.json()
+    assert chat_body["bookId"] == body["book"]["book_id"]
+    assert chat_body["characterProfile"]["character_id"] == first_character
+    assert chat_body["reply"]["response"]
+
+
 def test_judge_demo_login_has_full_review_access() -> None:
     client = TestClient(app)
     response = client.post("/api/v1/auth/demo-login", json={"user_id": "judge-demo"})
@@ -326,9 +383,9 @@ def test_demo_character_chat_learns_reader_preferences() -> None:
     assert second.status_code == 200
     body = second.json()
     assert body["memory"]["turn_count"] == 2
-    assert "reader asks for psychological motivation" in body["memory"][
-        "learned_reader_preferences"
-    ]
+    assert (
+        "reader asks for psychological motivation" in body["memory"]["learned_reader_preferences"]
+    )
     assert "remember 1 turn" in body["reply"]["response"].lower()
 
 

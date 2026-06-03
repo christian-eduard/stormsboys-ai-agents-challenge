@@ -100,6 +100,21 @@ class BookAnalysis(BaseModel):
     scenes: list[str] = Field(default_factory=list)
 
 
+class UploadedBook(BaseModel):
+    book_id: str
+    title: str
+    author: str = "Unknown"
+    rights: str
+    owner_user_id: str
+    tenant_id: str
+    status: str = "ready_for_review"
+    language: ConversationLanguage = ConversationLanguage.EN
+    sections: int = Field(ge=0)
+    characters: int = Field(ge=0)
+    scenes: int = Field(ge=0)
+    created_at: str | None = None
+
+
 class NarrationPlan(BaseModel):
     voice_id: str
     style: str

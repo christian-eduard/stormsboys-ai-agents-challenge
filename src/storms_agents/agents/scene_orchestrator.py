@@ -22,4 +22,3 @@ class SceneOrchestratorAgent:
             replies.append(result.output)
             traces.extend(result.traces)
         return AgentResult(output=replies, traces=traces)
-
