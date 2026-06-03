@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 
 from sqlalchemy import text
@@ -6,7 +7,12 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from storms_agents.config import Settings, get_settings
 from storms_agents.demo_data import DEMO_BOOK_SECTIONS
-from storms_agents.schemas import ConversationMemory, ConversationMode, RetrievedContext
+from storms_agents.schemas import (
+    ConversationMemory,
+    ConversationMode,
+    FictionBranch,
+    RetrievedContext,
+)
 from storms_agents.storage.embedding import (
     EmbeddingProvider,
     EmbeddingProviderProtocol,
@@ -59,6 +65,23 @@ SCHEMA_STATEMENTS = [
     """
     CREATE INDEX IF NOT EXISTS conversation_memory_lookup_idx
       ON conversation_memory_events (session_id, character_id, mode, created_at)
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS fiction_branches (
+      branch_id TEXT PRIMARY KEY,
+      session_id TEXT NOT NULL,
+      book_id TEXT NOT NULL,
+      character_id TEXT NOT NULL,
+      seed_prompt TEXT NOT NULL,
+      premise TEXT NOT NULL,
+      canon_anchor_citations JSONB NOT NULL DEFAULT '[]'::jsonb,
+      continuation TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS fiction_branches_lookup_idx
+      ON fiction_branches (session_id, character_id, created_at)
     """,
 ]
 
@@ -347,6 +370,107 @@ class StorageRepository:
             }
             for row in rows
         ]
+
+    def append_fiction_branch(
+        self,
+        session_id: str,
+        branch: FictionBranch,
+    ) -> FictionBranch:
+        self.initialize_schema()
+        with self.engine.begin() as connection:
+            connection.execute(
+                text(
+                    """
+                    INSERT INTO fiction_branches (
+                      branch_id, session_id, book_id, character_id, seed_prompt,
+                      premise, canon_anchor_citations, continuation
+                    )
+                    VALUES (
+                      :branch_id, :session_id, :book_id, :character_id, :seed_prompt,
+                      :premise, CAST(:canon_anchor_citations AS jsonb), :continuation
+                    )
+                    ON CONFLICT (branch_id) DO UPDATE SET
+                      seed_prompt = EXCLUDED.seed_prompt,
+                      premise = EXCLUDED.premise,
+                      canon_anchor_citations = EXCLUDED.canon_anchor_citations,
+                      continuation = EXCLUDED.continuation
+                    """
+                ),
+                {
+                    "branch_id": branch.branch_id,
+                    "session_id": session_id,
+                    "book_id": branch.book_id,
+                    "character_id": branch.character_id,
+                    "seed_prompt": branch.seed_prompt,
+                    "premise": branch.premise,
+                    "canon_anchor_citations": json.dumps(branch.canon_anchor_citations),
+                    "continuation": branch.continuation,
+                },
+            )
+        return branch
+
+    def list_fiction_branches(
+        self,
+        session_id: str,
+        character_id: str | None = None,
+        limit: int = 5,
+    ) -> list[dict[str, object]]:
+        self.initialize_schema()
+        character_filter = "AND character_id = :character_id" if character_id else ""
+        params: dict[str, object] = {"session_id": session_id, "limit": limit}
+        if character_id:
+            params["character_id"] = character_id
+        with self.engine.connect() as connection:
+            rows = list(
+                connection.execute(
+                    text(
+                        f"""
+                        SELECT
+                          branch_id,
+                          book_id,
+                          character_id,
+                          seed_prompt,
+                          premise,
+                          canon_anchor_citations,
+                          continuation,
+                          created_at
+                        FROM fiction_branches
+                        WHERE session_id = :session_id
+                          {character_filter}
+                        ORDER BY created_at DESC, branch_id DESC
+                        LIMIT :limit
+                        """
+                    ),
+                    params,
+                ).mappings()
+            )
+        return [
+            {
+                "branch_id": row["branch_id"],
+                "book_id": row["book_id"],
+                "character_id": row["character_id"],
+                "seed_prompt": row["seed_prompt"],
+                "premise": row["premise"],
+                "canon_anchor_citations": self._decode_json_list(row["canon_anchor_citations"]),
+                "continuation": row["continuation"],
+                "created_at": row["created_at"].isoformat()
+                if hasattr(row["created_at"], "isoformat")
+                else str(row["created_at"]),
+            }
+            for row in rows
+        ]
+
+    def _decode_json_list(self, value: object) -> list[str]:
+        if isinstance(value, list):
+            return [str(item) for item in value]
+        if isinstance(value, str):
+            try:
+                parsed = json.loads(value)
+            except json.JSONDecodeError:
+                return []
+            if isinstance(parsed, list):
+                return [str(item) for item in parsed]
+        return []
 
     def _memory_model(
         self,

@@ -19,6 +19,7 @@ from storms_agents.agents.scene_orchestrator import SceneOrchestratorAgent
 from storms_agents.config import get_settings
 from storms_agents.demo_data import DEMO_BOOK_ID, DEMO_BOOK_TEXT, DEMO_BOOK_TITLE
 from storms_agents.evaluation import run_demo_evaluation
+from storms_agents.fiction_history import FictionBranchStore
 from storms_agents.memory import ConversationMemoryStore
 from storms_agents.schemas import AgentStatus, ConversationLanguage, ConversationMode
 from storms_agents.storage.repository import StorageRepository
@@ -625,6 +626,7 @@ def challenge_storage() -> dict[str, object]:
         "schema": storage.schema_sql(),
         "target": "Cloud SQL PostgreSQL + pgvector",
         "memoryTarget": "conversation_memory_events",
+        "fictionTarget": "fiction_branches",
         "embedding": embedding.__dict__,
         "runtimeBehavior": (
             "Falls back to in-memory retrieval and memory when DATABASE_URL is unset."
@@ -707,7 +709,8 @@ def demo_character_chat(request: CharacterChatRequest) -> dict[str, object]:
             retrieval.output,
             reply.output.response,
         )
-        fiction_branch = fiction.output.model_dump()
+        saved_branch = FictionBranchStore().record(request.session_id, fiction.output)
+        fiction_branch = saved_branch.model_dump()
         fiction_traces = fiction.traces
     return {
         "mode": request.mode,
@@ -737,6 +740,19 @@ def demo_chat_memory(
         session_id=session_id,
         character_id=character_id,
         mode=mode,
+        limit=limit,
+    )
+
+
+@app.get("/api/v1/demo/fiction/branches")
+def demo_fiction_branches(
+    session_id: str = "judge-demo-session",
+    character_id: str | None = None,
+    limit: int = Query(default=5, ge=1, le=20),
+) -> dict[str, object]:
+    return FictionBranchStore().list(
+        session_id=session_id,
+        character_id=character_id,
         limit=limit,
     )
 

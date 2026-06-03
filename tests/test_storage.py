@@ -27,6 +27,7 @@ def test_storage_schema_contains_pgvector_contract() -> None:
     assert "section_embeddings" in schema
     assert "vector(768)" in schema
     assert "conversation_memory_events" in schema
+    assert "fiction_branches" in schema
 
 
 class FakePersistentMemoryRepository:

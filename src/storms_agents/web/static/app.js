@@ -33,6 +33,7 @@ const els = {
   characterMemory: document.querySelector("#characterMemory"),
   characterCitations: document.querySelector("#characterCitations"),
   characterHistory: document.querySelector("#characterHistory"),
+  fictionTimeline: document.querySelector("#fictionTimeline"),
   scenePrompt: document.querySelector("#scenePrompt"),
   runScene: document.querySelector("#runScene"),
   sceneResponse: document.querySelector("#sceneResponse"),
@@ -1050,6 +1051,7 @@ async function askCharacter(question) {
   `;
   renderCharacterEvidence(data);
   await loadCharacterHistory(sessionId);
+  await loadFictionTimeline(sessionId);
   renderTraces(data.traces);
 }
 
@@ -1108,6 +1110,33 @@ async function loadCharacterHistory(sessionId) {
             )
             .join("")
         : "<p>No memory turns recorded for this mode yet.</p>"
+    }
+  `;
+}
+
+async function loadFictionTimeline(sessionId) {
+  const params = new URLSearchParams({
+    session_id: sessionId,
+    character_id: els.characterSelect.value,
+    limit: "5",
+  });
+  const timeline = await api(`/api/v1/demo/fiction/branches?${params.toString()}`);
+  els.fictionTimeline.innerHTML = `
+    <p><strong>${timeline.provider}</strong></p>
+    ${
+      timeline.branches.length
+        ? timeline.branches
+            .map(
+              (branch) => `
+                <div class="fiction-branch">
+                  <strong>${branch.branch_id}</strong>
+                  <p>${branch.seed_prompt}</p>
+                  <span>${branch.canon_anchor_citations.join(", ") || "no canon anchor"}</span>
+                </div>
+              `,
+            )
+            .join("")
+        : "<p>No fiction branches recorded for this character yet.</p>"
     }
   `;
 }

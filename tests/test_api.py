@@ -358,13 +358,14 @@ def test_demo_character_memory_history() -> None:
 
 def test_demo_character_chat_fiction_branch() -> None:
     client = TestClient(app)
+    session_id = "test-fiction-001"
     response = client.post(
         "/api/v1/demo/chat/character",
         json={
             "character_id": "don_quijote",
             "mode": "FICTION",
             "language": "en",
-            "session_id": "test-fiction-001",
+            "session_id": session_id,
             "question": "What if Sancho convinces you the giants are machines?",
         },
     )
@@ -378,6 +379,19 @@ def test_demo_character_chat_fiction_branch() -> None:
     assert body["memory"]["fiction_memory"]
     assert body["consistency"]["checks"]["separated_from_canon"] is True
     assert any(trace["agent_name"] == "FictionBranchAgent" for trace in body["traces"])
+
+    timeline = client.get(
+        "/api/v1/demo/fiction/branches",
+        params={
+            "session_id": session_id,
+            "character_id": "don_quijote",
+        },
+    )
+    assert timeline.status_code == 200
+    timeline_body = timeline.json()
+    assert timeline_body["provider"] in {"local-process-memory", "cloud-sql-postgresql"}
+    assert timeline_body["branches"]
+    assert timeline_body["branches"][0]["branch_id"] == body["fictionBranch"]["branch_id"]
 
 
 def test_demo_character_chat_canon_rejects_future() -> None:

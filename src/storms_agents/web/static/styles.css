@@ -747,7 +747,7 @@ textarea {
 
 .agent-evidence-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
   margin-top: 16px;
 }
@@ -782,14 +782,16 @@ textarea {
   font-weight: 700;
 }
 
-.memory-event {
+.memory-event,
+.fiction-branch {
   display: grid;
   gap: 6px;
   border-top: 1px solid var(--line);
   padding-top: 8px;
 }
 
-.memory-event strong {
+.memory-event strong,
+.fiction-branch strong {
   color: var(--ink);
   font-size: 12px;
 }

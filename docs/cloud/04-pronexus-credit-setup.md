@@ -45,11 +45,11 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 
 - Service: `stormsboys-agents-api`.
 - Region: `us-central1`.
-- Revision: `stormsboys-agents-api-00027-tsp`.
+- Revision: `stormsboys-agents-api-00028-wk4`.
 - Runtime service account: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - URL canonica: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
 - URL alternativa: `https://stormsboys-agents-api-425710112361.us-central1.run.app`.
-- Trafico: 100% a la revision `stormsboys-agents-api-00027-tsp`.
+- Trafico: 100% a la revision `stormsboys-agents-api-00028-wk4`.
 - Smoke test publico: pasa el 2026-06-03.
 - Admin publico confirmado: login demo, tokens demo protegidos, roles, catalogo, tenant demo y readiness Marketplace.
 - Idioma publico confirmado: `language=en` y `language=es` en chat de personaje.
@@ -58,6 +58,8 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 - Demo web incluye panel `Runtime proof` para mostrar a jueces Gemini, Cloud SQL/pgvector, seed y traza de retrieval.
 - Demo web incluye paneles `Voice / Narration Agent` y `Publisher Insights Agent`.
 - Demo web incluye panel `History` para ensenar memoria conversacional persistida por sesion/personaje/modo.
+- Demo web incluye panel `Fiction timeline` para ensenar ramas alternativas persistidas
+  y separadas del canon.
 
 ## Cloud SQL / pgvector
 
@@ -83,6 +85,9 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
   memoria de sesion y citas separadas del texto.
 - Memoria persistente verificada: `conversation_memory_events` existe en Cloud SQL y
   `/api/v1/demo/chat/memory` devuelve eventos desde `provider=cloud-sql-postgresql`.
+- Ramas ficcionales persistentes verificadas: `fiction_branches` existe en Cloud SQL y
+  `/api/v1/demo/fiction/branches` devuelve continuidad, citas canon y proveedor
+  `cloud-sql-postgresql`.
 - Guardrail canonico verificado: preguntas ancladas en la escena de los molinos responden
   con voz de Don Quijote; futuro fuera del libro sigue bloqueado en modo `CANON`.
 - Narration publico verificado: `VoiceNarrationAgent`, SSML y `ready_for_tts=true`.
@@ -90,6 +95,7 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 - Embeddings verificados: `gemini-embedding-001` via Vertex AI, 768 dimensiones.
 - Fallback de embeddings: `demo-hash-embedding-768` solo si Vertex/API no esta configurado o falla.
 - Tabla de memoria: `conversation_memory_events`.
+- Tabla de ramas ficcionales: `fiction_branches`.
 - Fallback de memoria: proceso local solo si `DATABASE_URL` no esta configurado o Cloud SQL falla.
 
 ## Credenciales
@@ -125,6 +131,7 @@ gcloud sql instances describe stormsboys-pgvector --project=stormsboys-agents-20
 curl -s https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app/api/v1/challenge/storage
 curl -s https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app/api/v1/challenge/storage/demo-seed
 curl -s "https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app/api/v1/demo/chat/memory?session_id=judge-demo-session&character_id=don_quijote&mode=CANON"
+curl -s "https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app/api/v1/demo/fiction/branches?session_id=judge-demo-session&character_id=don_quijote"
 gcloud iam service-accounts keys list --iam-account=stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com --project=stormsboys-agents-20260602
 BASE_URL=https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app make smoke
 ```
