@@ -45,11 +45,11 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 
 - Service: `stormsboys-agents-api`.
 - Region: `us-central1`.
-- Revision: `stormsboys-agents-api-00029-2fz`.
+- Revision: `stormsboys-agents-api-00030-8p6`.
 - Runtime service account: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - URL canonica: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
 - URL alternativa: `https://stormsboys-agents-api-425710112361.us-central1.run.app`.
-- Trafico: 100% a la revision `stormsboys-agents-api-00029-2fz`.
+- Trafico: 100% a la revision `stormsboys-agents-api-00030-8p6`.
 - Smoke test publico: pasa el 2026-06-03.
 - Admin publico confirmado: login demo, tokens demo protegidos, roles, catalogo, tenant demo y readiness Marketplace.
 - Idioma publico confirmado: `language=en` y `language=es` en chat de personaje.
@@ -90,6 +90,8 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
   `cloud-sql-postgresql`.
 - Cleanup superadmin verificado: `DELETE /api/v1/admin/demo-sessions/{session_id}`
   borra solo memoria conversacional y ramas ficcionales de la sesion indicada.
+- Cleanup UI verificado: el formulario de `Superadmin operations` aparece en la demo publica
+  y queda habilitado para `Judge Access`.
 - Guardrail canonico verificado: preguntas ancladas en la escena de los molinos responden
   con voz de Don Quijote; futuro fuera del libro sigue bloqueado en modo `CANON`.
 - Narration publico verificado: `VoiceNarrationAgent`, SSML y `ready_for_tts=true`.

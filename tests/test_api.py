@@ -19,6 +19,7 @@ def test_web_demo() -> None:
     assert "Demo access" in response.text
     assert "Choose a demo account" in response.text
     assert "Submission readiness" in response.text
+    assert "cleanupSessionInput" in response.text
     assert 'data-view="dashboard"' in response.text
     assert 'data-view="author"' in response.text
 
@@ -30,6 +31,8 @@ def test_static_asset() -> None:
     assert "runEvaluation" in response.text
     assert "demo-login" in response.text
     assert "judge_access" in response.text
+    assert "cleanupDemoSession" in response.text
+    assert "/api/v1/admin/demo-sessions/" in response.text
 
 
 def test_challenge_readiness() -> None:

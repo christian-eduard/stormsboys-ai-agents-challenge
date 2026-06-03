@@ -46,6 +46,9 @@ const els = {
   publisherAccess: document.querySelector("#publisherAccess"),
   refreshAdmin: document.querySelector("#refreshAdmin"),
   refreshOperations: document.querySelector("#refreshOperations"),
+  cleanupSession: document.querySelector("#cleanupSession"),
+  cleanupSessionInput: document.querySelector("#cleanupSessionInput"),
+  cleanupResult: document.querySelector("#cleanupResult"),
   roleList: document.querySelector("#roleList"),
   marketplaceSummary: document.querySelector("#marketplaceSummary"),
   adminAccess: document.querySelector("#adminAccess"),
@@ -169,6 +172,10 @@ const copy = {
     "operations.title": "Platform controls",
     "operations.refresh": "Refresh",
     "operations.running": "Loading platform operations.",
+    "operations.cleanup": "Clear session",
+    "operations.cleanupLabel": "Demo session",
+    "operations.cleanupRunning": "Clearing demo session.",
+    "operations.cleanupDone": "Session cleared",
     "evaluation.eyebrow": "Track 2 evidence",
     "evaluation.title": "Before / after evaluation",
     "evaluation.run": "Run",
@@ -290,6 +297,10 @@ const copy = {
     "operations.title": "Controles de plataforma",
     "operations.refresh": "Actualizar",
     "operations.running": "Cargando operaciones de plataforma.",
+    "operations.cleanup": "Limpiar sesion",
+    "operations.cleanupLabel": "Sesion demo",
+    "operations.cleanupRunning": "Limpiando sesion demo.",
+    "operations.cleanupDone": "Sesion limpiada",
     "evaluation.eyebrow": "Evidencia Track 2",
     "evaluation.title": "Evaluacion antes / despues",
     "evaluation.run": "Ejecutar",
@@ -679,6 +690,7 @@ function applyAccess() {
   els.runPublisher.disabled = !canPublish;
   els.refreshAdmin.disabled = !canPublish;
   els.refreshOperations.disabled = !canOperate;
+  els.cleanupSession.disabled = !canOperate;
   els.authorAccess.textContent = canAuthor
     ? `${t("login.allowed")}: author workflow`
     : state.session
@@ -697,6 +709,7 @@ function applyAccess() {
   els.authorAccess.className = canAuthor ? "access-box granted" : "access-box locked";
   els.publisherAccess.className = canPublish ? "access-box granted" : "access-box locked";
   els.adminAccess.className = canOperate ? "access-box granted" : "access-box locked";
+  els.cleanupResult.className = canOperate ? "access-box granted" : "access-box locked";
   if (state.marketplace) {
     renderMarketplace(state.marketplace);
   }
@@ -971,6 +984,42 @@ function renderOperations(operations) {
     row.innerHTML = `<strong>${item}</strong>`;
     els.operationsList.appendChild(row);
   });
+}
+
+async function cleanupDemoSession() {
+  if (!hasPermission("manage_tenants")) {
+    applyAccess();
+    return;
+  }
+  const sessionId = els.cleanupSessionInput.value.trim();
+  if (!sessionId) {
+    els.cleanupResult.textContent = "Session id is required.";
+    els.cleanupResult.className = "access-box locked";
+    return;
+  }
+  els.cleanupResult.textContent = t("operations.cleanupRunning");
+  els.cleanupResult.className = "access-box";
+  let data;
+  try {
+    data = await api(`/api/v1/admin/demo-sessions/${encodeURIComponent(sessionId)}`, {
+      method: "DELETE",
+      headers: authHeaders(),
+    });
+  } catch (error) {
+    els.cleanupResult.textContent = `${t("login.denied")}: ${error.message}`;
+    els.cleanupResult.className = "access-box locked";
+    return;
+  }
+  els.cleanupResult.innerHTML = `
+    <strong>${t("operations.cleanupDone")}: ${data.session_id}</strong>
+    <p>${data.provider} | ${data.scope}</p>
+    <p>${data.deleted.memory_events} memory event(s) | ${
+      data.deleted.fiction_branches
+    } fiction branch(es)</p>
+  `;
+  els.cleanupResult.className = "access-box granted";
+  await loadCharacterHistory(sessionId);
+  await loadFictionTimeline(sessionId);
 }
 
 async function runAuthorWorkflow() {
@@ -1261,6 +1310,7 @@ els.runAuthorWorkflow.addEventListener("click", runAuthorWorkflow);
 els.runPublisher.addEventListener("click", runPublisher);
 els.refreshAdmin.addEventListener("click", loadAdmin);
 els.refreshOperations.addEventListener("click", loadAdmin);
+els.cleanupSession.addEventListener("click", cleanupDemoSession);
 els.runEvaluation.addEventListener("click", runEvaluation);
 els.refreshDemo.addEventListener("click", loadBook);
 

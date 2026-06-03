@@ -30,6 +30,7 @@ body {
 }
 
 button,
+input,
 select,
 textarea {
   font: inherit;
@@ -596,6 +597,7 @@ button.secondary:hover {
 }
 
 select,
+input,
 textarea {
   width: 100%;
   border: 1px solid var(--line);
@@ -606,6 +608,11 @@ textarea {
 
 select {
   max-width: 180px;
+  min-height: 38px;
+  padding: 0 10px;
+}
+
+input {
   min-height: 38px;
   padding: 0 10px;
 }
@@ -681,6 +688,16 @@ textarea {
   margin-top: 18px;
   border-top: 1px solid var(--line);
   padding-top: 16px;
+}
+
+.cleanup-panel {
+  margin-top: 14px;
+}
+
+.cleanup-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
 }
 
 .compact-header {
