@@ -1,3 +1,5 @@
+import unicodedata
+
 from storms_agents.agents.base import AgentResult
 from storms_agents.demo_data import DEMO_BOOK_SECTIONS
 from storms_agents.observability import trace_span
@@ -27,12 +29,10 @@ class RetrievalAgent:
                 except Exception:
                     trace.operation = "retrieval.search_fallback"
 
-            query_words = {word.strip(".,?!").lower() for word in query.split() if len(word) > 2}
+            query_words = self._tokenize(query)
             scored: list[RetrievedContext] = []
             for section in DEMO_BOOK_SECTIONS:
-                section_words = {
-                    word.strip(".,?!").lower() for word in section["text"].split() if len(word) > 2
-                }
+                section_words = self._tokenize(section["text"])
                 overlap = len(query_words & section_words)
                 score = overlap / max(len(query_words), 1)
                 if score > 0:
@@ -48,3 +48,22 @@ class RetrievalAgent:
             contexts = sorted(scored, key=lambda item: item.score, reverse=True)[:limit]
             trace.output_tokens = len(contexts)
             return AgentResult(output=contexts, traces=[trace])
+
+    def _tokenize(self, text: str) -> set[str]:
+        normalized = unicodedata.normalize("NFKD", text.lower())
+        ascii_text = "".join(char for char in normalized if not unicodedata.combining(char))
+        words = {word.strip(".,?!¿¡:;()").lower() for word in ascii_text.split() if len(word) > 2}
+        synonyms = {
+            "molinos": {"windmills", "windmill"},
+            "gigantes": {"giants"},
+            "atacas": {"attack", "charges", "charge"},
+            "embistes": {"attack", "charges", "charge"},
+            "psicologia": {"psychology", "conflict", "imagination"},
+            "ficcion": {"fiction", "branch"},
+            "canonico": {"canon"},
+            "canon": {"canon"},
+        }
+        expanded = set(words)
+        for word in words:
+            expanded.update(synonyms.get(word, set()))
+        return expanded

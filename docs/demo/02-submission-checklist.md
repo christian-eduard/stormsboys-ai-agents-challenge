@@ -70,9 +70,9 @@ Debe incluir:
 - [x] Caso B2B para editoriales/catalogos.
 - [x] Cloud-native runtime.
 - [x] Gemini/Vertex como inteligencia central.
-- [ ] Agent card o A2A readiness.
+- [x] Agent card o A2A readiness.
 - [x] Marketplace/Gemini Enterprise narrative.
-- [ ] Separacion visible de modos canon/ficcion.
+- [x] Separacion visible de modos canon/ficcion.
 
 ## Track 2 Evidence
 

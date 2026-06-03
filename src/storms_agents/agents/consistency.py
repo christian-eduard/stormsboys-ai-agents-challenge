@@ -30,6 +30,8 @@ class NarrativeConsistencyAgent:
                     "do not have grounded evidence",
                     "cannot find evidence",
                     "should not invent",
+                    "no tengo evidencia fundamentada",
+                    "no debo inventar",
                 )
             )
             has_character_voice = reply.character_name.lower() in response

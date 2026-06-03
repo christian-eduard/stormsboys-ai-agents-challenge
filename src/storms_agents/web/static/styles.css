@@ -745,6 +745,43 @@ textarea {
   font-weight: 800;
 }
 
+.agent-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.agent-evidence-grid article {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: var(--panel);
+}
+
+.evidence-list {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.evidence-list p {
+  margin: 0;
+}
+
+.evidence-list span {
+  display: inline-flex;
+  width: fit-content;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 9px;
+  color: var(--ink);
+  background: var(--surface);
+  font-weight: 700;
+}
+
 .architecture-band {
   padding: 18px;
 }
@@ -787,7 +824,8 @@ textarea {
   .role-hero,
   .workflow-grid,
   .product-grid,
-  .submission-grid {
+  .submission-grid,
+  .agent-evidence-grid {
     grid-template-columns: 1fr;
   }
 

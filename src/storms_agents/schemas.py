@@ -45,8 +45,28 @@ class CharacterProfile(BaseModel):
     name: str
     description: str
     personality: str
+    speech_style: str = ""
+    psychological_profile: dict[str, object] = Field(default_factory=dict)
+    emotional_baseline: str = ""
+    desires: list[str] = Field(default_factory=list)
+    fears: list[str] = Field(default_factory=list)
+    relationships: dict[str, str] = Field(default_factory=dict)
+    memory_policy: str = (
+        "Keep canon memory separate from fiction memory and never let fiction rewrite canon."
+    )
     goals: list[str] = Field(default_factory=list)
     constraints: list[str] = Field(default_factory=list)
+
+
+class ConversationMemory(BaseModel):
+    session_id: str
+    character_id: str
+    mode: ConversationMode
+    turn_count: int = 0
+    canon_memory: list[str] = Field(default_factory=list)
+    fiction_memory: list[str] = Field(default_factory=list)
+    learned_reader_preferences: list[str] = Field(default_factory=list)
+    relationship_summary: str
 
 
 class CharacterReply(BaseModel):
@@ -57,6 +77,7 @@ class CharacterReply(BaseModel):
     response: str
     thought: str | None = None
     emotional_state: str | None = None
+    profile_signals: list[str] = Field(default_factory=list)
     citations: list[str] = Field(default_factory=list)
     confidence: float = Field(ge=0, le=1)
 

@@ -29,6 +29,9 @@ const els = {
   authorAccess: document.querySelector("#authorAccess"),
   authorResponse: document.querySelector("#authorResponse"),
   characterResponse: document.querySelector("#characterResponse"),
+  characterPsychology: document.querySelector("#characterPsychology"),
+  characterMemory: document.querySelector("#characterMemory"),
+  characterCitations: document.querySelector("#characterCitations"),
   scenePrompt: document.querySelector("#scenePrompt"),
   runScene: document.querySelector("#runScene"),
   sceneResponse: document.querySelector("#sceneResponse"),
@@ -1024,6 +1027,7 @@ async function askCharacter(question) {
       character_id: els.characterSelect.value,
       mode: els.modeSelect.value,
       language: els.languageSelect.value,
+      session_id: `${state.session?.user?.user_id ?? "anonymous"}-${els.characterSelect.value}`,
       question,
     }),
   });
@@ -1042,7 +1046,35 @@ async function askCharacter(question) {
       data.consistency.passed ? t("labels.passed") : t("labels.needsReview")
     }</p>
   `;
+  renderCharacterEvidence(data);
   renderTraces(data.traces);
+}
+
+function renderCharacterEvidence(data) {
+  const profile = data.characterProfile;
+  const ocean = profile.psychological_profile?.ocean ?? {};
+  els.characterPsychology.innerHTML = `
+    <p><strong>Speech:</strong> ${profile.speech_style}</p>
+    <p><strong>Emotion:</strong> ${profile.emotional_baseline}</p>
+    <p><strong>Desire:</strong> ${profile.desires?.[0] ?? "n/a"}</p>
+    <p><strong>Fear:</strong> ${profile.fears?.[0] ?? "n/a"}</p>
+    <p><strong>OCEAN:</strong> ${Object.entries(ocean)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(" | ")}</p>
+  `;
+  els.characterMemory.innerHTML = `
+    <p><strong>${data.memory.turn_count}</strong> remembered turn(s)</p>
+    <p>${data.memory.relationship_summary}</p>
+    <p><strong>Preferences:</strong> ${
+      data.memory.learned_reader_preferences.join(", ") || "none learned yet"
+    }</p>
+    <p><strong>Canon memory:</strong> ${data.memory.canon_memory.length}</p>
+    <p><strong>Fiction memory:</strong> ${data.memory.fiction_memory.length}</p>
+  `;
+  els.characterCitations.innerHTML =
+    data.reply.citations.length > 0
+      ? data.reply.citations.map((citation) => `<span>${citation}</span>`).join("")
+      : "<p>No citations returned for this turn.</p>";
 }
 
 async function runScene() {

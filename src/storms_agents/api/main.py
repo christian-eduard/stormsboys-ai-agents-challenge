@@ -19,6 +19,7 @@ from storms_agents.agents.scene_orchestrator import SceneOrchestratorAgent
 from storms_agents.config import get_settings
 from storms_agents.demo_data import DEMO_BOOK_ID, DEMO_BOOK_TEXT, DEMO_BOOK_TITLE
 from storms_agents.evaluation import run_demo_evaluation
+from storms_agents.memory import ConversationMemoryStore
 from storms_agents.schemas import AgentStatus, ConversationLanguage, ConversationMode
 from storms_agents.storage.repository import StorageRepository
 from storms_agents.tools.gemini import GeminiTool
@@ -39,6 +40,7 @@ class CharacterChatRequest(BaseModel):
     character_id: str = "don_quijote"
     mode: ConversationMode = ConversationMode.CANON
     language: ConversationLanguage = ConversationLanguage.EN
+    session_id: str = "judge-demo-session"
     question: str
 
 
@@ -180,6 +182,68 @@ def _require_any_permission(
 @app.get("/", response_class=HTMLResponse)
 def web_demo() -> str:
     return WEB_DIR.joinpath("index.html").read_text(encoding="utf-8")
+
+
+def _agent_card() -> dict[str, object]:
+    return {
+        "name": "Stormsboys Literary Agent Platform",
+        "description": (
+            "Google Cloud-native literary agent system for publishers, authors, readers, "
+            "and enterprise catalog operators."
+        ),
+        "version": __version__,
+        "provider": {"organization": "Pronexus / Stormsboys", "region": "EMEA"},
+        "url": "https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app",
+        "protocols": ["A2A-ready agent card", "HTTP JSON"],
+        "track": "Track 3 - Refactor for Google Cloud Marketplace & Gemini Enterprise",
+        "authentication": {
+            "demo": "Public reader endpoints plus demo bearer tokens for protected admin views.",
+            "productionTarget": "Identity Platform or Cloud Identity tenant RBAC.",
+        },
+        "capabilities": [
+            {
+                "id": "analyze_book",
+                "name": "Analyze owned or public-domain books",
+                "endpoint": "/api/v1/demo/book",
+            },
+            {
+                "id": "chat_as_character",
+                "name": "Canon-safe character conversation with psychology and memory",
+                "endpoint": "/api/v1/demo/chat/character",
+            },
+            {
+                "id": "create_fiction_branch",
+                "name": "Alternative fiction branch separated from canon",
+                "endpoint": "/api/v1/demo/chat/character",
+            },
+            {
+                "id": "publisher_insights",
+                "name": "Publisher catalog and engagement insights",
+                "endpoint": "/api/v1/demo/publisher",
+            },
+            {
+                "id": "marketplace_admin",
+                "name": "Tenant roles, readiness, and operations console",
+                "endpoint": "/api/v1/admin/marketplace",
+            },
+        ],
+        "googleCloud": {
+            "runtime": "Cloud Run",
+            "intelligence": "Gemini / Vertex AI target",
+            "memoryTarget": "Cloud SQL PostgreSQL + pgvector",
+            "observability": "Cloud Logging and structured traces",
+        },
+    }
+
+
+@app.get("/.well-known/agent-card.json")
+def well_known_agent_card() -> dict[str, object]:
+    return _agent_card()
+
+
+@app.get("/a2a/agent-card.json")
+def a2a_agent_card() -> dict[str, object]:
+    return _agent_card()
 
 
 @app.get("/health")
@@ -331,6 +395,7 @@ def challenge_submission() -> dict[str, object]:
             {"name": "English description", "status": "ready"},
             {"name": "Architecture diagram", "status": "ready"},
             {"name": "Functional judge demo", "status": "ready"},
+            {"name": "A2A agent card", "status": "ready"},
             {"name": "1-2 minute English video", "status": "planned-final-step"},
         ],
         "recommendedJudgeAccount": {
@@ -600,6 +665,12 @@ def demo_character_chat(request: CharacterChatRequest) -> dict[str, object]:
         (item for item in analysis.characters if item.character_id == request.character_id),
         analysis.characters[0],
     )
+    memory_store = ConversationMemoryStore()
+    memory_before = memory_store.snapshot(
+        request.session_id,
+        character.character_id,
+        request.mode,
+    )
     retrieval = RetrievalAgent().run(
         DEMO_BOOK_ID,
         request.question,
@@ -611,6 +682,14 @@ def demo_character_chat(request: CharacterChatRequest) -> dict[str, object]:
         retrieval.output,
         request.mode,
         request.language,
+        memory_before,
+    )
+    memory_after = memory_store.record(
+        request.session_id,
+        character.character_id,
+        request.mode,
+        request.question,
+        reply.output.response,
     )
     consistency = NarrativeConsistencyAgent().run(reply.output)
     fiction_branch = None
@@ -628,6 +707,9 @@ def demo_character_chat(request: CharacterChatRequest) -> dict[str, object]:
     return {
         "mode": request.mode,
         "language": request.language,
+        "sessionId": request.session_id,
+        "characterProfile": character.model_dump(),
+        "memory": memory_after.model_dump(),
         "reply": reply.output.model_dump(),
         "fictionBranch": fiction_branch,
         "consistency": consistency.output,

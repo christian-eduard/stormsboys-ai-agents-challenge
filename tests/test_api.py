@@ -71,6 +71,18 @@ def test_challenge_submission() -> None:
     assert body["recommendedJudgeAccount"]["user_id"] == "judge-demo"
     assert len(body["judgingCriteria"]) == 4
     assert any(item["name"] == "Functional judge demo" for item in body["deliverables"])
+    assert any(item["name"] == "A2A agent card" for item in body["deliverables"])
+
+
+def test_agent_card_is_public_track3_evidence() -> None:
+    client = TestClient(app)
+    response = client.get("/.well-known/agent-card.json")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["track"].startswith("Track 3")
+    capabilities = {item["id"] for item in body["capabilities"]}
+    assert {"analyze_book", "chat_as_character", "create_fiction_branch"} <= capabilities
+    assert body["googleCloud"]["runtime"] == "Cloud Run"
 
 
 def test_demo_book() -> None:
@@ -81,6 +93,11 @@ def test_demo_book() -> None:
     assert body["bookId"] == "don-quijote"
     assert body["title"] == "Don Quijote de la Mancha"
     assert len(body["analysis"]["characters"]) == 3
+    don_quijote = body["analysis"]["characters"][0]
+    assert don_quijote["speech_style"]
+    assert "ocean" in don_quijote["psychological_profile"]
+    assert don_quijote["desires"]
+    assert don_quijote["fears"]
     assert body["traces"]
 
 
@@ -235,6 +252,7 @@ def test_demo_character_chat() -> None:
             "character_id": "don_quijote",
             "mode": "CANON",
             "language": "en",
+            "session_id": "test-canon-001",
             "question": "Why do you attack the windmills?",
         },
     )
@@ -245,6 +263,10 @@ def test_demo_character_chat() -> None:
     assert body["reply"]["character_id"] == "don_quijote"
     assert body["reply"]["mode"] == "CANON"
     assert body["reply"]["language"] == "en"
+    assert body["characterProfile"]["psychological_profile"]["ocean"]
+    assert body["reply"]["profile_signals"]
+    assert body["memory"]["turn_count"] == 1
+    assert body["memory"]["mode"] == "CANON"
     assert body["fictionBranch"] is None
     assert body["consistency"]["checks"]["has_grounding"] is True
     assert body["traces"]
@@ -258,6 +280,7 @@ def test_demo_character_chat_spanish_language() -> None:
             "character_id": "don_quijote",
             "mode": "CANON",
             "language": "es",
+            "session_id": "test-es-001",
             "question": "Por que atacas los molinos?",
         },
     )
@@ -267,6 +290,41 @@ def test_demo_character_chat_spanish_language() -> None:
     assert body["reply"]["language"] == "es"
     assert body["reply"]["response"].startswith("Soy Don Quijote")
     assert body["fictionBranch"] is None
+    assert body["contexts"]
+    assert body["consistency"]["checks"]["has_grounding"] is True
+
+
+def test_demo_character_chat_learns_reader_preferences() -> None:
+    client = TestClient(app)
+    session_id = "test-memory-psychology-001"
+    first = client.post(
+        "/api/v1/demo/chat/character",
+        json={
+            "character_id": "don_quijote",
+            "mode": "CANON",
+            "language": "en",
+            "session_id": session_id,
+            "question": "Explain your psychology when you see the windmills.",
+        },
+    )
+    second = client.post(
+        "/api/v1/demo/chat/character",
+        json={
+            "character_id": "don_quijote",
+            "mode": "CANON",
+            "language": "en",
+            "session_id": session_id,
+            "question": "Remember my interest in psychology and answer again.",
+        },
+    )
+    assert first.status_code == 200
+    assert second.status_code == 200
+    body = second.json()
+    assert body["memory"]["turn_count"] == 2
+    assert "reader asks for psychological motivation" in body["memory"][
+        "learned_reader_preferences"
+    ]
+    assert "remember 1 turn" in body["reply"]["response"].lower()
 
 
 def test_demo_character_chat_fiction_branch() -> None:
@@ -277,6 +335,7 @@ def test_demo_character_chat_fiction_branch() -> None:
             "character_id": "don_quijote",
             "mode": "FICTION",
             "language": "en",
+            "session_id": "test-fiction-001",
             "question": "What if Sancho convinces you the giants are machines?",
         },
     )
@@ -286,6 +345,8 @@ def test_demo_character_chat_fiction_branch() -> None:
     assert body["reply"]["mode"] == "FICTION"
     assert body["fictionBranch"]["book_id"] == "don-quijote"
     assert body["fictionBranch"]["character_id"] == "don_quijote"
+    assert body["memory"]["mode"] == "FICTION"
+    assert body["memory"]["fiction_memory"]
     assert body["consistency"]["checks"]["separated_from_canon"] is True
     assert any(trace["agent_name"] == "FictionBranchAgent" for trace in body["traces"])
 

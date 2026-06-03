@@ -1,9 +1,12 @@
+import re
+
 from storms_agents.agents.base import AgentResult
 from storms_agents.observability import trace_span
 from storms_agents.schemas import (
     CharacterProfile,
     CharacterReply,
     ConversationLanguage,
+    ConversationMemory,
     ConversationMode,
     RetrievedContext,
 )
@@ -23,6 +26,7 @@ class CharacterAgent:
         contexts: list[RetrievedContext],
         mode: ConversationMode = ConversationMode.CANON,
         language: ConversationLanguage = ConversationLanguage.EN,
+        memory: ConversationMemory | None = None,
     ) -> AgentResult[CharacterReply]:
         with trace_span(
             self.name,
@@ -41,6 +45,7 @@ class CharacterAgent:
                     response=response,
                     thought="Acknowledge missing retrieval evidence instead of inventing canon.",
                     emotional_state="careful",
+                    profile_signals=self._profile_signals(character, memory),
                     citations=[],
                     confidence=0.74,
                 )
@@ -56,6 +61,7 @@ class CharacterAgent:
                 contexts,
                 mode,
                 language,
+                memory,
             )
 
             reply = CharacterReply(
@@ -69,7 +75,8 @@ class CharacterAgent:
                     if mode == ConversationMode.CANON
                     else "Create a separated fiction branch anchored to book context."
                 ),
-                emotional_state="focused",
+                emotional_state=character.emotional_baseline or "focused",
+                profile_signals=self._profile_signals(character, memory),
                 citations=[context.section_id for context in contexts],
                 confidence=confidence,
             )
@@ -86,6 +93,7 @@ class CharacterAgent:
         contexts: list[RetrievedContext],
         mode: ConversationMode,
         language: ConversationLanguage,
+        memory: ConversationMemory | None,
     ) -> tuple[str, float]:
         if mode == ConversationMode.CANON and self._asks_beyond_canon(question):
             return (
@@ -94,20 +102,40 @@ class CharacterAgent:
             )
 
         if not self.gemini.status.configured:
-            return self._deterministic_response(character, evidence, mode, language), 0.82
+            return self._deterministic_response(
+                character,
+                evidence,
+                mode,
+                language,
+                memory,
+            ), 0.84
 
-        prompt = self._build_prompt(character, question, evidence, contexts, mode, language)
+        prompt = self._build_prompt(character, question, evidence, contexts, mode, language, memory)
         try:
             generated = self.gemini.generate_text(
                 prompt,
                 system_instruction=self._system_instruction(character, mode, language),
             ).strip()
         except Exception:
-            return self._deterministic_response(character, evidence, mode, language), 0.7
+            return self._deterministic_response(
+                character,
+                evidence,
+                mode,
+                language,
+                memory,
+            ), 0.72
 
         if not generated:
-            return self._deterministic_response(character, evidence, mode, language), 0.7
-        return self._ensure_character_voice(character, generated, language), 0.9
+            return self._deterministic_response(
+                character,
+                evidence,
+                mode,
+                language,
+                memory,
+            ), 0.72
+        cleaned = self._strip_inline_citations(generated)
+        voiced = self._ensure_character_voice(character, cleaned, language)
+        return self._enrich_generated_response(character, voiced, language, memory), 0.9
 
     def _build_prompt(
         self,
@@ -117,8 +145,10 @@ class CharacterAgent:
         contexts: list[RetrievedContext],
         mode: ConversationMode,
         language: ConversationLanguage,
+        memory: ConversationMemory | None,
     ) -> str:
         citations = ", ".join(context.section_id for context in contexts) or "none"
+        memory_summary = memory.relationship_summary if memory else "No prior memory."
         language_rule = (
             "Answer in English."
             if language == ConversationLanguage.EN
@@ -136,6 +166,12 @@ class CharacterAgent:
         return (
             f"Character: {character.name}\n"
             f"Personality: {character.personality}\n"
+            f"Speech style: {character.speech_style or 'character-specific first person'}\n"
+            f"Psychology: {character.psychological_profile}\n"
+            f"Desires: {', '.join(character.desires) or 'unknown'}\n"
+            f"Fears: {', '.join(character.fears) or 'unknown'}\n"
+            f"Memory policy: {character.memory_policy}\n"
+            f"Conversation memory: {memory_summary}\n"
             f"Goals: {', '.join(character.goals) or 'unknown'}\n"
             f"Constraints: {', '.join(character.constraints) or 'stay in canon'}\n"
             f"{mode_rules}\n"
@@ -176,26 +212,37 @@ class CharacterAgent:
         evidence: str,
         mode: ConversationMode,
         language: ConversationLanguage,
+        memory: ConversationMemory | None,
     ) -> str:
+        memory_clause_en = self._memory_clause(memory, ConversationLanguage.EN)
+        memory_clause_es = self._memory_clause(memory, ConversationLanguage.ES)
+        evidence_es = self._localize_evidence(evidence, ConversationLanguage.ES)
         if mode == ConversationMode.FICTION:
             if language == ConversationLanguage.ES:
                 return (
-                    f"Soy {character.name}. En esta rama alternativa, parto del recuerdo del "
-                    f"libro: {evidence} Desde ahi podemos imaginar un camino nuevo, marcado "
-                    "como ficcion."
+                    f"Soy {character.name}. Mi animo sigue gobernado por mi codigo: "
+                    f"{self._psychology_summary(character, language)} {memory_clause_es} "
+                    "En esta rama alternativa parto de una verdad del libro, no de un capricho: "
+                    f"{evidence_es} Desde ahi podemos abrir otra senda, marcada siempre como "
+                    "ficcion."
                 )
             return (
-                f"I am {character.name}. In this alternative branch, I begin from the book's "
-                f"memory: {evidence} From there, we may imagine a new path, marked as fiction."
+                f"I am {character.name}. My inner law is still this: "
+                f"{self._psychology_summary(character, language)} {memory_clause_en} "
+                f"In this alternative branch I begin from book evidence, not from chaos: "
+                f"{evidence} From there, we may open a new path, always marked as fiction."
             )
         if language == ConversationLanguage.ES:
             return (
-                f"Soy {character.name}. Desde mi lugar en la historia, esto importa porque "
-                f"{evidence}"
+                f"Soy {character.name}. No embisto por simple furia, sino porque mi deseo y mi "
+                f"temor se encuentran: {self._psychology_summary(character, language)} "
+                f"{memory_clause_es} En el canon debo ajustarme a esta prueba del libro: "
+                f"{evidence_es}"
             )
         return (
-            f"I am {character.name}. From my place in the story, this matters because "
-            f"{evidence}"
+            f"I am {character.name}. I do not act from noise alone; my desire and my fear meet "
+            f"inside the vow: {self._psychology_summary(character, language)} "
+            f"{memory_clause_en} In canon I must stay with this book evidence: {evidence}"
         )
 
     def _missing_evidence_response(
@@ -206,11 +253,13 @@ class CharacterAgent:
         if language == ConversationLanguage.ES:
             return (
                 f"Soy {character.name}. No tengo evidencia fundamentada en el libro para "
-                "esa pregunta, asi que no debo inventar una respuesta."
+                "esa pregunta, asi que no debo inventar una respuesta. Puedo hablar de mi "
+                "animo y de mis limites, pero no convertir una duda en canon."
             )
         return (
             f"I am {character.name}. I do not have grounded evidence in the book for "
-            "that question, so I should not invent an answer."
+            "that question, so I should not invent an answer. I can reveal my temperament "
+            "and limits, but I cannot turn uncertainty into canon."
         )
 
     def _beyond_canon_response(
@@ -240,6 +289,156 @@ class CharacterAgent:
             return f"Soy {character.name}. {response}"
         return f"I am {character.name}. {response}"
 
+    def _strip_inline_citations(self, response: str) -> str:
+        cleaned = re.sub(r"\s*\((?:quijote-section-\d+\s*,?\s*)+\)", "", response)
+        cleaned = re.sub(r"\s+quijote-section-\d+", "", cleaned)
+        return " ".join(cleaned.split())
+
+    def _enrich_generated_response(
+        self,
+        character: CharacterProfile,
+        response: str,
+        language: ConversationLanguage,
+        memory: ConversationMemory | None,
+    ) -> str:
+        if not character.desires and not character.fears:
+            return response
+        lowered = response.lower()
+        has_psychology = any(term in lowered for term in ("deseo", "temo", "desire", "fear"))
+        additions: list[str] = []
+        if not has_psychology:
+            additions.append(self._psychology_sentence(character, language))
+        has_memory_reference = "recuerdo" in lowered or "remember" in lowered
+        if memory and memory.turn_count > 0 and not has_memory_reference:
+            additions.append(self._memory_sentence(memory, language))
+        if not additions:
+            return response
+        return f"{response} {' '.join(additions)}"
+
     def _asks_beyond_canon(self, question: str) -> bool:
         lowered = question.lower()
         return any(term in lowered for term in ("after", "future", "ten years", "despues"))
+
+    def _profile_signals(
+        self,
+        character: CharacterProfile,
+        memory: ConversationMemory | None,
+    ) -> list[str]:
+        speech = (
+            f"speech: {character.speech_style}"
+            if character.speech_style
+            else "speech: first person"
+        )
+        emotion = (
+            f"emotion: {character.emotional_baseline}"
+            if character.emotional_baseline
+            else "emotion: focused"
+        )
+        signals = [
+            speech,
+            emotion,
+            f"memory turns: {memory.turn_count if memory else 0}",
+        ]
+        if character.desires:
+            signals.append(f"desire: {character.desires[0]}")
+        if character.fears:
+            signals.append(f"fear: {character.fears[0]}")
+        return signals
+
+    def _psychology_summary(
+        self,
+        character: CharacterProfile,
+        language: ConversationLanguage,
+    ) -> str:
+        desire = character.desires[0] if character.desires else character.goals[0]
+        fear = character.fears[0] if character.fears else "betraying the story"
+        if language == ConversationLanguage.ES:
+            desire = self._localize_profile_phrase(desire)
+            fear = self._localize_profile_phrase(fear)
+            return f"deseo {desire}; temo {fear}."
+        return f"I desire {desire}; I fear {fear}."
+
+    def _memory_clause(
+        self,
+        memory: ConversationMemory | None,
+        language: ConversationLanguage,
+    ) -> str:
+        if memory is None or memory.turn_count == 0:
+            return (
+                "Aun no guardo recuerdos previos de esta conversacion."
+                if language == ConversationLanguage.ES
+                else "I do not yet carry previous memories from this conversation."
+            )
+        preferences = ", ".join(memory.learned_reader_preferences) or "your earlier questions"
+        if language == ConversationLanguage.ES:
+            return (
+                f"Recuerdo {memory.turn_count} turno(s) contigo y ajusto mi tono a: "
+                f"{preferences}, sin cambiar el canon."
+            )
+        return (
+            f"I remember {memory.turn_count} turn(s) with you and adapt to: "
+            f"{preferences}, without changing canon."
+        )
+
+    def _psychology_sentence(
+        self,
+        character: CharacterProfile,
+        language: ConversationLanguage,
+    ) -> str:
+        summary = self._psychology_summary(character, language)
+        if language == ConversationLanguage.ES:
+            return f"En lo profundo de mi animo, {summary}"
+        return f"Deep in my temperament, {summary}"
+
+    def _memory_sentence(
+        self,
+        memory: ConversationMemory,
+        language: ConversationLanguage,
+    ) -> str:
+        if language == ConversationLanguage.ES:
+            return (
+                f"Recuerdo {memory.turn_count} turno(s) contigo y no permito que ese "
+                "aprendizaje altere el canon."
+            )
+        return (
+            f"I remember {memory.turn_count} turn(s) with you, and that learning does "
+            "not rewrite canon."
+        )
+
+    def _localize_profile_phrase(self, phrase: str) -> str:
+        translations = {
+            "Prove that chivalric virtue still matters": (
+                "probar que la virtud caballeresca todavia importa"
+            ),
+            "Being merely Alonso Quijano again": "volver a ser solo Alonso Quijano",
+            "Protect himself and his master": "protegerse y proteger a su amo",
+            "Beatings, hunger, and pointless danger": (
+                "los golpes, el hambre y el peligro sin sentido"
+            ),
+        }
+        return translations.get(phrase, phrase)
+
+    def _localize_evidence(self, evidence: str, language: ConversationLanguage) -> str:
+        if language == ConversationLanguage.EN:
+            return evidence
+        translations = {
+            (
+                "In the windmill scene, Don Quijote believes the windmills are giants. "
+                "Sancho warns him that they are only windmills, but Don Quijote charges "
+                "and is knocked down by the turning sails."
+            ): (
+                "En la escena de los molinos, Don Quijote cree que los molinos son "
+                "gigantes. Sancho le advierte que solo son molinos, pero Don Quijote "
+                "carga y cae derribado por las aspas."
+            ),
+            (
+                "After the fall, Don Quijote explains that an enchanter changed the giants "
+                "into windmills to rob him of glory. The scene reveals the conflict between "
+                "his chivalric imagination and Sancho's practical reality."
+            ): (
+                "Tras la caida, Don Quijote explica que un encantador transformo los "
+                "gigantes en molinos para robarle la gloria. La escena revela el conflicto "
+                "entre su imaginacion caballeresca y la realidad practica de Sancho."
+            ),
+        }
+        return translations.get(evidence, evidence)
