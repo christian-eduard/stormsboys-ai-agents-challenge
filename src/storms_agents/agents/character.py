@@ -317,7 +317,30 @@ class CharacterAgent:
 
     def _asks_beyond_canon(self, question: str) -> bool:
         lowered = question.lower()
-        return any(term in lowered for term in ("after", "future", "ten years", "despues"))
+        future_markers = (
+            "future",
+            "ten years",
+            "years later",
+            "after the ending",
+            "after the book",
+            "after the novel",
+            "tomorrow",
+            "next year",
+            "futuro",
+            "diez anos",
+            "diez años",
+            "anos despues",
+            "años despues",
+            "anos después",
+            "años después",
+            "despues del final",
+            "después del final",
+            "despues del libro",
+            "después del libro",
+            "despues de la novela",
+            "después de la novela",
+        )
+        return any(term in lowered for term in future_markers)
 
     def _profile_signals(
         self,

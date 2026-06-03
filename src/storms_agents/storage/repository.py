@@ -299,6 +299,55 @@ class StorageRepository:
             )
         return self.load_conversation_memory(session_id, character_id, mode)
 
+    def list_conversation_memory_events(
+        self,
+        session_id: str,
+        character_id: str,
+        mode: ConversationMode,
+        limit: int = 5,
+    ) -> list[dict[str, object]]:
+        with self.engine.connect() as connection:
+            rows = list(
+                connection.execute(
+                    text(
+                        """
+                        SELECT
+                          memory_id,
+                          question,
+                          response,
+                          memory_line,
+                          reader_preference,
+                          created_at
+                        FROM conversation_memory_events
+                        WHERE session_id = :session_id
+                          AND character_id = :character_id
+                          AND mode = :mode
+                        ORDER BY created_at DESC, memory_id DESC
+                        LIMIT :limit
+                        """
+                    ),
+                    {
+                        "session_id": session_id,
+                        "character_id": character_id,
+                        "mode": mode.value,
+                        "limit": limit,
+                    },
+                ).mappings()
+            )
+        return [
+            {
+                "memory_id": row["memory_id"],
+                "question": row["question"],
+                "response": row["response"],
+                "memory_line": row["memory_line"],
+                "reader_preference": row["reader_preference"],
+                "created_at": row["created_at"].isoformat()
+                if hasattr(row["created_at"], "isoformat")
+                else str(row["created_at"]),
+            }
+            for row in rows
+        ]
+
     def _memory_model(
         self,
         session_id: str,

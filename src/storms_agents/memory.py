@@ -11,6 +11,7 @@ class _MemoryBucket:
     canon_memory: list[str] = field(default_factory=list)
     fiction_memory: list[str] = field(default_factory=list)
     learned_reader_preferences: list[str] = field(default_factory=list)
+    events: list[dict[str, object]] = field(default_factory=list)
     turn_count: int = 0
 
 
@@ -66,10 +67,46 @@ class ConversationMemoryStore:
         else:
             bucket.canon_memory.append(memory_line)
             bucket.canon_memory = bucket.canon_memory[-5:]
+        bucket.events.append(
+            {
+                "memory_id": bucket.turn_count,
+                "question": question,
+                "response": response,
+                "memory_line": memory_line,
+                "reader_preference": preference,
+                "created_at": "local-process",
+            }
+        )
+        bucket.events = bucket.events[-20:]
         return self._to_model(session_id, character_id, mode, bucket)
 
     def reset(self) -> None:
         self._buckets.clear()
+
+    def history(
+        self,
+        session_id: str,
+        character_id: str,
+        mode: ConversationMode,
+        limit: int = 5,
+    ) -> dict[str, object]:
+        persisted = self._history_persisted(session_id, character_id, mode, limit)
+        if persisted is not None:
+            return {
+                "session_id": session_id,
+                "character_id": character_id,
+                "mode": mode,
+                "provider": "cloud-sql-postgresql",
+                "events": persisted,
+            }
+        bucket = self._bucket(session_id, character_id, mode)
+        return {
+            "session_id": session_id,
+            "character_id": character_id,
+            "mode": mode,
+            "provider": "local-process-memory",
+            "events": list(reversed(bucket.events[-limit:])),
+        }
 
     def _load_persisted(
         self,
@@ -105,6 +142,25 @@ class ConversationMemoryStore:
                 response=response,
                 memory_line=memory_line,
                 reader_preference=preference,
+            )
+        except Exception:
+            return None
+
+    def _history_persisted(
+        self,
+        session_id: str,
+        character_id: str,
+        mode: ConversationMode,
+        limit: int,
+    ) -> list[dict[str, object]] | None:
+        try:
+            if not self.repository.status.configured:
+                return None
+            return self.repository.list_conversation_memory_events(
+                session_id=session_id,
+                character_id=character_id,
+                mode=mode,
+                limit=limit,
             )
         except Exception:
             return None

@@ -82,6 +82,18 @@ def test_character_agent_keeps_canon_guardrail_before_gemini() -> None:
     assert result.output.confidence == 0.88
 
 
+def test_character_agent_allows_grounded_after_scene_question() -> None:
+    result = CharacterAgent(gemini=FakeGemini()).run(
+        _character(),
+        "How do you understand your own fear and courage after the windmills?",
+        _contexts(),
+        ConversationMode.CANON,
+    )
+
+    assert "cannot speak as canon" not in result.output.response
+    assert "giants threaten honor" in result.output.response
+
+
 def test_character_agent_allows_fiction_branch_prompt() -> None:
     result = CharacterAgent(gemini=FakeGemini()).run(
         _character(),

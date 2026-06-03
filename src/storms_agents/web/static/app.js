@@ -32,6 +32,7 @@ const els = {
   characterPsychology: document.querySelector("#characterPsychology"),
   characterMemory: document.querySelector("#characterMemory"),
   characterCitations: document.querySelector("#characterCitations"),
+  characterHistory: document.querySelector("#characterHistory"),
   scenePrompt: document.querySelector("#scenePrompt"),
   runScene: document.querySelector("#runScene"),
   sceneResponse: document.querySelector("#sceneResponse"),
@@ -1021,13 +1022,14 @@ async function loadStorage() {
 
 async function askCharacter(question) {
   els.characterResponse.textContent = t("character.running");
+  const sessionId = `${state.session?.user?.user_id ?? "anonymous"}-${els.characterSelect.value}`;
   const data = await api("/api/v1/demo/chat/character", {
     method: "POST",
     body: JSON.stringify({
       character_id: els.characterSelect.value,
       mode: els.modeSelect.value,
       language: els.languageSelect.value,
-      session_id: `${state.session?.user?.user_id ?? "anonymous"}-${els.characterSelect.value}`,
+      session_id: sessionId,
       question,
     }),
   });
@@ -1047,6 +1049,7 @@ async function askCharacter(question) {
     }</p>
   `;
   renderCharacterEvidence(data);
+  await loadCharacterHistory(sessionId);
   renderTraces(data.traces);
 }
 
@@ -1075,6 +1078,38 @@ function renderCharacterEvidence(data) {
     data.reply.citations.length > 0
       ? data.reply.citations.map((citation) => `<span>${citation}</span>`).join("")
       : "<p>No citations returned for this turn.</p>";
+}
+
+async function loadCharacterHistory(sessionId) {
+  const params = new URLSearchParams({
+    session_id: sessionId,
+    character_id: els.characterSelect.value,
+    mode: els.modeSelect.value,
+    limit: "5",
+  });
+  const history = await api(`/api/v1/demo/chat/memory?${params.toString()}`);
+  els.characterHistory.innerHTML = `
+    <p><strong>${history.provider}</strong></p>
+    ${
+      history.events.length
+        ? history.events
+            .map(
+              (event) => `
+                <div class="memory-event">
+                  <strong>${event.question}</strong>
+                  <p>${event.memory_line}</p>
+                  ${
+                    event.reader_preference
+                      ? `<span>${event.reader_preference}</span>`
+                      : ""
+                  }
+                </div>
+              `,
+            )
+            .join("")
+        : "<p>No memory turns recorded for this mode yet.</p>"
+    }
+  `;
 }
 
 async function runScene() {

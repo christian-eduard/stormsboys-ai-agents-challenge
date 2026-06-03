@@ -327,6 +327,35 @@ def test_demo_character_chat_learns_reader_preferences() -> None:
     assert "remember 1 turn" in body["reply"]["response"].lower()
 
 
+def test_demo_character_memory_history() -> None:
+    client = TestClient(app)
+    session_id = "test-memory-history-001"
+    client.post(
+        "/api/v1/demo/chat/character",
+        json={
+            "character_id": "don_quijote",
+            "mode": "CANON",
+            "language": "en",
+            "session_id": session_id,
+            "question": "Explain your psychology near the windmills.",
+        },
+    )
+    response = client.get(
+        "/api/v1/demo/chat/memory",
+        params={
+            "session_id": session_id,
+            "character_id": "don_quijote",
+            "mode": "CANON",
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["provider"] in {"local-process-memory", "cloud-sql-postgresql"}
+    assert body["events"]
+    assert body["events"][0]["question"] == "Explain your psychology near the windmills."
+
+
 def test_demo_character_chat_fiction_branch() -> None:
     client = TestClient(app)
     response = client.post(

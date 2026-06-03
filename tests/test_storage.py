@@ -72,6 +72,30 @@ class FakePersistentMemoryRepository:
         self.events.append((session_id, character_id, mode, reader_preference))
         return self.load_conversation_memory(session_id, character_id, mode)
 
+    def list_conversation_memory_events(
+        self,
+        session_id: str,
+        character_id: str,
+        mode: ConversationMode,
+        limit: int = 5,
+    ) -> list[dict[str, object]]:
+        matching = [
+            event
+            for event in self.events
+            if event[0] == session_id and event[1] == character_id and event[2] == mode
+        ]
+        return [
+            {
+                "memory_id": index + 1,
+                "question": "Explain your psychology.",
+                "response": "I desire honor.",
+                "memory_line": "persisted",
+                "reader_preference": event[3],
+                "created_at": "test",
+            }
+            for index, event in enumerate(matching[-limit:])
+        ]
+
 
 def test_conversation_memory_store_uses_persistent_repository() -> None:
     repository = FakePersistentMemoryRepository()
@@ -89,6 +113,7 @@ def test_conversation_memory_store_uses_persistent_repository() -> None:
     assert before.turn_count == 0
     assert after.turn_count == 1
     assert "reader asks for psychological motivation" in after.learned_reader_preferences
+    assert store.history("session-1", "don_quijote", ConversationMode.CANON)["events"]
     assert repository.events
 
 

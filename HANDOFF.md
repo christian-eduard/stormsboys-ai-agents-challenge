@@ -49,6 +49,8 @@ Ya existe:
 - Memoria conversacional persistente en Cloud SQL cuando `DATABASE_URL` esta configurado,
   separada por `session_id`, personaje y modo: canon no altera hechos del libro,
   ficcion guarda rama alternativa separada. En local cae a memoria de proceso.
+- Endpoint y panel web de historial de memoria: `/api/v1/demo/chat/memory`
+  muestra eventos persistidos, proveedor de memoria, preguntas, respuestas y preferencias.
 - `FictionBranchAgent` minimo: crea ramas alternativas separadas de canon en la respuesta API.
 - Agent card Track 3 publicada en `/.well-known/agent-card.json` y `/a2a/agent-card.json`.
 - Dockerfile.
@@ -93,8 +95,9 @@ http://127.0.0.1:8080
 
 Ultima validacion local conocida:
 
-- Tests en contenedor Python 3.11: pasan, 41 tests.
-- `make lint`: pasa.
+- Tests en contenedor Python 3.11: pasan, 43 tests.
+- Ruff en contenedor Python 3.11: pasa.
+- `node --check src/storms_agents/web/static/app.js`: pasa.
 - `make public-ready`: pasa.
 - `BASE_URL=http://127.0.0.1:8088 make smoke`: pasa.
 - Docker daemon: disponible tras abrir Docker Desktop.
@@ -108,7 +111,7 @@ Ultima validacion local conocida:
 - Billing Pronexus enlazado.
 - Budget guardrail de 50 EUR creado.
 - Cloud Run desplegado: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
-- Revision Cloud Run activa: `stormsboys-agents-api-00025-bxg`.
+- Revision Cloud Run activa: `stormsboys-agents-api-00027-tsp`.
 - Cloud Run usa service account nueva: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - No hay claves JSON de usuario ni credenciales antiguas en el runtime.
 - Cloud SQL instance: `stormsboys-pgvector`.
@@ -124,11 +127,14 @@ Ultima validacion local conocida:
 - Narration publico confirmado: `VoiceNarrationAgent`, SSML y `ready_for_tts=true`.
 - Publisher publico confirmado: `PublisherInsightsAgent`, engagement y quality `100%`.
 - Admin publico confirmado: login demo, tokens demo, roles `reader`, `author`, `publisher_admin`, `super_admin`, `judge_access`, tenant demo, catalogo y readiness Marketplace.
-- Smoke test publico confirmado el 2026-06-03 contra revision `stormsboys-agents-api-00025-bxg`.
+- Smoke test publico confirmado el 2026-06-03 contra revision `stormsboys-agents-api-00027-tsp`.
 - Chat publico confirmado: Don Quijote responde en espanol con psicologia visible,
   memoria de sesion, consistencia `passed=true` y citas separadas sin IDs inline.
-- Memoria publica confirmada: dos llamadas con el mismo `session_id` devuelven
-  `2 persisted turn(s)` desde Cloud SQL.
+- Memoria publica confirmada: `/api/v1/demo/chat/memory` devuelve historial desde
+  `provider=cloud-sql-postgresql` con eventos persistidos en `conversation_memory_events`.
+- Guardrail canonico corregido: preguntas ancladas dentro de una escena, como
+  "after the windmills", ya no se tratan como futuro fuera de canon; preguntas como
+  "ten years after the ending" siguen bloqueadas en modo `CANON`.
 - Modos publicos confirmados: `CANON` rechaza futuro como canon y `FICTION` crea `fictionBranch`.
 - Idioma publico confirmado: English por defecto, Espanol seleccionable, API devuelve `language` y Don Quijote responde en espanol cuando `language=es`.
 - Nota local: `.venv` usa Python 3.14 en este Mac y `pytest` puede quedarse colgado al arrancar importaciones de dependencias Google. Para validacion fiable usa Docker/Python 3.11, que coincide con Cloud Run.
@@ -180,6 +186,7 @@ Ultima validacion local conocida:
 - `GET /a2a/agent-card.json`
 - `GET /api/v1/demo/book`
 - `POST /api/v1/demo/chat/character`
+- `GET /api/v1/demo/chat/memory`
 - `POST /api/v1/demo/chat/scene`
 - `POST /api/v1/demo/narration`
 - `GET /api/v1/demo/publisher`
@@ -206,8 +213,8 @@ BASE_URL=https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app make smoke
 ## Prioridades Siguientes
 
 1. Reorientar UI/API desde libro sintetico hacia plataforma real con Don Quijote como caso demo.
-2. Ampliar UI para mostrar historial/rama ficcional persistida, no solo resumen inmediato.
-3. Crear endpoint admin para limpiar sesiones demo antiguas si se generan muchas pruebas.
+2. Crear endpoint admin para limpiar sesiones demo antiguas si se generan muchas pruebas.
+3. Ampliar persistencia de ramas ficcionales para mostrar timeline editable por usuario/publisher.
 4. Crear agentes nuevos o adaptar los existentes segun `docs/agents/04-platform-agent-operating-model.md`.
 5. Implementar publisher/admin como vista B2B Track 3, no solo panel decorativo.
 6. Conectar Gemini tambien a LiteraryAnalysisAgent o SceneOrchestratorAgent con schemas estrictos.

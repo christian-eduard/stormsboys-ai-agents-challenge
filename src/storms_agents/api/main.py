@@ -1,7 +1,7 @@
 from importlib.resources import files
 
 import uvicorn
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -724,6 +724,21 @@ def demo_character_chat(request: CharacterChatRequest) -> dict[str, object]:
             for trace in retrieval.traces + reply.traces + fiction_traces + consistency.traces
         ],
     }
+
+
+@app.get("/api/v1/demo/chat/memory")
+def demo_chat_memory(
+    session_id: str = "judge-demo-session",
+    character_id: str = "don_quijote",
+    mode: ConversationMode = ConversationMode.CANON,
+    limit: int = Query(default=5, ge=1, le=20),
+) -> dict[str, object]:
+    return ConversationMemoryStore().history(
+        session_id=session_id,
+        character_id=character_id,
+        mode=mode,
+        limit=limit,
+    )
 
 
 @app.post("/api/v1/demo/chat/scene")
