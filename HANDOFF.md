@@ -52,8 +52,9 @@ Ya existe:
 - Endpoint y panel web de historial de memoria: `/api/v1/demo/chat/memory`
   muestra eventos persistidos, proveedor de memoria, preguntas, respuestas y preferencias.
 - Ramas ficcionales persistentes en Cloud SQL cuando `DATABASE_URL` esta configurado:
-  tabla `fiction_branches`, endpoint `/api/v1/demo/fiction/branches` y panel web
-  `Fiction timeline`. En local cae a memoria de proceso.
+  tabla `fiction_branches`, endpoint `/api/v1/demo/fiction/branches`, endpoint de detalle
+  `/api/v1/demo/fiction/branches/{branch_id}` y panel web `Fiction timeline` con ramas
+  expandibles. En local cae a memoria de proceso.
 - `FictionBranchAgent` minimo: crea ramas alternativas separadas de canon en la respuesta API.
 - Agent card Track 3 publicada en `/.well-known/agent-card.json` y `/a2a/agent-card.json`.
 - Dockerfile.
@@ -132,7 +133,7 @@ Ultima validacion local conocida:
 - Narration publico confirmado: `VoiceNarrationAgent`, SSML y `ready_for_tts=true`.
 - Publisher publico confirmado: `PublisherInsightsAgent`, engagement y quality `100%`.
 - Admin publico confirmado: login demo, tokens demo, roles `reader`, `author`, `publisher_admin`, `super_admin`, `judge_access`, tenant demo, catalogo y readiness Marketplace.
-- Smoke test publico confirmado el 2026-06-03 contra revision `stormsboys-agents-api-00030-8p6`.
+- Smoke test publico confirmado el 2026-06-03 contra revision `stormsboys-agents-api-00031-lkc`.
 - Chat publico confirmado: Don Quijote responde en espanol con psicologia visible,
   memoria de sesion, consistencia `passed=true` y citas separadas sin IDs inline.
 - Memoria publica confirmada: `/api/v1/demo/chat/memory` devuelve historial desde
@@ -140,6 +141,9 @@ Ultima validacion local conocida:
 - Ramas ficcionales publicas confirmadas: una llamada `FICTION` crea `fictionBranch`,
   `/api/v1/demo/fiction/branches` devuelve `provider=cloud-sql-postgresql`, continuidad,
   citas canon separadas y `consistency.passed=true`.
+- UI publica verificada: `Fiction timeline` abre cada rama con `<details>` nativo y muestra
+  premisa, continuacion, memoria/psicologia aprendida y anclajes canonicos sin depender de
+  JavaScript asincrono.
 - Cleanup publico confirmado: `DELETE /api/v1/admin/demo-sessions/{session_id}` con
   `superadmin-demo` borra solo `conversation_memory_events` y `fiction_branches` para una
   sesion temporal; despues historial y ramas devuelven listas vacias.
@@ -202,6 +206,7 @@ Ultima validacion local conocida:
 - `POST /api/v1/demo/chat/character`
 - `GET /api/v1/demo/chat/memory`
 - `GET /api/v1/demo/fiction/branches`
+- `GET /api/v1/demo/fiction/branches/{branch_id}`
 - `DELETE /api/v1/admin/demo-sessions/{session_id}`
 - `POST /api/v1/demo/chat/scene`
 - `POST /api/v1/demo/narration`

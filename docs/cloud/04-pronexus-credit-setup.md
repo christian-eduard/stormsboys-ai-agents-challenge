@@ -87,7 +87,11 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
   `/api/v1/demo/chat/memory` devuelve eventos desde `provider=cloud-sql-postgresql`.
 - Ramas ficcionales persistentes verificadas: `fiction_branches` existe en Cloud SQL y
   `/api/v1/demo/fiction/branches` devuelve continuidad, citas canon y proveedor
-  `cloud-sql-postgresql`.
+  `cloud-sql-postgresql`; `/api/v1/demo/fiction/branches/{branch_id}` devuelve el detalle
+  de una rama concreta.
+- Timeline de ficcion verificado en UI publica contra revision
+  `stormsboys-agents-api-00031-lkc`: cada rama se expande con premisa, continuacion,
+  memoria/psicologia aprendida y anclajes canonicos.
 - Cleanup superadmin verificado: `DELETE /api/v1/admin/demo-sessions/{session_id}`
   borra solo memoria conversacional y ramas ficcionales de la sesion indicada.
 - Cleanup UI verificado: el formulario de `Superadmin operations` aparece en la demo publica
@@ -136,6 +140,7 @@ curl -s https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app/api/v1/challenge/s
 curl -s https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app/api/v1/challenge/storage/demo-seed
 curl -s "https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app/api/v1/demo/chat/memory?session_id=judge-demo-session&character_id=don_quijote&mode=CANON"
 curl -s "https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app/api/v1/demo/fiction/branches?session_id=judge-demo-session&character_id=don_quijote"
+curl -s "https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app/api/v1/demo/fiction/branches/BRANCH_ID?session_id=judge-demo-session"
 curl -s -X DELETE "https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app/api/v1/admin/demo-sessions/example-session" -H "Authorization: Bearer demo-token:superadmin-demo"
 gcloud iam service-accounts keys list --iam-account=stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com --project=stormsboys-agents-20260602
 BASE_URL=https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app make smoke

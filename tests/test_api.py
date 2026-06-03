@@ -33,6 +33,8 @@ def test_static_asset() -> None:
     assert "judge_access" in response.text
     assert "cleanupDemoSession" in response.text
     assert "/api/v1/admin/demo-sessions/" in response.text
+    assert "fiction-detail" in response.text
+    assert "/api/v1/demo/fiction/branches?" in response.text
 
 
 def test_challenge_readiness() -> None:
@@ -395,6 +397,23 @@ def test_demo_character_chat_fiction_branch() -> None:
     assert timeline_body["provider"] in {"local-process-memory", "cloud-sql-postgresql"}
     assert timeline_body["branches"]
     assert timeline_body["branches"][0]["branch_id"] == body["fictionBranch"]["branch_id"]
+
+    detail = client.get(
+        f"/api/v1/demo/fiction/branches/{body['fictionBranch']['branch_id']}",
+        params={"session_id": session_id},
+    )
+    assert detail.status_code == 200
+    detail_body = detail.json()
+    assert detail_body["provider"] in {"local-process-memory", "cloud-sql-postgresql"}
+    assert detail_body["branch"]["branch_id"] == body["fictionBranch"]["branch_id"]
+    assert detail_body["branch"]["continuation"]
+    assert detail_body["branch"]["canon_anchor_citations"]
+
+    missing = client.get(
+        "/api/v1/demo/fiction/branches/missing-branch",
+        params={"session_id": session_id},
+    )
+    assert missing.status_code == 404
 
 
 def test_admin_delete_demo_session_requires_superadmin_access() -> None:

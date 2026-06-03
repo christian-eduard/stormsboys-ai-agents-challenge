@@ -49,6 +49,30 @@ class FictionBranchStore:
             ],
         }
 
+    def get(self, session_id: str, branch_id: str) -> dict[str, object] | None:
+        persisted = self._get_persisted(session_id, branch_id)
+        if persisted is not None:
+            return {
+                "session_id": session_id,
+                "provider": "cloud-sql-postgresql",
+                "branch": persisted,
+            }
+        branch = next(
+            (
+                item
+                for item in self._branches.get(session_id, [])
+                if item.branch_id == branch_id
+            ),
+            None,
+        )
+        if branch is None:
+            return None
+        return {
+            "session_id": session_id,
+            "provider": "local-process-memory",
+            "branch": branch.model_dump(),
+        }
+
     def reset(self) -> None:
         self._branches.clear()
 
@@ -82,6 +106,21 @@ class FictionBranchStore:
                 session_id=session_id,
                 character_id=character_id,
                 limit=limit,
+            )
+        except Exception:
+            return None
+
+    def _get_persisted(
+        self,
+        session_id: str,
+        branch_id: str,
+    ) -> dict[str, object] | None:
+        try:
+            if not self.repository.status.configured:
+                return None
+            return self.repository.get_fiction_branch(
+                session_id=session_id,
+                branch_id=branch_id,
             )
         except Exception:
             return None

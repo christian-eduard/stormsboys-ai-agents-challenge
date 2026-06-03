@@ -807,10 +807,47 @@ textarea {
   padding-top: 8px;
 }
 
+.fiction-branch header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .memory-event strong,
 .fiction-branch strong {
   color: var(--ink);
   font-size: 12px;
+}
+
+.fiction-detail {
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  color: var(--muted);
+}
+
+.fiction-detail summary {
+  width: fit-content;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 9px;
+  color: var(--ink);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.fiction-detail p {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.fiction-detail strong {
+  color: var(--ink);
 }
 
 .architecture-band {

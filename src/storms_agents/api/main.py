@@ -787,6 +787,17 @@ def demo_fiction_branches(
     )
 
 
+@app.get("/api/v1/demo/fiction/branches/{branch_id}")
+def demo_fiction_branch_detail(
+    branch_id: str,
+    session_id: str = "judge-demo-session",
+) -> dict[str, object]:
+    branch = FictionBranchStore().get(session_id=session_id, branch_id=branch_id)
+    if branch is None:
+        raise HTTPException(status_code=404, detail="Fiction branch not found.")
+    return branch
+
+
 @app.post("/api/v1/demo/chat/scene")
 def demo_scene_chat(request: SceneChatRequest) -> dict[str, object]:
     analysis = LiteraryAnalysisAgent().run(DEMO_BOOK_TITLE, [DEMO_BOOK_TEXT]).output

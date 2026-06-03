@@ -486,6 +486,47 @@ class StorageRepository:
             for row in rows
         ]
 
+    def get_fiction_branch(
+        self,
+        session_id: str,
+        branch_id: str,
+    ) -> dict[str, object] | None:
+        self.initialize_schema()
+        with self.engine.connect() as connection:
+            row = connection.execute(
+                text(
+                    """
+                    SELECT
+                      branch_id,
+                      book_id,
+                      character_id,
+                      seed_prompt,
+                      premise,
+                      canon_anchor_citations,
+                      continuation,
+                      created_at
+                    FROM fiction_branches
+                    WHERE session_id = :session_id
+                      AND branch_id = :branch_id
+                    """
+                ),
+                {"session_id": session_id, "branch_id": branch_id},
+            ).mappings().first()
+        if row is None:
+            return None
+        return {
+            "branch_id": row["branch_id"],
+            "book_id": row["book_id"],
+            "character_id": row["character_id"],
+            "seed_prompt": row["seed_prompt"],
+            "premise": row["premise"],
+            "canon_anchor_citations": self._decode_json_list(row["canon_anchor_citations"]),
+            "continuation": row["continuation"],
+            "created_at": row["created_at"].isoformat()
+            if hasattr(row["created_at"], "isoformat")
+            else str(row["created_at"]),
+        }
+
     def _decode_json_list(self, value: object) -> list[str]:
         if isinstance(value, list):
             return [str(item) for item in value]

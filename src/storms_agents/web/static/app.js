@@ -5,6 +5,7 @@ const state = {
   marketplace: null,
   currentView: "dashboard",
   session: null,
+  currentCharacterSessionId: "judge-demo-session",
 };
 
 const els = {
@@ -556,6 +557,15 @@ function localize(value) {
   return value[state.language] ?? value.en ?? "";
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function applyLanguage(language) {
   const previousCopy = copy[state.language];
   state.language = language;
@@ -1073,6 +1083,7 @@ async function loadStorage() {
 async function askCharacter(question) {
   els.characterResponse.textContent = t("character.running");
   const sessionId = `${state.session?.user?.user_id ?? "anonymous"}-${els.characterSelect.value}`;
+  state.currentCharacterSessionId = sessionId;
   const data = await api("/api/v1/demo/chat/character", {
     method: "POST",
     body: JSON.stringify({
@@ -1164,23 +1175,38 @@ async function loadCharacterHistory(sessionId) {
 }
 
 async function loadFictionTimeline(sessionId) {
+  state.currentCharacterSessionId = sessionId;
+  els.fictionTimeline.dataset.sessionId = sessionId;
   const params = new URLSearchParams({
     session_id: sessionId,
     character_id: els.characterSelect.value,
     limit: "5",
   });
   const timeline = await api(`/api/v1/demo/fiction/branches?${params.toString()}`);
+  const branches = timeline.branches ?? [];
   els.fictionTimeline.innerHTML = `
-    <p><strong>${timeline.provider}</strong></p>
+    <p><strong>${escapeHtml(timeline.provider)}</strong></p>
     ${
-      timeline.branches.length
-        ? timeline.branches
+      branches.length
+        ? branches
             .map(
               (branch) => `
                 <div class="fiction-branch">
-                  <strong>${branch.branch_id}</strong>
-                  <p>${branch.seed_prompt}</p>
-                  <span>${branch.canon_anchor_citations.join(", ") || "no canon anchor"}</span>
+                  <header>
+                    <strong>${escapeHtml(branch.branch_id)}</strong>
+                  </header>
+                  <p>${escapeHtml(branch.seed_prompt)}</p>
+                  <span>${escapeHtml(
+                    branch.canon_anchor_citations.join(", ") || "no canon anchor",
+                  )}</span>
+                  <details class="fiction-detail">
+                    <summary>Open</summary>
+                    <p><strong>Premise:</strong> ${escapeHtml(branch.premise)}</p>
+                    <p><strong>Continuation:</strong> ${escapeHtml(branch.continuation)}</p>
+                    <p><strong>Canon anchors:</strong> ${escapeHtml(
+                      branch.canon_anchor_citations.join(", ") || "no canon anchor",
+                    )}</p>
+                  </details>
                 </div>
               `,
             )
