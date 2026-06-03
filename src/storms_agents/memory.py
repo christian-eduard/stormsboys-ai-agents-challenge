@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from storms_agents.schemas import ConversationMemory, ConversationMode
+from storms_agents.storage.repository import StorageRepository
 
 
 @dataclass
@@ -14,9 +15,12 @@ class _MemoryBucket:
 
 
 class ConversationMemoryStore:
-    """Demo memory store. Production target is Cloud SQL with tenant-scoped rows."""
+    """Conversation memory with Cloud SQL persistence and local fallback."""
 
     _buckets: dict[tuple[str, str, ConversationMode], _MemoryBucket] = {}
+
+    def __init__(self, repository: StorageRepository | None = None) -> None:
+        self.repository = repository or StorageRepository()
 
     def snapshot(
         self,
@@ -24,6 +28,9 @@ class ConversationMemoryStore:
         character_id: str,
         mode: ConversationMode,
     ) -> ConversationMemory:
+        persisted = self._load_persisted(session_id, character_id, mode)
+        if persisted is not None:
+            return persisted
         bucket = self._bucket(session_id, character_id, mode)
         return self._to_model(session_id, character_id, mode, bucket)
 
@@ -35,12 +42,24 @@ class ConversationMemoryStore:
         question: str,
         response: str,
     ) -> ConversationMemory:
+        memory_line = self._memory_line(question, response)
+        preference = self._reader_preference(question)
+        persisted = self._record_persisted(
+            session_id=session_id,
+            character_id=character_id,
+            mode=mode,
+            question=question,
+            response=response,
+            memory_line=memory_line,
+            preference=preference,
+        )
+        if persisted is not None:
+            return persisted
+
         bucket = self._bucket(session_id, character_id, mode)
         bucket.turn_count += 1
-        preference = self._reader_preference(question)
         if preference and preference not in bucket.learned_reader_preferences:
             bucket.learned_reader_preferences.append(preference)
-        memory_line = self._memory_line(question, response)
         if mode == ConversationMode.FICTION:
             bucket.fiction_memory.append(memory_line)
             bucket.fiction_memory = bucket.fiction_memory[-5:]
@@ -51,6 +70,44 @@ class ConversationMemoryStore:
 
     def reset(self) -> None:
         self._buckets.clear()
+
+    def _load_persisted(
+        self,
+        session_id: str,
+        character_id: str,
+        mode: ConversationMode,
+    ) -> ConversationMemory | None:
+        try:
+            if not self.repository.status.configured:
+                return None
+            return self.repository.load_conversation_memory(session_id, character_id, mode)
+        except Exception:
+            return None
+
+    def _record_persisted(
+        self,
+        session_id: str,
+        character_id: str,
+        mode: ConversationMode,
+        question: str,
+        response: str,
+        memory_line: str,
+        preference: str | None,
+    ) -> ConversationMemory | None:
+        try:
+            if not self.repository.status.configured:
+                return None
+            return self.repository.append_conversation_memory(
+                session_id=session_id,
+                character_id=character_id,
+                mode=mode,
+                question=question,
+                response=response,
+                memory_line=memory_line,
+                reader_preference=preference,
+            )
+        except Exception:
+            return None
 
     def _bucket(
         self,

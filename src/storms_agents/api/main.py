@@ -289,6 +289,7 @@ def challenge_readiness() -> dict[str, object]:
         "trackEvidence": "Track 2 evaluation remains available for quality evidence.",
         "projectIsolation": "new-project-no-cross-project-code",
         "agentLayer": "adk-first-python",
+        "memory": "Cloud SQL persisted when DATABASE_URL is configured, local fallback otherwise",
         "gemini": gemini.__dict__,
         "status": AgentStatus.SUCCESS,
         "demoMode": settings.demo_mode,
@@ -331,6 +332,7 @@ def challenge_capabilities() -> dict[str, object]:
             "superadmin operations console",
             "canon character chat",
             "fiction branch mode",
+            "persisted conversation memory",
             "english primary language",
             "spanish secondary language",
             "character chat",
@@ -622,8 +624,11 @@ def challenge_storage() -> dict[str, object]:
         "status": status.__dict__,
         "schema": storage.schema_sql(),
         "target": "Cloud SQL PostgreSQL + pgvector",
+        "memoryTarget": "conversation_memory_events",
         "embedding": embedding.__dict__,
-        "runtimeBehavior": "Falls back to in-memory demo retrieval when DATABASE_URL is unset.",
+        "runtimeBehavior": (
+            "Falls back to in-memory retrieval and memory when DATABASE_URL is unset."
+        ),
     }
 
 

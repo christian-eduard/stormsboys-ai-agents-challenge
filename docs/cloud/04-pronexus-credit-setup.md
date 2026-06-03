@@ -45,11 +45,11 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 
 - Service: `stormsboys-agents-api`.
 - Region: `us-central1`.
-- Revision: `stormsboys-agents-api-00024-pl4`.
+- Revision: `stormsboys-agents-api-00025-bxg`.
 - Runtime service account: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - URL canonica: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
 - URL alternativa: `https://stormsboys-agents-api-425710112361.us-central1.run.app`.
-- Trafico: 100% a la revision `stormsboys-agents-api-00024-pl4`.
+- Trafico: 100% a la revision `stormsboys-agents-api-00025-bxg`.
 - Smoke test publico: pasa el 2026-06-03.
 - Admin publico confirmado: login demo, tokens demo protegidos, roles, catalogo, tenant demo y readiness Marketplace.
 - Idioma publico confirmado: `language=en` y `language=es` en chat de personaje.
@@ -80,10 +80,14 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 - Chat publico verificado: `CharacterAgent` usa `gemini-2.5-flash` y consistencia pasa.
 - Chat publico verificado: Don Quijote responde en espanol con psicologia visible,
   memoria de sesion y citas separadas del texto.
+- Memoria persistente verificada: `conversation_memory_events` existe en Cloud SQL y
+  dos llamadas con el mismo `session_id` devuelven `2 persisted turn(s)`.
 - Narration publico verificado: `VoiceNarrationAgent`, SSML y `ready_for_tts=true`.
 - Publisher publico verificado: `PublisherInsightsAgent`, engagement y quality `100%`.
 - Embeddings verificados: `gemini-embedding-001` via Vertex AI, 768 dimensiones.
 - Fallback de embeddings: `demo-hash-embedding-768` solo si Vertex/API no esta configurado o falla.
+- Tabla de memoria: `conversation_memory_events`.
+- Fallback de memoria: proceso local solo si `DATABASE_URL` no esta configurado o Cloud SQL falla.
 
 ## Credenciales
 

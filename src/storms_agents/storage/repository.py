@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from storms_agents.config import Settings, get_settings
 from storms_agents.demo_data import DEMO_BOOK_SECTIONS
-from storms_agents.schemas import RetrievedContext
+from storms_agents.schemas import ConversationMemory, ConversationMode, RetrievedContext
 from storms_agents.storage.embedding import (
     EmbeddingProvider,
     EmbeddingProviderProtocol,
@@ -42,6 +42,23 @@ SCHEMA_STATEMENTS = [
     """
     CREATE INDEX IF NOT EXISTS section_embeddings_vector_idx
       ON section_embeddings USING ivfflat (embedding vector_cosine_ops)
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS conversation_memory_events (
+      memory_id BIGSERIAL PRIMARY KEY,
+      session_id TEXT NOT NULL,
+      character_id TEXT NOT NULL,
+      mode TEXT NOT NULL,
+      question TEXT NOT NULL,
+      response TEXT NOT NULL,
+      memory_line TEXT NOT NULL,
+      reader_preference TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS conversation_memory_lookup_idx
+      ON conversation_memory_events (session_id, character_id, mode, created_at)
     """,
 ]
 
@@ -109,7 +126,13 @@ class StorageRepository:
     def schema_sql(self) -> list[str]:
         return [" ".join(statement.split()) for statement in SCHEMA_STATEMENTS]
 
+    def initialize_schema(self) -> None:
+        with self.engine.begin() as connection:
+            for statement in SCHEMA_STATEMENTS:
+                connection.execute(text(statement))
+
     def seed_demo_book(self, book_id: str, title: str) -> int:
+        self.initialize_schema()
         with self.engine.begin() as connection:
             connection.execute(
                 text(
@@ -198,3 +221,106 @@ class StorageRepository:
                 for row in rows
             ]
         return [context for context in contexts if context.score > 0]
+
+    def load_conversation_memory(
+        self,
+        session_id: str,
+        character_id: str,
+        mode: ConversationMode,
+    ) -> ConversationMemory:
+        with self.engine.connect() as connection:
+            rows = list(
+                connection.execute(
+                    text(
+                        """
+                        SELECT memory_line, reader_preference
+                        FROM conversation_memory_events
+                        WHERE session_id = :session_id
+                          AND character_id = :character_id
+                          AND mode = :mode
+                        ORDER BY created_at ASC, memory_id ASC
+                        """
+                    ),
+                    {
+                        "session_id": session_id,
+                        "character_id": character_id,
+                        "mode": mode.value,
+                    },
+                ).mappings()
+            )
+        lines = [str(row["memory_line"]) for row in rows][-5:]
+        preferences = []
+        for row in rows:
+            preference = row["reader_preference"]
+            if preference and preference not in preferences:
+                preferences.append(str(preference))
+        return self._memory_model(
+            session_id=session_id,
+            character_id=character_id,
+            mode=mode,
+            turn_count=len(rows),
+            memory_lines=lines,
+            preferences=preferences,
+        )
+
+    def append_conversation_memory(
+        self,
+        session_id: str,
+        character_id: str,
+        mode: ConversationMode,
+        question: str,
+        response: str,
+        memory_line: str,
+        reader_preference: str | None,
+    ) -> ConversationMemory:
+        with self.engine.begin() as connection:
+            connection.execute(
+                text(
+                    """
+                    INSERT INTO conversation_memory_events (
+                      session_id, character_id, mode, question, response,
+                      memory_line, reader_preference
+                    )
+                    VALUES (
+                      :session_id, :character_id, :mode, :question, :response,
+                      :memory_line, :reader_preference
+                    )
+                    """
+                ),
+                {
+                    "session_id": session_id,
+                    "character_id": character_id,
+                    "mode": mode.value,
+                    "question": question,
+                    "response": response,
+                    "memory_line": memory_line,
+                    "reader_preference": reader_preference,
+                },
+            )
+        return self.load_conversation_memory(session_id, character_id, mode)
+
+    def _memory_model(
+        self,
+        session_id: str,
+        character_id: str,
+        mode: ConversationMode,
+        turn_count: int,
+        memory_lines: list[str],
+        preferences: list[str],
+    ) -> ConversationMemory:
+        relationship = (
+            f"{turn_count} persisted turn(s). The character can adapt tone and recall "
+            "reader interests without changing canon."
+            if turn_count
+            else "No prior persisted turns for this character, mode, and session."
+        )
+        return ConversationMemory(
+            session_id=session_id,
+            character_id=character_id,
+            mode=mode,
+            turn_count=turn_count,
+            canon_memory=memory_lines if mode == ConversationMode.CANON else [],
+            fiction_memory=memory_lines if mode == ConversationMode.FICTION else [],
+            learned_reader_preferences=preferences,
+            relationship_summary=relationship,
+        )
