@@ -110,6 +110,74 @@
         </header>
 
         <section class="view-panel" data-view="dashboard">
+          <div class="judge-journey">
+            <div class="journey-copy">
+              <p class="eyebrow" data-i18n="journey.eyebrow">Judge journey</p>
+              <h3 data-i18n="journey.title">From manuscript to living literary world</h3>
+              <p data-i18n="journey.body">
+                Follow the product path judges should see in the video: upload a book,
+                generate agents, chat in canon, branch into fiction, prove publisher value,
+                and verify the Google Cloud runtime.
+              </p>
+            </div>
+            <div class="journey-actions">
+              <button type="button" data-jump-view="author" data-i18n="journey.start">Start with upload</button>
+              <button type="button" class="secondary" data-jump-view="agents" data-i18n="journey.chat">Run character demo</button>
+              <button type="button" class="secondary" data-jump-view="runtime" data-i18n="journey.proof">Inspect Cloud proof</button>
+            </div>
+          </div>
+
+          <div class="journey-steps">
+            <article class="journey-step">
+              <span>01</span>
+              <strong data-i18n="journey.stepUpload">Upload manuscript</strong>
+              <p data-i18n="journey.stepUploadBody">Author or publisher brings owned/public-domain IP into the platform.</p>
+            </article>
+            <article class="journey-step">
+              <span>02</span>
+              <strong data-i18n="journey.stepAnalyze">Generate literary agents</strong>
+              <p data-i18n="journey.stepAnalyzeBody">Gemini extracts characters, psychology, scenes, canon constraints, and embeddings.</p>
+            </article>
+            <article class="journey-step">
+              <span>03</span>
+              <strong data-i18n="journey.stepReader">Reader experience</strong>
+              <p data-i18n="journey.stepReaderBody">Readers talk to characters, ask in English or Spanish, and get grounded answers.</p>
+            </article>
+            <article class="journey-step">
+              <span>04</span>
+              <strong data-i18n="journey.stepFiction">Fiction branches</strong>
+              <p data-i18n="journey.stepFictionBody">Alternative storylines are saved separately from canon and can evolve over time.</p>
+            </article>
+            <article class="journey-step">
+              <span>05</span>
+              <strong data-i18n="journey.stepBusiness">Publisher value</strong>
+              <p data-i18n="journey.stepBusinessBody">Catalog owners see engagement, quality, title readiness, and admin controls.</p>
+            </article>
+            <article class="journey-step">
+              <span>06</span>
+              <strong data-i18n="journey.stepCloud">Cloud proof</strong>
+              <p data-i18n="journey.stepCloudBody">Cloud Run, Gemini, Cloud SQL pgvector, Secret Manager, traces, and A2A card.</p>
+            </article>
+          </div>
+
+          <div class="track-proof-grid">
+            <article class="track-proof build">
+              <p class="eyebrow">Track 1</p>
+              <h3>Build</h3>
+              <p data-i18n="proof.build">New agent layer, upload pipeline, character/scene/publisher/admin agents, and A2A-ready contract.</p>
+            </article>
+            <article class="track-proof optimize">
+              <p class="eyebrow">Track 2</p>
+              <h3>Optimize</h3>
+              <p data-i18n="proof.optimize">Before/after evaluation, retrieval grounding, canon guardrails, memory separation, and traces.</p>
+            </article>
+            <article class="track-proof refactor">
+              <p class="eyebrow">Track 3</p>
+              <h3>Refactor</h3>
+              <p data-i18n="proof.refactor">Cloud Run deployment, Gemini via Vertex AI, Cloud SQL pgvector, roles, and Marketplace path.</p>
+            </article>
+          </div>
+
           <div class="role-hero">
             <div>
               <p class="eyebrow" data-i18n="dashboard.eyebrow">Role workspace</p>

@@ -334,6 +334,111 @@ button.secondary:hover {
   margin: 0 auto;
 }
 
+.judge-journey {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 28px;
+  color: #fff;
+  background:
+    linear-gradient(120deg, rgb(15 138 123 / 86%), rgb(49 95 155 / 92%)),
+    #123046;
+  box-shadow: 0 18px 50px rgb(23 32 43 / 12%);
+}
+
+.journey-copy h3 {
+  max-width: 860px;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(32px, 4vw, 54px);
+  line-height: 1.03;
+}
+
+.journey-copy p:last-child {
+  max-width: 820px;
+  margin: 12px 0 0;
+  color: #e4f3f3;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.journey-copy .eyebrow {
+  color: #bce8de;
+}
+
+.journey-actions {
+  display: grid;
+  gap: 10px;
+  min-width: 190px;
+}
+
+.journey-actions button.secondary {
+  background: rgb(255 255 255 / 88%);
+}
+
+.journey-steps,
+.track-proof-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.journey-step,
+.track-proof {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  background: var(--surface);
+}
+
+.journey-step span {
+  display: grid;
+  width: 38px;
+  height: 30px;
+  place-items: center;
+  border-radius: 6px;
+  color: #fff;
+  background: var(--ink);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.journey-step strong {
+  display: block;
+  margin-top: 12px;
+  font-size: 16px;
+}
+
+.journey-step p,
+.track-proof p:last-child {
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.track-proof {
+  min-height: 176px;
+  border-top: 5px solid var(--blue);
+}
+
+.track-proof.optimize {
+  border-top-color: var(--gold);
+}
+
+.track-proof.refactor {
+  border-top-color: var(--accent);
+}
+
+.track-proof h3 {
+  margin: 0;
+  font-size: 26px;
+}
+
 .role-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -1083,7 +1188,10 @@ textarea {
   .product-grid,
   .submission-grid,
   .agent-evidence-grid,
-  .experience-lanes {
+  .experience-lanes,
+  .judge-journey,
+  .journey-steps,
+  .track-proof-grid {
     grid-template-columns: 1fr;
   }
 

@@ -123,7 +123,7 @@ Ultima validacion local conocida:
 - Billing Pronexus enlazado.
 - Budget guardrail de 50 EUR creado.
 - Cloud Run desplegado: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
-- Revision Cloud Run activa: `stormsboys-agents-api-00034-wkj`.
+- Revision Cloud Run activa: `stormsboys-agents-api-00035-rjd`.
 - Cloud Run usa service account nueva: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - No hay claves JSON de usuario ni credenciales antiguas en el runtime.
 - Cloud SQL instance: `stormsboys-pgvector`.
@@ -139,10 +139,13 @@ Ultima validacion local conocida:
 - Narration publico confirmado: `VoiceNarrationAgent`, SSML y `ready_for_tts=true`.
 - Publisher publico confirmado: `PublisherInsightsAgent`, engagement y quality `100%`.
 - Admin publico confirmado: login demo, tokens demo, roles `reader`, `author`, `publisher_admin`, `super_admin`, `judge_access`, tenant demo, catalogo y readiness Marketplace.
-- Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00034-wkj`.
+- Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00035-rjd`.
 - UI publica confirmada el 2026-06-04: sidebar muestra Build, Optimize y Refactor;
   vista Reader tiene hero de producto, CTAs para chat/upload/publisher y carga
   Don Quijote correctamente.
+- UI publica confirmada el 2026-06-04 contra revision `stormsboys-agents-api-00035-rjd`:
+  dashboard incluye `Judge journey`, 6 pasos de demo, 3 proof cards para Track 1/2/3,
+  CTA de upload, sin claves i18n crudas y sin overflow horizontal.
 - Upload publico confirmado el 2026-06-04: `POST /api/v1/books/upload` subio
   `The Orchard of Mirrors`, creo `book_id=upload-the-orchard-of-mirrors-46f285dceb`,
   lo guardo en `provider=cloud-sql-postgresql`, lo mostro en catalogo y permitio chat

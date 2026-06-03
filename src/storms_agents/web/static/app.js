@@ -96,6 +96,37 @@ const copy = {
     "track.optimize": "quality evidence",
     "track.refactor": "Marketplace ready",
     "dashboard.eyebrow": "Role workspace",
+    "journey.eyebrow": "Judge journey",
+    "journey.title": "From manuscript to living literary world",
+    "journey.body":
+      "Follow the product path judges should see in the video: upload a book, generate agents, chat in canon, branch into fiction, prove publisher value, and verify the Google Cloud runtime.",
+    "journey.start": "Start with upload",
+    "journey.chat": "Run character demo",
+    "journey.proof": "Inspect Cloud proof",
+    "journey.stepUpload": "Upload manuscript",
+    "journey.stepUploadBody":
+      "Author or publisher brings owned/public-domain IP into the platform.",
+    "journey.stepAnalyze": "Generate literary agents",
+    "journey.stepAnalyzeBody":
+      "Gemini extracts characters, psychology, scenes, canon constraints, and embeddings.",
+    "journey.stepReader": "Reader experience",
+    "journey.stepReaderBody":
+      "Readers talk to characters, ask in English or Spanish, and get grounded answers.",
+    "journey.stepFiction": "Fiction branches",
+    "journey.stepFictionBody":
+      "Alternative storylines are saved separately from canon and can evolve over time.",
+    "journey.stepBusiness": "Publisher value",
+    "journey.stepBusinessBody":
+      "Catalog owners see engagement, quality, title readiness, and admin controls.",
+    "journey.stepCloud": "Cloud proof",
+    "journey.stepCloudBody":
+      "Cloud Run, Gemini, Cloud SQL pgvector, Secret Manager, traces, and A2A card.",
+    "proof.build":
+      "New agent layer, upload pipeline, character/scene/publisher/admin agents, and A2A-ready contract.",
+    "proof.optimize":
+      "Before/after evaluation, retrieval grounding, canon guardrails, memory separation, and traces.",
+    "proof.refactor":
+      "Cloud Run deployment, Gemini via Vertex AI, Cloud SQL pgvector, roles, and Marketplace path.",
     "product.case.eyebrow": "Business case",
     "product.case.title": "Literary IP becomes interactive catalog revenue",
     "product.case.body":
@@ -239,6 +270,37 @@ const copy = {
     "track.optimize": "evidencia de calidad",
     "track.refactor": "listo para Marketplace",
     "dashboard.eyebrow": "Espacio por rol",
+    "journey.eyebrow": "Recorrido para jueces",
+    "journey.title": "De manuscrito a mundo literario vivo",
+    "journey.body":
+      "Sigue la ruta que deben ver los jueces en el video: subir libro, generar agentes, chatear en canon, crear ficcion, probar valor editorial y verificar Google Cloud.",
+    "journey.start": "Empezar con upload",
+    "journey.chat": "Ejecutar demo de personaje",
+    "journey.proof": "Inspeccionar prueba Cloud",
+    "journey.stepUpload": "Subir manuscrito",
+    "journey.stepUploadBody":
+      "Autor o editorial incorpora IP propia o libre de derechos a la plataforma.",
+    "journey.stepAnalyze": "Generar agentes literarios",
+    "journey.stepAnalyzeBody":
+      "Gemini extrae personajes, psicologia, escenas, restricciones canonicas y embeddings.",
+    "journey.stepReader": "Experiencia lectora",
+    "journey.stepReaderBody":
+      "Los lectores hablan con personajes, preguntan en ingles o espanol y reciben respuestas ancladas.",
+    "journey.stepFiction": "Ramas de ficcion",
+    "journey.stepFictionBody":
+      "Las historias alternativas se guardan separadas del canon y pueden evolucionar.",
+    "journey.stepBusiness": "Valor editorial",
+    "journey.stepBusinessBody":
+      "Los duenos del catalogo ven engagement, calidad, estado del titulo y controles admin.",
+    "journey.stepCloud": "Prueba Cloud",
+    "journey.stepCloudBody":
+      "Cloud Run, Gemini, Cloud SQL pgvector, Secret Manager, trazas y agent card A2A.",
+    "proof.build":
+      "Nueva capa de agentes, pipeline de upload, agentes de personaje/escena/editorial/admin y contrato A2A-ready.",
+    "proof.optimize":
+      "Evaluacion before/after, grounding, guardrails canonicos, memoria separada y trazas.",
+    "proof.refactor":
+      "Deploy en Cloud Run, Gemini via Vertex AI, Cloud SQL pgvector, roles y ruta Marketplace.",
     "product.case.eyebrow": "Caso de negocio",
     "product.case.title": "La propiedad literaria se convierte en ingresos de catalogo interactivo",
     "product.case.body":

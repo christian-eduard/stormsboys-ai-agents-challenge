@@ -45,13 +45,13 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 
 - Service: `stormsboys-agents-api`.
 - Region: `us-central1`.
-- Revision: `stormsboys-agents-api-00034-wkj`.
+- Revision: `stormsboys-agents-api-00035-rjd`.
 - Runtime service account: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - URL canonica: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
 - URL alternativa: `https://stormsboys-agents-api-425710112361.us-central1.run.app`.
-- Trafico: 100% a la revision `stormsboys-agents-api-00034-wkj`.
+- Trafico: 100% a la revision `stormsboys-agents-api-00035-rjd`.
 - Ultimo image digest desplegado:
-  `sha256:0b65ad80903d3ce08bfccc903a281af779bb132796d15f3b2795730d1d9dd8e9`.
+  `sha256:5b65c101ec453f163bf3b540644fb24bfcff937806d29b183f8e5275e0ca6652`.
 - Smoke test publico: pasa el 2026-06-04.
 - Upload publico: pasa el 2026-06-04 con manuscrito textual, catalogo y chat por `book_id`.
 - Admin publico confirmado: login demo, tokens demo protegidos, roles, catalogo, tenant demo y readiness Marketplace.
@@ -65,6 +65,8 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
   y separadas del canon.
 - Demo web incluye formulario protegido de subida en `Author Workspace` para libros propios,
   de editorial o de dominio publico.
+- Demo web incluye `Judge journey` en el dashboard con ruta clara de upload, analisis
+  de agentes, lector, ficcion, publisher value y Cloud proof para los tres tracks.
 
 ## Cloud SQL / pgvector
 

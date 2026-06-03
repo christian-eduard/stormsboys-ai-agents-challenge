@@ -90,6 +90,7 @@ el producto es la plataforma de catalogos interactivos.
 
 La demo cubre:
 
+- Dashboard de jueces con recorrido guiado para Track 1, Track 2 y Track 3.
 - Lector con libro demo.
 - Upload y analisis de manuscritos `.txt`, `.md` y PDFs textuales.
 - Analisis literario con personajes, psicologia, escenas, lugares y constraints.
@@ -147,6 +148,7 @@ Ultima validacion conocida:
 - Public-ready scan: passed.
 - Public smoke test: passed.
 - Public upload smoke test: passed against Cloud SQL/pgvector.
+- Public dashboard QA: `Judge journey`, 6 pasos, 3 proof cards, sin overflow horizontal.
 
 ## Estado De Implementacion
 

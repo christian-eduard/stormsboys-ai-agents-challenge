@@ -19,6 +19,8 @@ def test_web_demo() -> None:
     assert "Demo access" in response.text
     assert "Choose a demo account" in response.text
     assert "Submission readiness" in response.text
+    assert "Judge journey" in response.text
+    assert "From manuscript to living literary world" in response.text
     assert "cleanupSessionInput" in response.text
     assert 'data-view="dashboard"' in response.text
     assert 'data-view="author"' in response.text
