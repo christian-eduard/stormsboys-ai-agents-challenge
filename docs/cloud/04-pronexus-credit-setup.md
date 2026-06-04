@@ -45,14 +45,17 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 
 - Service: `stormsboys-agents-api`.
 - Region: `us-central1`.
-- Revision: `stormsboys-agents-api-00037-vtk`.
+- Revision: `stormsboys-agents-api-00038-2ps`.
 - Runtime service account: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - URL canonica: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
 - URL alternativa: `https://stormsboys-agents-api-425710112361.us-central1.run.app`.
-- Trafico: 100% a la revision `stormsboys-agents-api-00037-vtk`.
+- Trafico: 100% a la revision `stormsboys-agents-api-00038-2ps`.
 - Ultimo image digest desplegado:
-  `sha256:63620a243d7407c1db06590a6dedd66c067a5ac676e881eae2c57c879f667632`.
+  `sha256:0aeaa58f2f2056597a54acc912c5d1a9b2e8cfdf0287b3c677e16209787f3218`.
 - Smoke test publico: pasa el 2026-06-04.
+- Reader publico: revision `stormsboys-agents-api-00038-2ps` sirve catalogo
+  navegable, progreso local y CTA `Talk now`; el HTML canonico contiene
+  `readerCatalog`, `readerProgressInput` y `reader.talkNow`.
 - Upload publico: pasa el 2026-06-04 con manuscrito textual, catalogo y chat por `book_id`.
 - Upload Gemini-first publico: `The Glass Observatory` pasa el 2026-06-04 con
   `LiteraryAnalysisAgent` usando `gemini-2.5-flash`, Cloud SQL/pgvector,

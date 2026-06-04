@@ -23,6 +23,8 @@ def test_web_demo() -> None:
     assert "Judge journey" in response.text
     assert "From manuscript to living literary world" in response.text
     assert "cleanupSessionInput" in response.text
+    assert "readerCatalog" in response.text
+    assert "readerProgressInput" in response.text
     assert 'data-view="dashboard"' in response.text
     assert 'data-view="author"' in response.text
 
@@ -38,6 +40,8 @@ def test_static_asset() -> None:
     assert "/api/v1/admin/demo-sessions/" in response.text
     assert "fiction-detail" in response.text
     assert "/api/v1/demo/fiction/branches?" in response.text
+    assert "/api/v1/books/catalog" in response.text
+    assert "book_id: state.currentBookId" in response.text
 
 
 def test_challenge_readiness() -> None:

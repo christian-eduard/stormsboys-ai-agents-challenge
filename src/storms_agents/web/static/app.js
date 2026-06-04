@@ -1,8 +1,11 @@
 const state = {
   characters: [],
+  catalog: [],
   demoUsers: [],
   language: "en",
   marketplace: null,
+  currentBookId: "don-quijote",
+  currentBookDetail: null,
   currentView: "dashboard",
   session: null,
   currentCharacterSessionId: "judge-demo-session",
@@ -14,6 +17,12 @@ const els = {
   appShell: document.querySelector("#appShell"),
   bookTitle: document.querySelector("#bookTitle"),
   bookSummary: document.querySelector("#bookSummary"),
+  readerCatalog: document.querySelector("#readerCatalog"),
+  readerActiveTitle: document.querySelector("#readerActiveTitle"),
+  readerProgressInput: document.querySelector("#readerProgressInput"),
+  readerProgressLabel: document.querySelector("#readerProgressLabel"),
+  readerExcerpt: document.querySelector("#readerExcerpt"),
+  readerBookMeta: document.querySelector("#readerBookMeta"),
   characterCount: document.querySelector("#characterCount"),
   placeCount: document.querySelector("#placeCount"),
   sceneCount: document.querySelector("#sceneCount"),
@@ -173,6 +182,19 @@ const copy = {
     "reader.laneFictionBody": "Alternative story paths are saved separately from canon.",
     "reader.laneBusiness": "Publisher signal",
     "reader.laneBusinessBody": "Reader interactions become measurable catalog insight.",
+    "reader.catalogEyebrow": "Library catalog",
+    "reader.catalogTitle": "Choose the book experience",
+    "reader.pageEyebrow": "Reading session",
+    "reader.progress": "Reading progress",
+    "reader.talkNow": "Talk now",
+    "reader.demoType": "Public-domain demo",
+    "reader.uploadedType": "Uploaded manuscript",
+    "reader.openBook": "Open",
+    "reader.active": "Active",
+    "reader.charactersReady": "characters ready",
+    "reader.noUploaded": "Upload a manuscript to add it to this catalog.",
+    "reader.scenes": "Key scenes",
+    "reader.places": "Places",
     "author.eyebrow": "Author Workspace",
     "author.title": "Book submission pipeline",
     "author.review": "Review",
@@ -347,6 +369,19 @@ const copy = {
     "reader.laneFictionBody": "Las rutas alternativas se guardan separadas del canon.",
     "reader.laneBusiness": "Senal editorial",
     "reader.laneBusinessBody": "Las interacciones se convierten en insight medible de catalogo.",
+    "reader.catalogEyebrow": "Catalogo de biblioteca",
+    "reader.catalogTitle": "Elige la experiencia del libro",
+    "reader.pageEyebrow": "Sesion de lectura",
+    "reader.progress": "Progreso de lectura",
+    "reader.talkNow": "Hablar ahora",
+    "reader.demoType": "Demo de dominio publico",
+    "reader.uploadedType": "Manuscrito subido",
+    "reader.openBook": "Abrir",
+    "reader.active": "Activo",
+    "reader.charactersReady": "personajes listos",
+    "reader.noUploaded": "Sube un manuscrito para anadirlo a este catalogo.",
+    "reader.scenes": "Escenas clave",
+    "reader.places": "Lugares",
     "author.eyebrow": "Espacio de autor",
     "author.title": "Pipeline de envio de libro",
     "author.review": "Revisar",
@@ -690,6 +725,10 @@ function applyLanguage(language) {
   renderSession();
   applyAccess();
   renderRoleDashboard();
+  renderReaderCatalog();
+  if (state.currentBookDetail) {
+    updateActiveBook(state.currentBookDetail.book, state.currentBookDetail.analysis);
+  }
 }
 
 async function api(path, options = {}) {
@@ -763,6 +802,7 @@ async function loginAs(userId) {
   renderRoleDashboard();
   applyViewAccess();
   setView("dashboard");
+  await loadReaderCatalog();
   await loadAdmin();
 }
 
@@ -775,6 +815,7 @@ function logout() {
   renderShell();
   renderRoleDashboard();
   applyViewAccess();
+  loadReaderCatalog();
 }
 
 function renderShell() {
@@ -926,6 +967,160 @@ function renderCharacters(characters) {
   });
 }
 
+function bookProgressKey(bookId) {
+  return `stormsboys-reader-progress:${bookId}`;
+}
+
+function currentBookProgress() {
+  return Number(localStorage.getItem(bookProgressKey(state.currentBookId)) ?? "0");
+}
+
+function saveCurrentBookProgress(value) {
+  localStorage.setItem(bookProgressKey(state.currentBookId), String(value));
+  renderReaderProgress();
+}
+
+function renderReaderProgress() {
+  const progress = currentBookProgress();
+  els.readerProgressInput.value = String(progress);
+  els.readerProgressLabel.textContent = `${progress}%`;
+}
+
+function summarizeBookForReader(analysis) {
+  const scenes = analysis.scenes ?? [];
+  const places = analysis.places ?? [];
+  const sceneLines = scenes
+    .slice(0, 3)
+    .map((scene) => `<li>${escapeHtml(scene.summary ?? scene.name ?? scene.scene_id)}</li>`)
+    .join("");
+  const placeLine = places
+    .slice(0, 4)
+    .map((place) => escapeHtml(place))
+    .join(", ");
+  return `
+    <p>${escapeHtml(analysis.summary)}</p>
+    ${
+      sceneLines
+        ? `<strong>${t("reader.scenes")}</strong><ul>${sceneLines}</ul>`
+        : ""
+    }
+    ${
+      placeLine
+        ? `<p><strong>${t("reader.places")}:</strong> ${placeLine}</p>`
+        : ""
+    }
+  `;
+}
+
+function updateActiveBook(book, analysis, traces = []) {
+  state.currentBookId = book.book_id;
+  state.currentBookDetail = { book, analysis };
+  state.characters = analysis.characters ?? [];
+  els.bookTitle.textContent = book.title ?? analysis.title;
+  els.bookSummary.textContent = analysis.summary;
+  els.readerActiveTitle.textContent = book.title ?? analysis.title;
+  els.characterCount.textContent = state.characters.length;
+  els.placeCount.textContent = (analysis.places ?? []).length;
+  els.sceneCount.textContent = (analysis.scenes ?? []).length;
+  els.readerExcerpt.innerHTML = summarizeBookForReader(analysis);
+  els.readerBookMeta.innerHTML = `
+    <span>${escapeHtml(book.rights ?? "rights reviewed")}</span>
+    <span>${escapeHtml(book.status ?? "available")}</span>
+    <span>${state.characters.length} ${t("reader.charactersReady")}</span>
+  `;
+  renderCharacters(state.characters);
+  renderReaderProgress();
+  renderReaderCatalog();
+  if (traces.length) {
+    renderTraces(traces);
+  }
+}
+
+function renderReaderCatalog() {
+  els.readerCatalog.innerHTML = "";
+  state.catalog.forEach((book) => {
+    const item = document.createElement("article");
+    const isActive = book.book_id === state.currentBookId;
+    item.className = `reader-catalog-item${isActive ? " active" : ""}`;
+    item.innerHTML = `
+      <div>
+        <small>${escapeHtml(book.typeLabel)}</small>
+        <strong>${escapeHtml(book.title)}</strong>
+        <p>${escapeHtml(book.rights ?? book.status ?? "")}</p>
+      </div>
+      <button type="button" data-reader-book="${escapeHtml(book.book_id)}">
+        ${isActive ? t("reader.active") : t("reader.openBook")}
+      </button>
+    `;
+    els.readerCatalog.appendChild(item);
+  });
+  if (state.catalog.length === 1) {
+    const empty = document.createElement("p");
+    empty.className = "reader-empty";
+    empty.textContent = t("reader.noUploaded");
+    els.readerCatalog.appendChild(empty);
+  }
+}
+
+async function selectReaderBook(bookId) {
+  if (bookId === "don-quijote") {
+    const data = await api("/api/v1/demo/book");
+    updateActiveBook(
+      {
+        book_id: data.bookId ?? "don-quijote",
+        title: data.title,
+        rights: t("reader.demoType"),
+        status: "published",
+      },
+      data.analysis,
+      data.traces,
+    );
+    return;
+  }
+  const data = await api(`/api/v1/books/${encodeURIComponent(bookId)}`, {
+    headers: authHeaders(),
+  });
+  updateActiveBook(
+    data.book ?? {
+      book_id: bookId,
+      title: data.analysis.title,
+      rights: "rights reviewed",
+      status: "available",
+    },
+    data.analysis,
+  );
+}
+
+async function loadReaderCatalog() {
+  const demoItem = {
+    book_id: "don-quijote",
+    title: "Don Quijote de la Mancha",
+    rights: t("reader.demoType"),
+    status: "published",
+    typeLabel: t("reader.demoType"),
+  };
+  state.catalog = [demoItem];
+  if (state.session?.token) {
+    try {
+      const catalog = await api("/api/v1/books/catalog", { headers: authHeaders() });
+      const uploaded = (catalog.uploadedBooks ?? []).map((book) => ({
+        ...book,
+        typeLabel: t("reader.uploadedType"),
+      }));
+      state.catalog = [
+        {
+          ...catalog.demoBook,
+          typeLabel: t("reader.demoType"),
+        },
+        ...uploaded,
+      ];
+    } catch (error) {
+      state.catalog = [demoItem];
+    }
+  }
+  renderReaderCatalog();
+}
+
 async function loadBook() {
   await loadAuth();
   await loadCapabilities();
@@ -933,14 +1128,17 @@ async function loadBook() {
   await loadStorage();
   await loadAdmin();
   const data = await api("/api/v1/demo/book");
-  state.characters = data.analysis.characters;
-  els.bookTitle.textContent = data.title;
-  els.bookSummary.textContent = data.analysis.summary;
-  els.characterCount.textContent = data.analysis.characters.length;
-  els.placeCount.textContent = data.analysis.places.length;
-  els.sceneCount.textContent = data.analysis.scenes.length;
-  renderCharacters(state.characters);
-  renderTraces(data.traces);
+  await loadReaderCatalog();
+  updateActiveBook(
+    {
+      book_id: data.bookId ?? "don-quijote",
+      title: data.title,
+      rights: t("reader.demoType"),
+      status: "published",
+    },
+    data.analysis,
+    data.traces,
+  );
 }
 
 async function loadSubmission() {
@@ -1215,23 +1413,26 @@ async function uploadBook() {
     els.authorResponse.textContent = `Upload failed: ${error.message}`;
     return;
   }
-  state.characters = data.analysis.characters;
-  renderCharacters(state.characters);
-  els.bookTitle.textContent = data.book.title;
-  els.bookSummary.textContent = data.analysis.summary;
-  els.characterCount.textContent = data.analysis.characters.length;
-  els.placeCount.textContent = data.analysis.places.length;
-  els.sceneCount.textContent = data.analysis.scenes.length;
   els.authorResponse.innerHTML = `
     <strong>${data.book.title} | ${data.book.status}</strong>
     <p>${data.provider} | ${data.book.sections} section(s) | ${
       data.book.characters
     } character agent(s)</p>
     <p>${data.pipeline.ingestion} | ${data.pipeline.analysis} | ${data.pipeline.catalog}</p>
-    <p>Use book_id <strong>${data.book.book_id}</strong> for uploaded-book chat API calls.</p>
+    <p>Added to the reader catalog as <strong>${data.book.book_id}</strong>.</p>
   `;
+  await loadReaderCatalog();
+  updateActiveBook(
+    {
+      book_id: data.book.book_id,
+      title: data.book.title,
+      rights: data.book.rights,
+      status: data.book.status,
+    },
+    data.analysis,
+    data.traces,
+  );
   await loadAdmin();
-  renderTraces(data.traces);
 }
 
 async function loadCapabilities() {
@@ -1253,11 +1454,14 @@ async function loadStorage() {
 
 async function askCharacter(question) {
   els.characterResponse.textContent = t("character.running");
-  const sessionId = `${state.session?.user?.user_id ?? "anonymous"}-${els.characterSelect.value}`;
+  const sessionId = `${state.session?.user?.user_id ?? "anonymous"}-${state.currentBookId}-${
+    els.characterSelect.value
+  }`;
   state.currentCharacterSessionId = sessionId;
   const data = await api("/api/v1/demo/chat/character", {
     method: "POST",
     body: JSON.stringify({
+      book_id: state.currentBookId,
       character_id: els.characterSelect.value,
       mode: els.modeSelect.value,
       language: els.languageSelect.value,
@@ -1514,6 +1718,16 @@ els.refreshOperations.addEventListener("click", loadAdmin);
 els.cleanupSession.addEventListener("click", cleanupDemoSession);
 els.runEvaluation.addEventListener("click", runEvaluation);
 els.refreshDemo.addEventListener("click", loadBook);
+els.readerCatalog.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-reader-book]");
+  if (!button) {
+    return;
+  }
+  selectReaderBook(button.dataset.readerBook);
+});
+els.readerProgressInput.addEventListener("input", () => {
+  saveCurrentBookProgress(els.readerProgressInput.value);
+});
 
 applyLanguage(els.languageSelect.value);
 renderShell();

@@ -308,6 +308,41 @@
               </div>
             </div>
           </div>
+
+          <div class="reader-workspace">
+            <div class="reader-catalog-panel">
+              <div class="panel-header compact-header">
+                <div>
+                  <p class="eyebrow" data-i18n="reader.catalogEyebrow">Library catalog</p>
+                  <h3 data-i18n="reader.catalogTitle">Choose the book experience</h3>
+                </div>
+              </div>
+              <div class="reader-catalog-list" id="readerCatalog"></div>
+            </div>
+
+            <div class="reader-page-panel">
+              <div class="reader-page-header">
+                <div>
+                  <p class="eyebrow" data-i18n="reader.pageEyebrow">Reading session</p>
+                  <h3 id="readerActiveTitle">Don Quijote de la Mancha</h3>
+                </div>
+                <button type="button" data-jump-view="agents" data-i18n="reader.talkNow">Talk now</button>
+              </div>
+
+              <div class="reader-progress">
+                <div>
+                  <strong id="readerProgressLabel">0%</strong>
+                  <span data-i18n="reader.progress">Reading progress</span>
+                </div>
+                <input id="readerProgressInput" type="range" min="0" max="100" step="5" value="0" />
+              </div>
+
+              <div class="reader-excerpt" id="readerExcerpt">
+                Preparing the selected book context.
+              </div>
+              <div class="reader-book-meta" id="readerBookMeta"></div>
+            </div>
+          </div>
         </section>
 
         <section id="agents" class="split-grid view-panel" data-view="agents">

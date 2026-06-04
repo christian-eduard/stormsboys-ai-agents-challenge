@@ -189,18 +189,22 @@ Verificado en Cloud Run: `The Glass Observatory` genero personajes mediante
 `LiteraryAnalysisAgent` con `model=gemini-2.5-flash`, guardo el libro en Cloud SQL y
 permitio chat canonico con `liora` usando `retrieval.pgvector_search`.
 
-### P2 - Reader No Es Todavia Un Lector Completo
+### P2 - Reader No Es Todavia Un Lector Completo - Parcialmente Corregido
 
-La vista Reader presenta libro, stats y CTAs, pero no hay lectura paginada, progreso, favoritos
-ni biblioteca completa con libros subidos navegable desde UI.
+Corregido parcialmente: la vista Reader ahora incluye catalogo navegable, Don Quijote como
+titulo demo, libros subidos visibles cuando el usuario autenticado los tiene disponibles,
+panel de lectura con resumen/escenas/lugares, progreso simple persistido en `localStorage`
+y CTA directo a chat. El chat web envia `book_id: state.currentBookId`, por lo que hablar
+con personajes queda anclado al libro activo.
+
+Pendiente: no hay lectura paginada real, favoritos, anotaciones ni progreso backend por usuario.
 
 Impacto: el producto se entiende, pero el usuario puede sentir que falta aplicacion lectora.
 
 Accion:
 
-- Agregar panel de catalogo en Reader con Don Quijote + uploads.
-- Mostrar fragmento/escena y selector de personaje por libro.
-- Guardar progreso simple en localStorage o backend demo.
+- Si queda tiempo, agregar paginas/secciones navegables reales y persistir progreso en backend.
+- Si queda tiempo, agregar favoritos/anotaciones como senal de engagement para publisher.
 
 ### P2 - Idioma Espanol Existe En Chat/UI, Pero No En Todo El Producto
 
@@ -223,7 +227,7 @@ Accion:
 3. Ajustar lenguaje A2A/MCP para no sobreprometer.
 4. Exportar o adjuntar arquitectura como imagen si Devpost no acepta Mermaid.
 5. Probar demo desde navegador limpio con `Judge Access`.
-6. Opcional fuerte: mejorar Reader con catalogo/fragmento/progreso simple.
+6. Opcional fuerte: convertir el Reader parcial en lectura paginada/anotable.
 7. Opcional fuerte: agregar metrica real de interacciones por libro para Publisher.
 
 ## Veredicto
