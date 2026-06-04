@@ -89,6 +89,7 @@ Estado demo implementado:
 - `/api/v1/auth/demo-login`: login demo y token local para jueces.
 - `/api/v1/admin/roles`: matriz de roles `reader`, `author`, `publisher_admin`, `super_admin`, `judge_access`.
 - `/api/v1/admin/marketplace`: tenant demo, catalogo, readiness Marketplace y metricas de operacion; requiere token demo con `manage_catalog` o `manage_tenants`.
+- `/api/v1/admin/marketplace/export`: paquete JSON de insights editoriales para Publisher/Admin con catalogo, readiness, `reader_signals`, `section_signals`, `character_signals` y totales; requiere `export_catalog_insights` o `manage_tenants`.
 - `/api/v1/demo/publisher`: insights publisher protegidos por token demo.
 - UI `Testing access`: pantalla inicial con cuentas demo y entrada dedicada `Judge Access`.
 - UI `Role dashboard`: cada cuenta ve acciones y navegacion filtradas por su rol.

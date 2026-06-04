@@ -189,6 +189,11 @@ Ultima validacion local conocida:
 - API publica confirmada el 2026-06-05 contra revision `stormsboys-agents-api-00044-dqc`:
   `/api/v1/admin/marketplace` devuelve `character_signals` para Don Quijote,
   agregados por `book_id`, `character_id` y modo desde `conversation_memory_events`.
+- API/UI local implementada el 2026-06-05:
+  `/api/v1/admin/marketplace/export` devuelve paquete JSON protegido para
+  Publisher/Admin con readiness, catalogo, `reader_signals`, `section_signals`,
+  `character_signals`, totales de exportacion y operaciones. La UI Admin incluye
+  boton bilingue `Export insights` / `Exportar insights`.
 - UI publica confirmada el 2026-06-04 contra revision `stormsboys-agents-api-00035-rjd`:
   dashboard incluye `Judge journey`, 6 pasos de demo, 3 proof cards para Track 1/2/3,
   CTA de upload, sin claves i18n crudas y sin overflow horizontal.

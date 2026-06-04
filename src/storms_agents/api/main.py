@@ -1,5 +1,6 @@
 import hashlib
 import re
+from datetime import UTC, datetime
 from importlib.resources import files
 from io import BytesIO
 from typing import Annotated
@@ -782,9 +783,7 @@ def admin_roles() -> dict[str, object]:
     }
 
 
-@app.get("/api/v1/admin/marketplace")
-def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[str, object]:
-    user = _require_any_permission(authorization, {"manage_catalog", "manage_tenants"})
+def _marketplace_payload(user: dict[str, object]) -> dict[str, object]:
     gemini = GeminiTool().status
     storage = StorageRepository()
     analysis = LiteraryAnalysisAgent().run(DEMO_BOOK_TITLE, [DEMO_BOOK_TEXT]).output
@@ -893,6 +892,92 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
             "readerEngagement": reader_engagement,
             "characterEngagement": character_engagement,
         },
+    }
+
+
+def _marketplace_export_totals(catalog: list[dict[str, object]]) -> dict[str, int]:
+    totals = {
+        "books": len(catalog),
+        "readerSignals": 0,
+        "readerNotes": 0,
+        "readerFavorites": 0,
+        "readerProgressEvents": 0,
+        "readerCount": 0,
+        "sectionSignals": 0,
+        "characterTurns": 0,
+        "characterSessions": 0,
+        "characterPreferences": 0,
+    }
+    for item in catalog:
+        reader_signals = item.get("reader_signals", {})
+        if isinstance(reader_signals, dict):
+            progress_events = int(reader_signals.get("progress_events", 0))
+            notes = int(reader_signals.get("notes", 0))
+            favorites = int(reader_signals.get("favorites", 0))
+            readers = int(reader_signals.get("readers", 0))
+            totals["readerProgressEvents"] += progress_events
+            totals["readerNotes"] += notes
+            totals["readerFavorites"] += favorites
+            totals["readerCount"] += readers
+            totals["readerSignals"] += progress_events + notes + favorites
+
+        section_signals = item.get("section_signals", [])
+        if isinstance(section_signals, list):
+            totals["sectionSignals"] += len(section_signals)
+
+        character_signals = item.get("character_signals", [])
+        if isinstance(character_signals, list):
+            for character in character_signals:
+                if not isinstance(character, dict):
+                    continue
+                totals["characterTurns"] += int(character.get("turns", 0))
+                totals["characterSessions"] += int(character.get("sessions", 0))
+                totals["characterPreferences"] += int(character.get("preferences", 0))
+    return totals
+
+
+@app.get("/api/v1/admin/marketplace")
+def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[str, object]:
+    user = _require_any_permission(authorization, {"manage_catalog", "manage_tenants"})
+    return _marketplace_payload(user)
+
+
+@app.get("/api/v1/admin/marketplace/export")
+def export_marketplace_insights(
+    authorization: str | None = Header(default=None),
+) -> dict[str, object]:
+    user = _require_any_permission(
+        authorization,
+        {"export_catalog_insights", "manage_tenants"},
+    )
+    marketplace = _marketplace_payload(user)
+    catalog = [
+        {
+            "book_id": item["book_id"],
+            "title": item["title"],
+            "rights": item["rights"],
+            "availability": item["availability"],
+            "languages": item["languages"],
+            "agent_modes": item["agent_modes"],
+            "quality_score": item["quality_score"],
+            "reader_signals": item["reader_signals"],
+            "section_signals": item["section_signals"],
+            "character_signals": item["character_signals"],
+            "business_action": item["business_action"],
+            "readiness_level": item["readiness_level"],
+        }
+        for item in marketplace["catalog"]
+        if isinstance(item, dict)
+    ]
+    return {
+        "exportType": "publisher_catalog_insights",
+        "generatedAt": datetime.now(UTC).isoformat(),
+        "generatedBy": marketplace["currentUser"],
+        "tenant": marketplace["tenant"],
+        "listingReadiness": marketplace["listingReadiness"],
+        "totals": _marketplace_export_totals(catalog),
+        "catalog": catalog,
+        "operations": marketplace["operations"],
     }
 
 

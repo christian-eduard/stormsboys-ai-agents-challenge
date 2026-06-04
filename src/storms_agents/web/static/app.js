@@ -74,6 +74,8 @@ const els = {
   uploadBook: document.querySelector("#uploadBook"),
   roleList: document.querySelector("#roleList"),
   marketplaceSummary: document.querySelector("#marketplaceSummary"),
+  marketplaceExportResult: document.querySelector("#marketplaceExportResult"),
+  exportMarketplace: document.querySelector("#exportMarketplace"),
   adminAccess: document.querySelector("#adminAccess"),
   publisherEngagementBoard: document.querySelector("#publisherEngagementBoard"),
   catalogList: document.querySelector("#catalogList"),
@@ -280,6 +282,10 @@ const copy = {
     "marketplace.turns": "Turns",
     "marketplace.sessions": "Sessions",
     "marketplace.preferences": "Prefs",
+    "marketplace.export": "Export insights",
+    "marketplace.exportRunning": "Preparing publisher export package.",
+    "marketplace.exportReady": "Export package ready",
+    "marketplace.exportBlocked": "Publisher Admin or Super Admin export access required.",
     "operations.eyebrow": "Superadmin operations",
     "operations.title": "Platform controls",
     "operations.refresh": "Refresh",
@@ -494,6 +500,10 @@ const copy = {
     "marketplace.turns": "Turnos",
     "marketplace.sessions": "Sesiones",
     "marketplace.preferences": "Prefs",
+    "marketplace.export": "Exportar insights",
+    "marketplace.exportRunning": "Preparando paquete de exportacion editorial.",
+    "marketplace.exportReady": "Paquete de exportacion listo",
+    "marketplace.exportBlocked": "Se requiere acceso Publisher Admin o Super Admin para exportar.",
     "operations.eyebrow": "Operaciones superadmin",
     "operations.title": "Controles de plataforma",
     "operations.refresh": "Actualizar",
@@ -915,10 +925,12 @@ function hasPermission(permission) {
 function applyAccess() {
   const canAuthor = hasPermission("upload_owned_books") || hasPermission("manage_tenants");
   const canPublish = hasPermission("manage_catalog") || hasPermission("manage_tenants");
+  const canExport = hasPermission("export_catalog_insights") || hasPermission("manage_tenants");
   const canOperate = hasPermission("manage_tenants");
   els.runAuthorWorkflow.disabled = !canAuthor;
   els.runPublisher.disabled = !canPublish;
   els.refreshAdmin.disabled = !canPublish;
+  els.exportMarketplace.disabled = !canExport;
   els.refreshOperations.disabled = !canOperate;
   els.cleanupSession.disabled = !canOperate;
   els.authorAccess.textContent = canAuthor
@@ -940,6 +952,12 @@ function applyAccess() {
   els.publisherAccess.className = canPublish ? "access-box granted" : "access-box locked";
   els.adminAccess.className = canOperate ? "access-box granted" : "access-box locked";
   els.cleanupResult.className = canOperate ? "access-box granted" : "access-box locked";
+  if (!canExport) {
+    els.marketplaceExportResult.textContent = state.session
+      ? t("marketplace.exportBlocked")
+      : t("login.required");
+    els.marketplaceExportResult.className = "access-box locked";
+  }
   if (state.marketplace) {
     renderMarketplace(state.marketplace);
   }
@@ -1492,9 +1510,12 @@ async function loadAdmin() {
   state.marketplace = marketplace;
   renderRoles(roles.roles);
   if (marketplace) {
+    els.marketplaceExportResult.textContent = "";
+    els.marketplaceExportResult.className = "access-box";
     renderMarketplace(marketplace);
   } else {
     els.marketplaceSummary.innerHTML = "";
+    els.marketplaceExportResult.textContent = "";
     if (els.publisherEngagementBoard) {
       els.publisherEngagementBoard.innerHTML = "";
     }
@@ -1722,6 +1743,32 @@ function renderMarketplace(marketplace) {
     `;
     els.catalogList.appendChild(item);
   });
+}
+
+async function exportMarketplaceInsights() {
+  if (!(hasPermission("export_catalog_insights") || hasPermission("manage_tenants"))) {
+    applyAccess();
+    return;
+  }
+  els.marketplaceExportResult.textContent = t("marketplace.exportRunning");
+  els.marketplaceExportResult.className = "access-box";
+  let data;
+  try {
+    data = await api("/api/v1/admin/marketplace/export", { headers: authHeaders() });
+  } catch (error) {
+    els.marketplaceExportResult.textContent = `${t("login.denied")}: ${error.message}`;
+    els.marketplaceExportResult.className = "access-box locked";
+    return;
+  }
+  els.marketplaceExportResult.innerHTML = `
+    <strong>${t("marketplace.exportReady")}: ${data.exportType}</strong>
+    <p>${data.tenant.name} | ${data.listingReadiness.marketplaceStatus}</p>
+    <p>${data.totals.books} title(s) | ${data.totals.readerSignals} reader signal(s) | ${
+      data.totals.characterTurns
+    } character turn(s)</p>
+    <p>${data.generatedAt}</p>
+  `;
+  els.marketplaceExportResult.className = "access-box granted";
 }
 
 function renderOperations(operations) {
@@ -2156,6 +2203,7 @@ els.runAuthorWorkflow.addEventListener("click", runAuthorWorkflow);
 els.uploadBook.addEventListener("click", uploadBook);
 els.runPublisher.addEventListener("click", runPublisher);
 els.refreshAdmin.addEventListener("click", loadAdmin);
+els.exportMarketplace.addEventListener("click", exportMarketplaceInsights);
 els.refreshOperations.addEventListener("click", loadAdmin);
 els.cleanupSession.addEventListener("click", cleanupDemoSession);
 els.runEvaluation.addEventListener("click", runEvaluation);

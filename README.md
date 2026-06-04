@@ -150,7 +150,7 @@ BASE_URL=https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app make smoke
 
 Ultima validacion conocida:
 
-- Tests Docker/Python 3.11: 51 passed.
+- Tests Docker/Python 3.11: 55 passed.
 - Lint: passed.
 - Public-ready scan: passed.
 - Public smoke test: passed.
@@ -176,5 +176,6 @@ Ultima validacion conocida:
   persistidos via `reader_events` y chat anclado al `book_id` activo.
 - Publisher/Admin: tablero Track 3 con `reader_signals`, `business_action` y
   readiness por titulo desde Cloud SQL, mas drill-down `section_signals` por seccion
-  y `character_signals` por personaje/modo.
-- Tests: 51 tests pasan en Python 3.11.
+  y `character_signals` por personaje/modo. Incluye export protegido
+  `/api/v1/admin/marketplace/export` para paquete JSON de insights editoriales.
+- Tests: 55 tests pasan en Python 3.11.

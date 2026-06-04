@@ -405,6 +405,45 @@ def test_judge_can_access_marketplace_admin() -> None:
     assert body["listingReadiness"]["marketplaceStatus"].startswith("demo-ready")
 
 
+def test_reader_cannot_export_marketplace_insights() -> None:
+    client = TestClient(app)
+    response = client.get(
+        "/api/v1/admin/marketplace/export",
+        headers={"authorization": "Bearer demo-token:reader-demo"},
+    )
+    assert response.status_code == 403
+
+
+def test_publisher_can_export_marketplace_insights() -> None:
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/demo/chat/character",
+        json={
+            "book_id": "don-quijote",
+            "character_id": "don_quijote",
+            "question": "What does your psychology reveal about the windmills?",
+            "mode": "CANON",
+            "language": "en",
+            "session_id": "publisher-export-test",
+        },
+    )
+    assert response.status_code == 200
+
+    export = client.get(
+        "/api/v1/admin/marketplace/export",
+        headers={"authorization": "Bearer demo-token:publisher-demo"},
+    )
+    assert export.status_code == 200
+    body = export.json()
+    assert body["exportType"] == "publisher_catalog_insights"
+    assert body["generatedBy"]["role"] == "publisher_admin"
+    assert body["totals"]["books"] >= 1
+    assert body["totals"]["characterTurns"] >= 1
+    assert body["catalog"][0]["book_id"] == "don-quijote"
+    assert body["catalog"][0]["character_signals"]
+    assert body["operations"]["agentHealth"] == "healthy"
+
+
 def test_demo_author_workflow_requires_author_access() -> None:
     client = TestClient(app)
     response = client.get(

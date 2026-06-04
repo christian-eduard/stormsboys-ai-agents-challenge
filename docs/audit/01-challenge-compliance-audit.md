@@ -202,12 +202,14 @@ Corregido para demo: el panel Admin/Marketplace ya muestra un tablero editorial
 `ENGAGEMENT BOARD` con `reader_signals`, `section_signals`, `character_signals`,
 estado de readiness y siguiente accion de negocio por titulo. Don Quijote aparece
 con senales reales persistidas en Cloud SQL y drill-down por seccion/personaje.
+Tambien existe export JSON protegido `/api/v1/admin/marketplace/export` para
+Publisher/Admin con catalogo, readiness, senales y totales.
 
 Impacto: el producto se entiende, pero el usuario puede sentir que falta aplicacion lectora.
 
 Accion:
 
-- Si queda tiempo, anadir export CSV/JSON para publisher.
+- Probar el boton de export en navegador limpio antes de grabar el video.
 
 ### P2 - Idioma Espanol Existe En Chat/UI, Pero No En Todo El Producto
 
@@ -230,7 +232,7 @@ Accion:
 3. Ajustar lenguaje A2A/MCP para no sobreprometer.
 4. Exportar o adjuntar arquitectura como imagen si Devpost no acepta Mermaid.
 5. Probar demo desde navegador limpio con `Judge Access`.
-6. Opcional fuerte: agregar export CSV/JSON para publisher.
+6. Opcional fuerte: agregar descarga CSV adicional si el video necesita mostrar archivo.
 7. Opcional fuerte: agregar metrica real de interacciones por libro para Publisher.
 
 ## Veredicto
