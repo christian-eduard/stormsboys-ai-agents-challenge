@@ -42,11 +42,13 @@ class ConversationMemoryStore:
         mode: ConversationMode,
         question: str,
         response: str,
+        book_id: str = "unknown-book",
     ) -> ConversationMemory:
         memory_line = self._memory_line(question, response)
         preference = self._reader_preference(question)
         persisted = self._record_persisted(
             session_id=session_id,
+            book_id=book_id,
             character_id=character_id,
             mode=mode,
             question=question,
@@ -70,6 +72,7 @@ class ConversationMemoryStore:
         bucket.events.append(
             {
                 "memory_id": bucket.turn_count,
+                "book_id": book_id,
                 "question": question,
                 "response": response,
                 "memory_line": memory_line,
@@ -89,6 +92,56 @@ class ConversationMemoryStore:
         for key in matching_keys:
             del self._buckets[key]
         return deleted_events
+
+    @classmethod
+    def local_character_engagement_summary(cls) -> dict[str, object]:
+        books: dict[str, dict[str, object]] = {}
+        for (session_id, character_id, mode), bucket in cls._buckets.items():
+            for event in bucket.events:
+                book_id = event.get("book_id")
+                if not book_id:
+                    continue
+                book = books.setdefault(
+                    str(book_id),
+                    {"book_id": book_id, "characters": {}},
+                )
+                characters = book["characters"]
+                key = f"{character_id}:{mode.value}"
+                summary = characters.setdefault(
+                    key,
+                    {
+                        "character_id": character_id,
+                        "mode": mode.value,
+                        "turns": 0,
+                        "sessions": set(),
+                        "preferences": 0,
+                        "last_turn_at": event.get("created_at", "local-process"),
+                    },
+                )
+                summary["turns"] += 1
+                summary["sessions"].add(session_id)
+                if event.get("reader_preference"):
+                    summary["preferences"] += 1
+                summary["last_turn_at"] = event.get("created_at", "local-process")
+        return {
+            "books": [
+                {
+                    "book_id": book["book_id"],
+                    "characters": [
+                        {
+                            **{
+                                key: value
+                                for key, value in character.items()
+                                if key != "sessions"
+                            },
+                            "sessions": len(character["sessions"]),
+                        }
+                        for character in book["characters"].values()
+                    ],
+                }
+                for book in books.values()
+            ]
+        }
 
     def history(
         self,
@@ -131,6 +184,7 @@ class ConversationMemoryStore:
     def _record_persisted(
         self,
         session_id: str,
+        book_id: str,
         character_id: str,
         mode: ConversationMode,
         question: str,
@@ -141,15 +195,27 @@ class ConversationMemoryStore:
         try:
             if not self.repository.status.configured:
                 return None
-            return self.repository.append_conversation_memory(
-                session_id=session_id,
-                character_id=character_id,
-                mode=mode,
-                question=question,
-                response=response,
-                memory_line=memory_line,
-                reader_preference=preference,
-            )
+            try:
+                return self.repository.append_conversation_memory(
+                    session_id=session_id,
+                    book_id=book_id,
+                    character_id=character_id,
+                    mode=mode,
+                    question=question,
+                    response=response,
+                    memory_line=memory_line,
+                    reader_preference=preference,
+                )
+            except TypeError:
+                return self.repository.append_conversation_memory(
+                    session_id=session_id,
+                    character_id=character_id,
+                    mode=mode,
+                    question=question,
+                    response=response,
+                    memory_line=memory_line,
+                    reader_preference=preference,
+                )
         except Exception:
             return None
 

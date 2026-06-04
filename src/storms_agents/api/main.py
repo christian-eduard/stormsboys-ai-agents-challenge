@@ -436,6 +436,16 @@ def _section_signals_for_book(
     return _empty_section_signals()
 
 
+def _character_signals_for_book(
+    character_engagement: dict[str, object],
+    book_id: str,
+) -> list[dict[str, object]]:
+    for item in character_engagement.get("books", []):
+        if isinstance(item, dict) and item.get("book_id") == book_id:
+            return list(item.get("characters", []))
+    return []
+
+
 def _publisher_action_for_signals(signals: dict[str, int]) -> str:
     if signals["notes"] or signals["favorites"]:
         return "Package as a premium discussion title"
@@ -781,15 +791,22 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
     evaluation = run_demo_evaluation()
     uploaded_catalog = _uploaded_catalog_for_user(user)
     reader_engagement: dict[str, object] = {"books": []}
+    character_engagement: dict[str, object] = {"books": []}
     if storage.status.configured:
         try:
             reader_engagement = storage.reader_engagement_summary()
         except Exception:
             reader_engagement = _local_reader_engagement_summary()
+        try:
+            character_engagement = storage.character_engagement_summary()
+        except Exception:
+            character_engagement = ConversationMemoryStore.local_character_engagement_summary()
     else:
         reader_engagement = _local_reader_engagement_summary()
+        character_engagement = ConversationMemoryStore.local_character_engagement_summary()
     demo_reader_signals = _reader_signals_for_book(reader_engagement, DEMO_BOOK_ID)
     demo_section_signals = _section_signals_for_book(reader_engagement, DEMO_BOOK_ID)
+    demo_character_signals = _character_signals_for_book(character_engagement, DEMO_BOOK_ID)
     demo_catalog_item = {
         "book_id": DEMO_BOOK_ID,
         "title": DEMO_BOOK_TITLE,
@@ -803,6 +820,7 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
         "quality_score": round(evaluation.optimized_passed / evaluation.total_cases, 2),
         "reader_signals": demo_reader_signals,
         "section_signals": demo_section_signals,
+        "character_signals": demo_character_signals,
         "business_action": _publisher_action_for_signals(demo_reader_signals),
         "readiness_level": "active_reader_signal"
         if sum(demo_reader_signals.values())
@@ -812,6 +830,10 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
     for book in uploaded_catalog:
         reader_signals = _reader_signals_for_book(reader_engagement, str(book["book_id"]))
         section_signals = _section_signals_for_book(reader_engagement, str(book["book_id"]))
+        character_signals = _character_signals_for_book(
+            character_engagement,
+            str(book["book_id"]),
+        )
         uploaded_catalog_items.append(
             {
                 "book_id": book["book_id"],
@@ -828,6 +850,7 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
                 "quality_score": 0.82,
                 "reader_signals": reader_signals,
                 "section_signals": section_signals,
+                "character_signals": character_signals,
                 "business_action": _publisher_action_for_signals(reader_signals),
                 "readiness_level": "active_reader_signal"
                 if sum(reader_signals.values())
@@ -868,6 +891,7 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
             "optimizedEvaluationCases": evaluation.optimized_passed,
             "totalEvaluationCases": evaluation.total_cases,
             "readerEngagement": reader_engagement,
+            "characterEngagement": character_engagement,
         },
     }
 
@@ -1353,11 +1377,12 @@ def demo_character_chat(request: CharacterChatRequest) -> dict[str, object]:
         memory_before,
     )
     memory_after = memory_store.record(
-        request.session_id,
-        character.character_id,
-        request.mode,
-        request.question,
-        reply.output.response,
+        session_id=request.session_id,
+        character_id=character.character_id,
+        mode=request.mode,
+        question=request.question,
+        response=reply.output.response,
+        book_id=request.book_id,
     )
     consistency = NarrativeConsistencyAgent().run(reply.output)
     fiction_branch = None

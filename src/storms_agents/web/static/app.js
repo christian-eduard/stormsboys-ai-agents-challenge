@@ -275,6 +275,11 @@ const copy = {
     "marketplace.sectionSignals": "Section signals",
     "marketplace.noSectionSignals": "No section-level signals yet.",
     "marketplace.lastSignal": "Last signal",
+    "marketplace.characterSignals": "Character signals",
+    "marketplace.noCharacterSignals": "No character chat signals yet.",
+    "marketplace.turns": "Turns",
+    "marketplace.sessions": "Sessions",
+    "marketplace.preferences": "Prefs",
     "operations.eyebrow": "Superadmin operations",
     "operations.title": "Platform controls",
     "operations.refresh": "Refresh",
@@ -484,6 +489,11 @@ const copy = {
     "marketplace.sectionSignals": "Senales por seccion",
     "marketplace.noSectionSignals": "Aun no hay senales por seccion.",
     "marketplace.lastSignal": "Ultima senal",
+    "marketplace.characterSignals": "Senales por personaje",
+    "marketplace.noCharacterSignals": "Aun no hay senales de chat por personaje.",
+    "marketplace.turns": "Turnos",
+    "marketplace.sessions": "Sesiones",
+    "marketplace.preferences": "Prefs",
     "operations.eyebrow": "Operaciones superadmin",
     "operations.title": "Controles de plataforma",
     "operations.refresh": "Actualizar",
@@ -1539,6 +1549,10 @@ function sectionSignals(book) {
   return book.section_signals ?? [];
 }
 
+function characterSignals(book) {
+  return book.character_signals ?? [];
+}
+
 function renderSectionSignalRows(book) {
   const sections = sectionSignals(book);
   if (!sections.length) {
@@ -1555,6 +1569,30 @@ function renderSectionSignalRows(book) {
               <span>${section.progress_events ?? 0} ${t("marketplace.progress")}</span>
               <span>${section.notes ?? 0} ${t("marketplace.notes")}</span>
               <span>${section.favorites ?? 0} ${t("marketplace.favorites")}</span>
+            </div>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderCharacterSignalRows(book) {
+  const characters = characterSignals(book);
+  if (!characters.length) {
+    return `<p class="board-empty">${t("marketplace.noCharacterSignals")}</p>`;
+  }
+  return `
+    <div class="character-signal-list" aria-label="${t("marketplace.characterSignals")}">
+      ${characters
+        .map(
+          (character) => `
+            <div class="character-signal-row">
+              <strong>${character.character_id}</strong>
+              <span>${character.mode}</span>
+              <span>${character.turns ?? 0} ${t("marketplace.turns")}</span>
+              <span>${character.sessions ?? 0} ${t("marketplace.sessions")}</span>
+              <span>${character.preferences ?? 0} ${t("marketplace.preferences")}</span>
             </div>
           `,
         )
@@ -1607,6 +1645,10 @@ function renderPublisherEngagementBoard(catalog = []) {
       <details class="section-drilldown" ${sectionSignals(book).length ? "open" : ""}>
         <summary>${t("marketplace.sectionSignals")}</summary>
         ${renderSectionSignalRows(book)}
+      </details>
+      <details class="section-drilldown" ${characterSignals(book).length ? "open" : ""}>
+        <summary>${t("marketplace.characterSignals")}</summary>
+        ${renderCharacterSignalRows(book)}
       </details>
     `;
     els.publisherEngagementBoard.appendChild(row);

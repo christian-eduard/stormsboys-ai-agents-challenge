@@ -340,6 +340,7 @@ def test_admin_marketplace() -> None:
     assert body["catalog"][0]["languages"] == ["en", "es"]
     assert body["catalog"][0]["reader_signals"]["readers"] >= 0
     assert "section_signals" in body["catalog"][0]
+    assert "character_signals" in body["catalog"][0]
     assert body["catalog"][0]["business_action"]
     assert body["catalog"][0]["readiness_level"]
     assert body["operations"]["agentHealth"] == "healthy"
@@ -367,6 +368,29 @@ def test_admin_marketplace_includes_section_level_engagement() -> None:
     assert response.status_code == 200
     sections = response.json()["catalog"][0]["section_signals"]
     assert any(section["section_id"] == "quijote-section-3" for section in sections)
+
+
+def test_admin_marketplace_includes_character_level_engagement() -> None:
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/demo/chat/character",
+        json={
+            "book_id": "don-quijote",
+            "character_id": "don_quijote",
+            "question": "What does your psychology reveal about the windmills?",
+            "mode": "CANON",
+            "language": "en",
+            "session_id": "character-signal-test",
+        },
+    )
+    assert response.status_code == 200
+    marketplace = client.get(
+        "/api/v1/admin/marketplace",
+        headers={"authorization": "Bearer demo-token:publisher-demo"},
+    )
+    assert marketplace.status_code == 200
+    characters = marketplace.json()["catalog"][0]["character_signals"]
+    assert any(character["character_id"] == "don_quijote" for character in characters)
 
 
 def test_judge_can_access_marketplace_admin() -> None:

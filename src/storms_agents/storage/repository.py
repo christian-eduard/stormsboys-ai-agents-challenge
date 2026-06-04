@@ -74,6 +74,7 @@ SCHEMA_STATEMENTS = [
     CREATE TABLE IF NOT EXISTS conversation_memory_events (
       memory_id BIGSERIAL PRIMARY KEY,
       session_id TEXT NOT NULL,
+      book_id TEXT,
       character_id TEXT NOT NULL,
       mode TEXT NOT NULL,
       question TEXT NOT NULL,
@@ -84,8 +85,16 @@ SCHEMA_STATEMENTS = [
     )
     """,
     """
+    ALTER TABLE conversation_memory_events
+      ADD COLUMN IF NOT EXISTS book_id TEXT
+    """,
+    """
     CREATE INDEX IF NOT EXISTS conversation_memory_lookup_idx
       ON conversation_memory_events (session_id, character_id, mode, created_at)
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS conversation_memory_book_character_idx
+      ON conversation_memory_events (book_id, character_id, mode, created_at)
     """,
     """
     CREATE TABLE IF NOT EXISTS fiction_branches (
@@ -530,6 +539,7 @@ class StorageRepository:
     def append_conversation_memory(
         self,
         session_id: str,
+        book_id: str,
         character_id: str,
         mode: ConversationMode,
         question: str,
@@ -537,22 +547,24 @@ class StorageRepository:
         memory_line: str,
         reader_preference: str | None,
     ) -> ConversationMemory:
+        self.initialize_schema()
         with self.engine.begin() as connection:
             connection.execute(
                 text(
                     """
                     INSERT INTO conversation_memory_events (
-                      session_id, character_id, mode, question, response,
+                      session_id, book_id, character_id, mode, question, response,
                       memory_line, reader_preference
                     )
                     VALUES (
-                      :session_id, :character_id, :mode, :question, :response,
+                      :session_id, :book_id, :character_id, :mode, :question, :response,
                       :memory_line, :reader_preference
                     )
                     """
                 ),
                 {
                     "session_id": session_id,
+                    "book_id": book_id,
                     "character_id": character_id,
                     "mode": mode.value,
                     "question": question,
@@ -562,6 +574,50 @@ class StorageRepository:
                 },
             )
         return self.load_conversation_memory(session_id, character_id, mode)
+
+    def character_engagement_summary(self) -> dict[str, object]:
+        self.initialize_schema()
+        with self.engine.connect() as connection:
+            rows = list(
+                connection.execute(
+                    text(
+                        """
+                        SELECT
+                          book_id,
+                          character_id,
+                          mode,
+                          COUNT(*) AS turns,
+                          COUNT(DISTINCT session_id) AS sessions,
+                          COUNT(*) FILTER (WHERE reader_preference IS NOT NULL) AS preferences,
+                          MAX(created_at) AS last_turn_at
+                        FROM conversation_memory_events
+                        WHERE book_id IS NOT NULL
+                        GROUP BY book_id, character_id, mode
+                        ORDER BY MAX(created_at) DESC
+                        LIMIT 50
+                        """
+                    )
+                ).mappings()
+            )
+        books: dict[str, dict[str, object]] = {}
+        for row in rows:
+            book = books.setdefault(
+                str(row["book_id"]),
+                {"book_id": row["book_id"], "characters": []},
+            )
+            book["characters"].append(
+                {
+                    "character_id": row["character_id"],
+                    "mode": row["mode"],
+                    "turns": row["turns"],
+                    "sessions": row["sessions"],
+                    "preferences": row["preferences"],
+                    "last_turn_at": row["last_turn_at"].isoformat()
+                    if hasattr(row["last_turn_at"], "isoformat")
+                    else str(row["last_turn_at"]),
+                }
+            )
+        return {"books": list(books.values())}
 
     def list_conversation_memory_events(
         self,

@@ -45,13 +45,13 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 
 - Service: `stormsboys-agents-api`.
 - Region: `us-central1`.
-- Revision: `stormsboys-agents-api-00042-m5h`.
+- Revision: `stormsboys-agents-api-00044-dqc`.
 - Runtime service account: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - URL canonica: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
 - URL alternativa: `https://stormsboys-agents-api-425710112361.us-central1.run.app`.
-- Trafico: 100% a la revision `stormsboys-agents-api-00042-m5h`.
+- Trafico: 100% a la revision `stormsboys-agents-api-00044-dqc`.
 - Ultimo image digest desplegado:
-  `sha256:2a6335ed887d3fac48d80a08930787e972f669b5cedc3f38a2ac619246edb2de`.
+  `sha256:1a5c1e1d32cb1eead0cee98437ef4e537f0794a7fb8726676d6ae34d41cd86fa`.
 - Smoke test publico: pasa el 2026-06-04.
 - Reader publico: revision `stormsboys-agents-api-00038-2ps` sirve catalogo
   navegable, progreso local y CTA `Talk now`; el HTML canonico contiene
@@ -67,6 +67,8 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
   editorial de engagement para Track 3.
 - Marketplace Admin publico: revision `stormsboys-agents-api-00042-m5h` muestra
   `section_signals` por titulo para drill-down editorial por seccion.
+- Marketplace Admin publico: revision `stormsboys-agents-api-00044-dqc` muestra
+  `character_signals` por titulo, personaje y modo desde `conversation_memory_events`.
 - Upload publico: pasa el 2026-06-04 con manuscrito textual, catalogo y chat por `book_id`.
 - Upload Gemini-first publico: `The Glass Observatory` pasa el 2026-06-04 con
   `LiteraryAnalysisAgent` usando `gemini-2.5-flash`, Cloud SQL/pgvector,
@@ -111,6 +113,9 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
   memoria de sesion y citas separadas del texto.
 - Memoria persistente verificada: `conversation_memory_events` existe en Cloud SQL y
   `/api/v1/demo/chat/memory` devuelve eventos desde `provider=cloud-sql-postgresql`.
+- Character engagement verificado: `conversation_memory_events.book_id` permite agregar
+  `character_signals` por libro/personaje/modo; Don Quijote devuelve senales `CANON`
+  y `FICTION` en `/api/v1/admin/marketplace`.
 - Ramas ficcionales persistentes verificadas: `fiction_branches` existe en Cloud SQL y
   `/api/v1/demo/fiction/branches` devuelve continuidad, citas canon y proveedor
   `cloud-sql-postgresql`; `/api/v1/demo/fiction/branches/{branch_id}` devuelve el detalle

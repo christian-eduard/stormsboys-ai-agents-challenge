@@ -175,5 +175,6 @@ Ultima validacion conocida:
 - Reader web: catalogo Don Quijote/uploads, secciones de lectura, progreso/notas
   persistidos via `reader_events` y chat anclado al `book_id` activo.
 - Publisher/Admin: tablero Track 3 con `reader_signals`, `business_action` y
-  readiness por titulo desde Cloud SQL, mas drill-down `section_signals` por seccion.
+  readiness por titulo desde Cloud SQL, mas drill-down `section_signals` por seccion
+  y `character_signals` por personaje/modo.
 - Tests: 51 tests pasan en Python 3.11.

@@ -1152,29 +1152,41 @@ button.secondary:hover {
   font-weight: 800;
 }
 
-.section-signal-list {
+.section-signal-list,
+.character-signal-list {
   display: grid;
   gap: 6px;
   margin-top: 8px;
 }
 
-.section-signal-row {
+.section-signal-row,
+.character-signal-row {
   display: grid;
-  grid-template-columns: minmax(96px, 1fr) repeat(4, minmax(0, 0.8fr));
   gap: 6px;
   align-items: center;
   padding: 8px;
   background: #f4f7f6;
 }
 
+.section-signal-row {
+  grid-template-columns: minmax(96px, 1fr) repeat(4, minmax(0, 0.8fr));
+}
+
+.character-signal-row {
+  grid-template-columns: minmax(110px, 1fr) repeat(4, minmax(0, 0.8fr));
+}
+
 .section-signal-row strong,
-.section-signal-row span {
+.section-signal-row span,
+.character-signal-row strong,
+.character-signal-row span {
   min-width: 0;
   overflow-wrap: anywhere;
   font-size: 12px;
 }
 
-.section-signal-row span {
+.section-signal-row span,
+.character-signal-row span {
   color: var(--muted);
   font-weight: 700;
 }
@@ -1537,6 +1549,7 @@ textarea {
   .signal-grid,
   .catalog-signals,
   .section-signal-row,
+  .character-signal-row,
   .track-proof-grid {
     grid-template-columns: 1fr;
   }

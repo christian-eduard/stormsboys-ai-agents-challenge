@@ -139,7 +139,7 @@ Ultima validacion local conocida:
 - Billing Pronexus enlazado.
 - Budget guardrail de 50 EUR creado.
 - Cloud Run desplegado: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
-- Revision Cloud Run activa: `stormsboys-agents-api-00042-m5h`.
+- Revision Cloud Run activa: `stormsboys-agents-api-00044-dqc`.
 - Cloud Run usa service account nueva: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - No hay claves JSON de usuario ni credenciales antiguas en el runtime.
 - Cloud SQL instance: `stormsboys-pgvector`.
@@ -162,6 +162,7 @@ Ultima validacion local conocida:
 - Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00040-pqp`.
 - Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00041-rq9`.
 - Smoke test publico confirmado el 2026-06-05 contra revision `stormsboys-agents-api-00042-m5h`.
+- Smoke test publico confirmado el 2026-06-05 contra revision `stormsboys-agents-api-00044-dqc`.
 - Compliance publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00036-6g9`:
   `/api/v1/challenge/submission` muestra deadline extendido `2026-06-12 02:00 CEST`,
   evidencia A2A honesta como agent card/HTTP JSON, y login demo invalido devuelve
@@ -185,6 +186,9 @@ Ultima validacion local conocida:
 - API publica confirmada el 2026-06-05 contra revision `stormsboys-agents-api-00042-m5h`:
   `/api/v1/admin/marketplace` devuelve `section_signals` para `quijote-section-2`
   con progreso, notas y lectores agregados desde Cloud SQL.
+- API publica confirmada el 2026-06-05 contra revision `stormsboys-agents-api-00044-dqc`:
+  `/api/v1/admin/marketplace` devuelve `character_signals` para Don Quijote,
+  agregados por `book_id`, `character_id` y modo desde `conversation_memory_events`.
 - UI publica confirmada el 2026-06-04 contra revision `stormsboys-agents-api-00035-rjd`:
   dashboard incluye `Judge journey`, 6 pasos de demo, 3 proof cards para Track 1/2/3,
   CTA de upload, sin claves i18n crudas y sin overflow horizontal.
