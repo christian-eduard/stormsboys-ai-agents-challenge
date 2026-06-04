@@ -322,13 +322,21 @@ Validacion:
 BASE_URL=https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app make smoke
 ```
 
+Estado UI publica 2026-06-05 01:23 CEST:
+
+- Redisenio premium desplegado en Cloud Run revision `stormsboys-agents-api-00047-6vk`.
+- Imagen desplegada: `sha256:29162aa1498f9e65a9befc94f219559d9bdf5ea66c780eb71d461e349d0dd011`.
+- Smoke publico pasado contra `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
+- QA visual publica con `Judge Access`: portada de producto, lector, selector ingles/espanol,
+  Don Quijote y Sancho visibles, sin overflow horizontal en desktop.
+
 ## Prioridades Siguientes
 
-1. Pulir UI/UX visual para que parezca producto premium, no solo consola tecnica.
+1. Preparar datos demo con Don Quijote y al menos un libro subido desde la UI antes de grabar.
 2. Convertir el timeline ficcional en una vista editable por usuario/publisher.
-3. Preparar datos demo con Don Quijote y al menos un libro subido desde la UI antes de grabar.
-4. Pulir Publisher para visualizar mejor las senales `reader_events`.
-5. Grabar video demo 1-2 minutos en ingles al final.
+3. Pulir Publisher para visualizar mejor las senales `reader_events`.
+4. Grabar video demo 1-2 minutos en ingles al final.
+5. Verificar manualmente el estado de Devpost si se va a enviar desde una cuenta autenticada.
 
 ## Trabajo Seguro Para Otro Agente
 
