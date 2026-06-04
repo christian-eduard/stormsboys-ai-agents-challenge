@@ -6,6 +6,7 @@ const state = {
   marketplace: null,
   currentBookId: "don-quijote",
   currentBookDetail: null,
+  currentSectionIndex: 0,
   currentView: "dashboard",
   session: null,
   currentCharacterSessionId: "judge-demo-session",
@@ -23,6 +24,13 @@ const els = {
   readerProgressLabel: document.querySelector("#readerProgressLabel"),
   readerExcerpt: document.querySelector("#readerExcerpt"),
   readerBookMeta: document.querySelector("#readerBookMeta"),
+  readerPrevSection: document.querySelector("#readerPrevSection"),
+  readerNextSection: document.querySelector("#readerNextSection"),
+  readerSectionLabel: document.querySelector("#readerSectionLabel"),
+  readerNoteInput: document.querySelector("#readerNoteInput"),
+  saveReaderNote: document.querySelector("#saveReaderNote"),
+  markReaderFavorite: document.querySelector("#markReaderFavorite"),
+  readerNoteList: document.querySelector("#readerNoteList"),
   characterCount: document.querySelector("#characterCount"),
   placeCount: document.querySelector("#placeCount"),
   sceneCount: document.querySelector("#sceneCount"),
@@ -195,6 +203,15 @@ const copy = {
     "reader.noUploaded": "Upload a manuscript to add it to this catalog.",
     "reader.scenes": "Key scenes",
     "reader.places": "Places",
+    "reader.previous": "Previous",
+    "reader.next": "Next",
+    "reader.section": "Section",
+    "reader.noteLabel": "Reader note",
+    "reader.notePlaceholder": "Capture a thought, question, or publisher signal.",
+    "reader.saveNote": "Save note",
+    "reader.favorite": "Mark favorite",
+    "reader.favoriteSaved": "Favorite section saved",
+    "reader.noNotes": "No notes for this section yet.",
     "author.eyebrow": "Author Workspace",
     "author.title": "Book submission pipeline",
     "author.review": "Review",
@@ -382,6 +399,15 @@ const copy = {
     "reader.noUploaded": "Sube un manuscrito para anadirlo a este catalogo.",
     "reader.scenes": "Escenas clave",
     "reader.places": "Lugares",
+    "reader.previous": "Anterior",
+    "reader.next": "Siguiente",
+    "reader.section": "Seccion",
+    "reader.noteLabel": "Nota del lector",
+    "reader.notePlaceholder": "Guarda una idea, pregunta o senal editorial.",
+    "reader.saveNote": "Guardar nota",
+    "reader.favorite": "Marcar favorito",
+    "reader.favoriteSaved": "Seccion favorita guardada",
+    "reader.noNotes": "Todavia no hay notas en esta seccion.",
     "author.eyebrow": "Espacio de autor",
     "author.title": "Pipeline de envio de libro",
     "author.review": "Revisar",
@@ -710,6 +736,9 @@ function applyLanguage(language) {
   document.querySelectorAll("[data-i18n]").forEach((element) => {
     element.textContent = t(element.dataset.i18n);
   });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+    element.placeholder = t(element.dataset.i18nPlaceholder);
+  });
   if (!els.questionInput.value || els.questionInput.value === previousCopy.questionDefault) {
     els.questionInput.value = t("questionDefault");
   }
@@ -727,7 +756,14 @@ function applyLanguage(language) {
   renderRoleDashboard();
   renderReaderCatalog();
   if (state.currentBookDetail) {
-    updateActiveBook(state.currentBookDetail.book, state.currentBookDetail.analysis);
+    const currentIndex = state.currentSectionIndex;
+    updateActiveBook(
+      state.currentBookDetail.book,
+      state.currentBookDetail.analysis,
+      [],
+      state.currentBookDetail.readingSections,
+    );
+    goToReaderSection(currentIndex);
   }
 }
 
@@ -980,13 +1016,42 @@ function saveCurrentBookProgress(value) {
   renderReaderProgress();
 }
 
+function readerNotesKey(bookId, sectionId) {
+  return `stormsboys-reader-notes:${bookId}:${sectionId}`;
+}
+
+function loadReaderNotes(sectionId) {
+  const raw = localStorage.getItem(readerNotesKey(state.currentBookId, sectionId));
+  if (!raw) {
+    return [];
+  }
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveReaderNotes(sectionId, notes) {
+  localStorage.setItem(readerNotesKey(state.currentBookId, sectionId), JSON.stringify(notes));
+}
+
 function renderReaderProgress() {
   const progress = currentBookProgress();
   els.readerProgressInput.value = String(progress);
   els.readerProgressLabel.textContent = `${progress}%`;
 }
 
-function summarizeBookForReader(analysis) {
+function activeReadingSections() {
+  return state.currentBookDetail?.readingSections ?? [];
+}
+
+function activeReadingSection() {
+  const sections = activeReadingSections();
+  return sections[state.currentSectionIndex] ?? null;
+}
+
+function summarizeBookForReader(analysis, section) {
   const scenes = analysis.scenes ?? [];
   const places = analysis.places ?? [];
   const sceneLines = scenes
@@ -998,6 +1063,13 @@ function summarizeBookForReader(analysis) {
     .map((place) => escapeHtml(place))
     .join(", ");
   return `
+    ${
+      section
+        ? `<article class="reader-section-text">
+            <p>${escapeHtml(section.text)}</p>
+          </article>`
+        : ""
+    }
     <p>${escapeHtml(analysis.summary)}</p>
     ${
       sceneLines
@@ -1012,9 +1084,74 @@ function summarizeBookForReader(analysis) {
   `;
 }
 
-function updateActiveBook(book, analysis, traces = []) {
+function renderReaderNotes() {
+  const section = activeReadingSection();
+  if (!section) {
+    els.readerNoteList.innerHTML = `<p>${t("reader.noNotes")}</p>`;
+    return;
+  }
+  const notes = loadReaderNotes(section.section_id);
+  els.readerNoteList.innerHTML = notes.length
+    ? notes
+        .map(
+          (note) => `
+            <article>
+              <strong>${escapeHtml(note.kind)}</strong>
+              <p>${escapeHtml(note.text)}</p>
+            </article>
+          `,
+        )
+        .join("")
+    : `<p>${t("reader.noNotes")}</p>`;
+}
+
+function renderReaderPage() {
+  const sections = activeReadingSections();
+  const section = activeReadingSection();
+  const total = Math.max(sections.length, 1);
+  els.readerSectionLabel.textContent = `${t("reader.section")} ${state.currentSectionIndex + 1} / ${total}`;
+  els.readerPrevSection.disabled = state.currentSectionIndex <= 0;
+  els.readerNextSection.disabled = state.currentSectionIndex >= sections.length - 1;
+  els.readerExcerpt.innerHTML = summarizeBookForReader(
+    state.currentBookDetail?.analysis ?? { summary: "", scenes: [], places: [] },
+    section,
+  );
+  renderReaderNotes();
+}
+
+function goToReaderSection(nextIndex) {
+  const sections = activeReadingSections();
+  state.currentSectionIndex = Math.max(0, Math.min(nextIndex, Math.max(sections.length - 1, 0)));
+  const progress = sections.length
+    ? Math.round(((state.currentSectionIndex + 1) / sections.length) * 100)
+    : currentBookProgress();
+  saveCurrentBookProgress(progress);
+  renderReaderPage();
+}
+
+function saveReaderNote(kind, text) {
+  const section = activeReadingSection();
+  if (!section) {
+    return;
+  }
+  const trimmed = text.trim();
+  if (!trimmed && kind !== t("reader.favoriteSaved")) {
+    return;
+  }
+  const notes = loadReaderNotes(section.section_id);
+  notes.unshift({
+    kind,
+    text: trimmed || section.text.slice(0, 140),
+  });
+  saveReaderNotes(section.section_id, notes.slice(0, 8));
+  els.readerNoteInput.value = "";
+  renderReaderNotes();
+}
+
+function updateActiveBook(book, analysis, traces = [], readingSections = []) {
   state.currentBookId = book.book_id;
-  state.currentBookDetail = { book, analysis };
+  state.currentBookDetail = { book, analysis, readingSections };
+  state.currentSectionIndex = 0;
   state.characters = analysis.characters ?? [];
   els.bookTitle.textContent = book.title ?? analysis.title;
   els.bookSummary.textContent = analysis.summary;
@@ -1022,14 +1159,15 @@ function updateActiveBook(book, analysis, traces = []) {
   els.characterCount.textContent = state.characters.length;
   els.placeCount.textContent = (analysis.places ?? []).length;
   els.sceneCount.textContent = (analysis.scenes ?? []).length;
-  els.readerExcerpt.innerHTML = summarizeBookForReader(analysis);
   els.readerBookMeta.innerHTML = `
     <span>${escapeHtml(book.rights ?? "rights reviewed")}</span>
     <span>${escapeHtml(book.status ?? "available")}</span>
+    <span>${readingSections.length} section(s)</span>
     <span>${state.characters.length} ${t("reader.charactersReady")}</span>
   `;
   renderCharacters(state.characters);
   renderReaderProgress();
+  renderReaderPage();
   renderReaderCatalog();
   if (traces.length) {
     renderTraces(traces);
@@ -1074,6 +1212,7 @@ async function selectReaderBook(bookId) {
       },
       data.analysis,
       data.traces,
+      data.readingSections ?? [],
     );
     return;
   }
@@ -1088,6 +1227,8 @@ async function selectReaderBook(bookId) {
       status: "available",
     },
     data.analysis,
+    [],
+    data.readingSections ?? [],
   );
 }
 
@@ -1138,6 +1279,7 @@ async function loadBook() {
     },
     data.analysis,
     data.traces,
+    data.readingSections ?? [],
   );
 }
 
@@ -1431,6 +1573,7 @@ async function uploadBook() {
     },
     data.analysis,
     data.traces,
+    data.readingSections ?? [],
   );
   await loadAdmin();
 }
@@ -1727,6 +1870,18 @@ els.readerCatalog.addEventListener("click", (event) => {
 });
 els.readerProgressInput.addEventListener("input", () => {
   saveCurrentBookProgress(els.readerProgressInput.value);
+});
+els.readerPrevSection.addEventListener("click", () => {
+  goToReaderSection(state.currentSectionIndex - 1);
+});
+els.readerNextSection.addEventListener("click", () => {
+  goToReaderSection(state.currentSectionIndex + 1);
+});
+els.saveReaderNote.addEventListener("click", () => {
+  saveReaderNote(t("reader.noteLabel"), els.readerNoteInput.value);
+});
+els.markReaderFavorite.addEventListener("click", () => {
+  saveReaderNote(t("reader.favoriteSaved"), "");
 });
 
 applyLanguage(els.languageSelect.value);

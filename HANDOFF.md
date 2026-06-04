@@ -77,8 +77,8 @@ Ya existe:
 - Catalogo real `GET /api/v1/books/catalog` que combina Don Quijote demo y libros subidos por tenant/usuario.
 - Detalle de libro subido `GET /api/v1/books/{book_id}` con analisis, personajes, escenas y lugares.
 - Chat de personaje acepta `book_id`, por lo que puede conversar contra Don Quijote o contra un libro subido.
-- Vista `Reader` con catalogo navegable, libro activo, resumen/escenas/lugares,
-  progreso simple en `localStorage` y CTA directo a agentes.
+- Vista `Reader` con catalogo navegable, libro activo, secciones/paginas de lectura,
+  anotaciones/favoritos locales, progreso simple en `localStorage` y CTA directo a agentes.
 - El chat web envia `book_id: state.currentBookId`; al subir o seleccionar un libro,
   los personajes y la conversacion se anclan al libro activo.
 - Consola web `Marketplace Admin` con roles, permisos, tenant editorial, catalogo, readiness y salud operativa.
@@ -121,6 +121,9 @@ Ultima validacion local conocida:
 - Verificacion local Browser contra `http://127.0.0.1:8090`: login `Judge Access`,
   vista Reader muestra catalogo, progreso y Don Quijote; CTA `Talk now` abre `Agents`
   con personajes cargados.
+- Verificacion local Browser contra `http://127.0.0.1:8091`: Reader muestra
+  `Section 1 / 4`, permite avanzar a `Section 2 / 4`, actualiza progreso a `50%`
+  y guarda una nota local visible en `readerNoteList`.
 - `BASE_URL=http://127.0.0.1:8088 make smoke`: pasa.
 - Docker daemon: disponible tras abrir Docker Desktop.
 - Docker build local: pasa.
@@ -133,7 +136,7 @@ Ultima validacion local conocida:
 - Billing Pronexus enlazado.
 - Budget guardrail de 50 EUR creado.
 - Cloud Run desplegado: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
-- Revision Cloud Run activa: `stormsboys-agents-api-00038-2ps`.
+- Revision Cloud Run activa: `stormsboys-agents-api-00039-r6d`.
 - Cloud Run usa service account nueva: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - No hay claves JSON de usuario ni credenciales antiguas en el runtime.
 - Cloud SQL instance: `stormsboys-pgvector`.
@@ -152,6 +155,7 @@ Ultima validacion local conocida:
 - Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00036-6g9`.
 - Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00037-vtk`.
 - Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00038-2ps`.
+- Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00039-r6d`.
 - Compliance publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00036-6g9`:
   `/api/v1/challenge/submission` muestra deadline extendido `2026-06-12 02:00 CEST`,
   evidencia A2A honesta como agent card/HTTP JSON, y login demo invalido devuelve
@@ -162,6 +166,9 @@ Ultima validacion local conocida:
 - UI publica confirmada el 2026-06-04 contra revision `stormsboys-agents-api-00038-2ps`:
   Reader sirve catalogo navegable, progreso local, panel de lectura y CTA `Talk now`;
   el chat web envia el `book_id` del libro activo.
+- UI/API publica confirmada el 2026-06-04 contra revision `stormsboys-agents-api-00039-r6d`:
+  Reader sirve controles anterior/siguiente, notas/favoritos locales y
+  `/api/v1/demo/book` devuelve `readingSections` desde Cloud SQL.
 - UI publica confirmada el 2026-06-04 contra revision `stormsboys-agents-api-00035-rjd`:
   dashboard incluye `Judge journey`, 6 pasos de demo, 3 proof cards para Track 1/2/3,
   CTA de upload, sin claves i18n crudas y sin overflow horizontal.
@@ -280,7 +287,7 @@ BASE_URL=https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app make smoke
 
 1. Pulir UI/UX visual para que parezca producto premium, no solo consola tecnica.
 2. Convertir el timeline ficcional en una vista editable por usuario/publisher.
-3. Convertir Reader en lectura paginada/anotable si queda tiempo.
+3. Persistir progreso/anotaciones del Reader en backend si queda tiempo.
 4. Preparar datos demo con Don Quijote y al menos un libro subido desde la UI antes de grabar.
 5. Grabar video demo 1-2 minutos en ingles al final.
 

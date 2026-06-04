@@ -121,6 +121,32 @@ def _load_book_analysis(book_id: str) -> BookAnalysis:
     raise HTTPException(status_code=404, detail="Book not found.")
 
 
+def _reading_sections_for_book(
+    book_id: str,
+    fallback_sections: list[str] | None = None,
+) -> list[dict[str, object]]:
+    storage = StorageRepository()
+    if storage.status.configured:
+        try:
+            sections = storage.list_book_sections(book_id)
+            if sections:
+                return sections
+        except Exception:
+            pass
+    if fallback_sections is None and book_id == DEMO_BOOK_ID:
+        fallback_sections = BookIngestionAgent().run(DEMO_BOOK_ID, DEMO_BOOK_TEXT).output
+    if fallback_sections is None and book_id in LOCAL_UPLOADED_BOOKS:
+        fallback_sections = LOCAL_UPLOADED_BOOKS[book_id]["sections"]
+    return [
+        {
+            "section_id": f"{book_id}-section-{index + 1}",
+            "index": index,
+            "text": section,
+        }
+        for index, section in enumerate(fallback_sections or [])
+    ]
+
+
 def _uploaded_catalog_for_user(user: dict[str, object]) -> list[dict[str, object]]:
     tenant_id = str(user["tenant_id"])
     can_manage_all = "manage_tenants" in user["permissions"]
@@ -734,6 +760,7 @@ async def upload_book(
         "provider": provider,
         "book": stored,
         "analysis": analysis.output.model_dump(),
+        "readingSections": _reading_sections_for_book(book_id, ingestion.output),
         "pipeline": {
             "upload": "accepted",
             "ingestion": f"{len(ingestion.output)} section(s)",
@@ -795,6 +822,7 @@ def uploaded_book_detail(
         "currentUser": user,
         "book": metadata,
         "analysis": analysis.model_dump(),
+        "readingSections": _reading_sections_for_book(book_id),
     }
 
 
@@ -970,6 +998,7 @@ def demo_book() -> dict[str, object]:
         "bookId": DEMO_BOOK_ID,
         "title": analysis.output.title,
         "analysis": analysis.output.model_dump(),
+        "readingSections": _reading_sections_for_book(DEMO_BOOK_ID, ingestion.output),
         "traces": [trace.model_dump() for trace in ingestion.traces + analysis.traces],
     }
 

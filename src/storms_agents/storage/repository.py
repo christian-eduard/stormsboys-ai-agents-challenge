@@ -404,6 +404,29 @@ class StorageRepository:
             return None
         return self._uploaded_book_from_row(row)
 
+    def list_book_sections(self, book_id: str) -> list[dict[str, object]]:
+        self.initialize_schema()
+        with self.engine.connect() as connection:
+            rows = connection.execute(
+                text(
+                    """
+                    SELECT section_id, section_index, text
+                    FROM book_sections
+                    WHERE book_id = :book_id
+                    ORDER BY section_index
+                    """
+                ),
+                {"book_id": book_id},
+            ).mappings()
+        return [
+            {
+                "section_id": row["section_id"],
+                "index": row["section_index"],
+                "text": row["text"],
+            }
+            for row in rows
+        ]
+
     def search_sections(self, book_id: str, query: str, limit: int) -> list[RetrievedContext]:
         query_embedding = vector_literal(self.embedding_provider.embed_query(query).vector)
         with self.engine.connect() as connection:

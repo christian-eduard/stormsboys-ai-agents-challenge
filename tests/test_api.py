@@ -25,6 +25,8 @@ def test_web_demo() -> None:
     assert "cleanupSessionInput" in response.text
     assert "readerCatalog" in response.text
     assert "readerProgressInput" in response.text
+    assert "readerNoteInput" in response.text
+    assert "readerNextSection" in response.text
     assert 'data-view="dashboard"' in response.text
     assert 'data-view="author"' in response.text
 
@@ -42,6 +44,8 @@ def test_static_asset() -> None:
     assert "/api/v1/demo/fiction/branches?" in response.text
     assert "/api/v1/books/catalog" in response.text
     assert "book_id: state.currentBookId" in response.text
+    assert "goToReaderSection" in response.text
+    assert "saveReaderNote" in response.text
 
 
 def test_challenge_readiness() -> None:
@@ -118,6 +122,9 @@ def test_demo_book() -> None:
     assert "ocean" in don_quijote["psychological_profile"]
     assert don_quijote["desires"]
     assert don_quijote["fears"]
+    assert body["readingSections"]
+    assert body["readingSections"][0]["section_id"].startswith("don-quijote-section-")
+    assert body["readingSections"][0]["text"]
     assert body["traces"]
 
 
@@ -193,6 +200,8 @@ def test_author_can_upload_manuscript_and_chat_with_generated_character() -> Non
     body = upload.json()
     assert body["book"]["book_id"].startswith("upload-the-silent-bridge")
     assert body["book"]["sections"] >= 1
+    assert body["readingSections"]
+    assert body["readingSections"][0]["text"]
     assert body["analysis"]["title"] == "The Silent Bridge"
     assert body["analysis"]["characters"]
     first_character = body["analysis"]["characters"][0]["character_id"]

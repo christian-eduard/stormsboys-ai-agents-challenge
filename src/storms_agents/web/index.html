@@ -337,9 +337,26 @@
                 <input id="readerProgressInput" type="range" min="0" max="100" step="5" value="0" />
               </div>
 
+              <div class="reader-page-controls">
+                <button type="button" class="secondary" id="readerPrevSection" data-i18n="reader.previous">Previous</button>
+                <span id="readerSectionLabel">Section 1 / 1</span>
+                <button type="button" class="secondary" id="readerNextSection" data-i18n="reader.next">Next</button>
+              </div>
+
               <div class="reader-excerpt" id="readerExcerpt">
                 Preparing the selected book context.
               </div>
+
+              <div class="reader-notes">
+                <label class="field-label" for="readerNoteInput" data-i18n="reader.noteLabel">Reader note</label>
+                <textarea id="readerNoteInput" rows="3" data-i18n-placeholder="reader.notePlaceholder" placeholder="Capture a thought, question, or publisher signal."></textarea>
+                <div class="button-row">
+                  <button type="button" id="saveReaderNote" data-i18n="reader.saveNote">Save note</button>
+                  <button type="button" class="secondary" id="markReaderFavorite" data-i18n="reader.favorite">Mark favorite</button>
+                </div>
+                <div class="reader-note-list" id="readerNoteList"></div>
+              </div>
+
               <div class="reader-book-meta" id="readerBookMeta"></div>
             </div>
           </div>

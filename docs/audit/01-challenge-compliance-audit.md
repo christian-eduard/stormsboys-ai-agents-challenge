@@ -189,22 +189,22 @@ Verificado en Cloud Run: `The Glass Observatory` genero personajes mediante
 `LiteraryAnalysisAgent` con `model=gemini-2.5-flash`, guardo el libro en Cloud SQL y
 permitio chat canonico con `liora` usando `retrieval.pgvector_search`.
 
-### P2 - Reader No Es Todavia Un Lector Completo - Parcialmente Corregido
+### P2 - Reader No Es Todavia Un Lector Completo - Corregido Para Demo
 
-Corregido parcialmente: la vista Reader ahora incluye catalogo navegable, Don Quijote como
+Corregido para demo: la vista Reader ahora incluye catalogo navegable, Don Quijote como
 titulo demo, libros subidos visibles cuando el usuario autenticado los tiene disponibles,
-panel de lectura con resumen/escenas/lugares, progreso simple persistido en `localStorage`
-y CTA directo a chat. El chat web envia `book_id: state.currentBookId`, por lo que hablar
-con personajes queda anclado al libro activo.
+secciones/paginas de lectura desde `readingSections`, resumen/escenas/lugares, progreso
+simple persistido en `localStorage`, notas/favoritos locales por seccion y CTA directo a
+chat. El chat web envia `book_id: state.currentBookId`, por lo que hablar con personajes
+queda anclado al libro activo.
 
-Pendiente: no hay lectura paginada real, favoritos, anotaciones ni progreso backend por usuario.
+Pendiente: progreso, favoritos y anotaciones todavia no se persisten en backend por usuario.
 
 Impacto: el producto se entiende, pero el usuario puede sentir que falta aplicacion lectora.
 
 Accion:
 
-- Si queda tiempo, agregar paginas/secciones navegables reales y persistir progreso en backend.
-- Si queda tiempo, agregar favoritos/anotaciones como senal de engagement para publisher.
+- Si queda tiempo, persistir progreso/anotaciones en backend como senal de engagement.
 
 ### P2 - Idioma Espanol Existe En Chat/UI, Pero No En Todo El Producto
 
