@@ -31,7 +31,8 @@ TODO: add public demo video URL after recording.
 ## Submission Deadline
 
 Extended deadline shown in the downloaded Devpost page: June 12, 2026 at 02:00 CEST.
-Verify the live Devpost page once more before final submission.
+Live verification attempt on 2026-06-05 redirected to Devpost login, so verify the
+authenticated Devpost page once more before final submission.
 
 ## Short Description
 

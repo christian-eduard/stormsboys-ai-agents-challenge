@@ -95,7 +95,8 @@ Impacto: un juez o agente puede ver una fecha antigua dentro de la demo.
 
 Accion restante:
 
-- Verificar la fecha final real en Devpost justo antes de enviar.
+- Verificar la fecha final real en Devpost autenticado justo antes de enviar. Intento
+  publico del 2026-06-05 redirigio a `/users/sign_in`.
 
 ### P1 - Root ADK Agent Todavia Dice Track 2 - Corregido
 
@@ -233,7 +234,7 @@ Accion:
 ## Backlog Recomendado Antes De Enviar
 
 1. Grabar video de 1-2 minutos en ingles.
-2. Verificar deadline en Devpost en vivo antes de enviar.
+2. Verificar deadline en Devpost autenticado antes de enviar.
 3. Ajustar lenguaje A2A/MCP para no sobreprometer.
 4. Adjuntar `docs/submission/architecture-diagram.svg` si Devpost no acepta Mermaid.
 5. Probar demo desde navegador limpio con `Judge Access`.
