@@ -40,11 +40,16 @@ La guia describe Track 2 como optimizacion de agentes existentes para pasar de p
 
 ## Decisiones Para La Entrega
 
-- Priorizar Track 2.
-- Usar Cloud Run como camino rapido.
-- Incluir ADK o una capa Agent-compatible claramente documentada.
-- Preparar un dataset pequeno pero convincente.
-- Evitar prometer Agent Runtime si no queda implementado.
+- Presentar Track 3 como historia principal: refactor cloud-native, B2B, roles,
+  Marketplace/Gemini Enterprise readiness y runtime Google Cloud.
+- Usar Track 2 como evidencia de calidad: evaluacion before/after, grounding,
+  guardrails, memoria separada y trazas.
+- Usar Track 1 como evidencia secundaria de build: nueva capa agentica, upload,
+  agentes literarios y contratos HTTP/agent card.
+- Usar Cloud Run como camino rapido y honesto.
+- Incluir ADK real donde exista y documentar con precision lo que sea
+  "agent-compatible" o "A2A-ready", sin prometer Agent Runtime/A2A completo si
+  no queda implementado.
 
 ## Riesgo Principal
 

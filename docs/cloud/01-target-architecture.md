@@ -2,7 +2,8 @@
 
 ## Objetivo
 
-Describir la demo real desplegada en Google Cloud de forma simple, defendible y alineada con Track 2.
+Describir la demo real desplegada en Google Cloud de forma simple, defendible y
+alineada con Track 3 como historia principal y Track 1/2 como evidencia tecnica.
 
 ## Arquitectura Actual
 

@@ -28,6 +28,11 @@ https://github.com/christian-eduard/stormsboys-ai-agents-challenge
 
 TODO: add public demo video URL after recording.
 
+## Submission Deadline
+
+Extended deadline shown in the downloaded Devpost page: June 12, 2026 at 02:00 CEST.
+Verify the live Devpost page once more before final submission.
+
 ## Short Description
 
 Stormsboys transforms books into interactive literary worlds. Authors and publishers can upload owned or public-domain manuscripts, Gemini prepares characters with psychology and canon constraints, readers can talk to grounded character agents, and publishers can review engagement and quality insights. The system covers Track 1 with a new agent layer, Track 2 with optimization evidence, and Track 3 with Marketplace-oriented cloud refactor work.

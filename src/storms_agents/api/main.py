@@ -358,7 +358,7 @@ def auth_demo_users() -> dict[str, object]:
 def auth_demo_login(request: DemoLoginRequest) -> dict[str, object]:
     user = next((item for item in _demo_users() if item["user_id"] == request.user_id), None)
     if user is None:
-        user = _demo_users()[0]
+        raise HTTPException(status_code=401, detail="Invalid demo user.")
     return {
         "token": f"demo-token:{user['user_id']}",
         "user": user,
@@ -459,7 +459,8 @@ def challenge_submission() -> dict[str, object]:
                 "track": "Track 1 - Build",
                 "evidence": (
                     "New ADK-first literary agent layer, upload pipeline, character/scene/"
-                    "publisher/admin agents, and MCP/A2A-ready contracts."
+                    "publisher/admin agents, plus an A2A-ready agent card and HTTP JSON "
+                    "contracts."
                 ),
             },
             {
@@ -478,7 +479,7 @@ def challenge_submission() -> dict[str, object]:
             },
         ],
         "region": "EMEA",
-        "deadline": "2026-06-05 17:00 PT",
+        "deadline": "2026-06-12 02:00 CEST (extended; verify in Devpost before final submit)",
         "status": "public-demo-ready",
         "publicDemo": "https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app",
         "repository": "https://github.com/christian-eduard/stormsboys-ai-agents-challenge",
@@ -520,7 +521,7 @@ def challenge_submission() -> dict[str, object]:
             {"name": "English description", "status": "ready"},
             {"name": "Architecture diagram", "status": "ready"},
             {"name": "Functional judge demo", "status": "ready"},
-            {"name": "A2A agent card", "status": "ready"},
+            {"name": "A2A-ready agent card", "status": "ready"},
             {"name": "1-2 minute English video", "status": "planned-final-step"},
         ],
         "recommendedJudgeAccount": {

@@ -86,7 +86,9 @@ Debe incluir:
 
 ## Antes De Enviar
 
-- Revisar fecha limite actual.
+- Revisar fecha limite actual. El PDF descargado muestra deadline extendido:
+  12 de junio de 2026 a las 02:00 CEST, pero hay que verificar Devpost en vivo
+  antes de enviar.
 - Revisar criterios oficiales.
 - Revisar `docs/submission/03-public-repo-readiness.md`.
 - Probar demo desde navegador limpio.

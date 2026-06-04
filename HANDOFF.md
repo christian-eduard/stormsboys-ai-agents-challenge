@@ -123,7 +123,7 @@ Ultima validacion local conocida:
 - Billing Pronexus enlazado.
 - Budget guardrail de 50 EUR creado.
 - Cloud Run desplegado: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
-- Revision Cloud Run activa: `stormsboys-agents-api-00035-rjd`.
+- Revision Cloud Run activa: `stormsboys-agents-api-00036-6g9`.
 - Cloud Run usa service account nueva: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - No hay claves JSON de usuario ni credenciales antiguas en el runtime.
 - Cloud SQL instance: `stormsboys-pgvector`.
@@ -139,7 +139,11 @@ Ultima validacion local conocida:
 - Narration publico confirmado: `VoiceNarrationAgent`, SSML y `ready_for_tts=true`.
 - Publisher publico confirmado: `PublisherInsightsAgent`, engagement y quality `100%`.
 - Admin publico confirmado: login demo, tokens demo, roles `reader`, `author`, `publisher_admin`, `super_admin`, `judge_access`, tenant demo, catalogo y readiness Marketplace.
-- Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00035-rjd`.
+- Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00036-6g9`.
+- Compliance publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00036-6g9`:
+  `/api/v1/challenge/submission` muestra deadline extendido `2026-06-12 02:00 CEST`,
+  evidencia A2A honesta como agent card/HTTP JSON, y login demo invalido devuelve
+  `401 Invalid demo user`.
 - UI publica confirmada el 2026-06-04: sidebar muestra Build, Optimize y Refactor;
   vista Reader tiene hero de producto, CTAs para chat/upload/publisher y carga
   Don Quijote correctamente.

@@ -16,7 +16,8 @@ Reglas:
 - No uses ni mezcles codigo, configuracion, rutas, IDs, datos ni recursos de otros proyectos.
 - No leas .env ni secretos.
 - No crees recursos en Google Cloud sin plan previo, coste esperado y rollback.
-- Mantén la entrega alineada con Track 2: Optimize Existing Agents.
+- Mantén Track 3 como historia principal y usa Track 1/2 como evidencia:
+  build de capa nueva, evaluacion, guardrails y trazas.
 - Todo cambio debe pasar make test, make lint y make public-ready.
 
 Estado actual:
@@ -28,7 +29,7 @@ Estado actual:
 - Cloud SQL PostgreSQL + pgvector activo.
 - Gemini `gemini-2.5-flash` y embeddings `gemini-embedding-001` activos via Vertex AI.
 - Dockerfile e infra Cloud Run creados.
-- Tests Docker/Python 3.11: 20.
+- Tests Docker/Python 3.11: 46.
 - Revision Cloud Run actual: revisar `HANDOFF.md`.
 
 Tarea sugerida:

@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 
+from storms_agents.agents.root_agent import describe_submission_scope
 from storms_agents.api.main import app
 
 
@@ -81,10 +82,11 @@ def test_challenge_submission() -> None:
         "Track 3 - Refactor",
     }
     assert body["status"] == "public-demo-ready"
+    assert body["deadline"].startswith("2026-06-12")
     assert body["recommendedJudgeAccount"]["user_id"] == "judge-demo"
     assert len(body["judgingCriteria"]) == 4
     assert any(item["name"] == "Functional judge demo" for item in body["deliverables"])
-    assert any(item["name"] == "A2A agent card" for item in body["deliverables"])
+    assert any(item["name"] == "A2A-ready agent card" for item in body["deliverables"])
 
 
 def test_agent_card_is_public_track3_evidence() -> None:
@@ -142,6 +144,23 @@ def test_auth_demo_login() -> None:
     assert body["token"] == "demo-token:superadmin-demo"
     assert body["user"]["role"] == "super_admin"
     assert body["access"]["canOperatePlatform"] is True
+
+
+def test_auth_demo_login_rejects_unknown_user() -> None:
+    client = TestClient(app)
+    response = client.post("/api/v1/auth/demo-login", json={"user_id": "unknown-user"})
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid demo user."
+
+
+def test_root_agent_scope_matches_current_track_strategy() -> None:
+    scope = describe_submission_scope()
+
+    assert scope["primary_track"] == (
+        "Track 3 - Refactor for Google Cloud Marketplace & Gemini Enterprise"
+    )
+    assert "Track 2 optimization evidence" in scope["supporting_evidence"]
 
 
 def test_author_can_upload_manuscript_and_chat_with_generated_character() -> None:

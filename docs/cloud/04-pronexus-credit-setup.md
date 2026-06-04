@@ -45,13 +45,13 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 
 - Service: `stormsboys-agents-api`.
 - Region: `us-central1`.
-- Revision: `stormsboys-agents-api-00035-rjd`.
+- Revision: `stormsboys-agents-api-00036-6g9`.
 - Runtime service account: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - URL canonica: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
 - URL alternativa: `https://stormsboys-agents-api-425710112361.us-central1.run.app`.
-- Trafico: 100% a la revision `stormsboys-agents-api-00035-rjd`.
+- Trafico: 100% a la revision `stormsboys-agents-api-00036-6g9`.
 - Ultimo image digest desplegado:
-  `sha256:5b65c101ec453f163bf3b540644fb24bfcff937806d29b183f8e5275e0ca6652`.
+  `sha256:4ecac7ffba00618c4eeaa6904b403b538505edfd853ce74c317de817f54b90fc`.
 - Smoke test publico: pasa el 2026-06-04.
 - Upload publico: pasa el 2026-06-04 con manuscrito textual, catalogo y chat por `book_id`.
 - Admin publico confirmado: login demo, tokens demo protegidos, roles, catalogo, tenant demo y readiness Marketplace.
@@ -67,6 +67,8 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
   de editorial o de dominio publico.
 - Demo web incluye `Judge journey` en el dashboard con ruta clara de upload, analisis
   de agentes, lector, ficcion, publisher value y Cloud proof para los tres tracks.
+- Compliance publico confirmado: deadline extendido visible en `/api/v1/challenge/submission`,
+  login demo invalido devuelve 401 y Track 1 ya no promete MCP/A2A completo.
 
 ## Cloud SQL / pgvector
 

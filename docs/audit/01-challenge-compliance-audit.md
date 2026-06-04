@@ -77,28 +77,27 @@ Accion:
 - Usar el nuevo dashboard `Judge journey` como inicio.
 - Actualizar `docs/submission/05-devpost-fields-en.md` con URL final.
 
-### P0 - Fecha Limite Contradictoria En Demo Y PDF
+### P0 - Fecha Limite Contradictoria En Demo Y PDF - Corregido En Codigo
 
 El PDF descargado muestra arriba `Deadline: Jun 12, 2026 at 02:00am CEST`, pero el cuerpo
 del PDF tambien dice `Projects are due by 5:00 PM PT on June 5th, 2026` y anuncia
 `Submission Deadline Extended`.
 
-El endpoint publico `/api/v1/challenge/submission` sigue devolviendo:
+El endpoint publico `/api/v1/challenge/submission` fue actualizado para devolver:
 
 ```json
-"deadline": "2026-06-05 17:00 PT"
+"deadline": "2026-06-12 02:00 CEST (extended; verify in Devpost before final submit)"
 ```
 
 Codigo: `src/storms_agents/api/main.py`, campo `deadline` en `challenge_submission`.
 
 Impacto: un juez o agente puede ver una fecha antigua dentro de la demo.
 
-Accion:
+Accion restante:
 
 - Verificar la fecha final real en Devpost justo antes de enviar.
-- Actualizar endpoint, docs de submission y checklist con una unica fecha exacta.
 
-### P1 - Root ADK Agent Todavia Dice Track 2
+### P1 - Root ADK Agent Todavia Dice Track 2 - Corregido
 
 `src/storms_agents/agents/root_agent.py` devuelve:
 
@@ -108,14 +107,10 @@ Accion:
 
 Pero el proyecto actual declara Track 3 principal y una demo integrada Track 1/2/3.
 
-Impacto: justo el modulo que demuestra ADK contradice la estrategia actual.
+Corregido: `describe_submission_scope()` ahora declara Track 3 como track principal
+y Track 1/2 como evidencia de soporte. Hay test de regresion.
 
-Accion:
-
-- Cambiar `describe_submission_scope()` a Track 3 principal con evidencia Track 1/2.
-- Actualizar test especifico para evitar regresion.
-
-### P1 - Documentacion Antigua Sigue Diciendo "Priorizar Track 2"
+### P1 - Documentacion Antigua Sigue Diciendo "Priorizar Track 2" - Corregido
 
 Ejemplos:
 
@@ -124,22 +119,16 @@ Ejemplos:
 - `docs/cloud/01-target-architecture.md`: "alineada con Track 2".
 - `docs/adr/0001-track-2.md`: ADR aceptada sin nota de superacion por ADR 0004.
 
-Impacto: otro agente puede continuar en la direccion equivocada; la narrativa queda menos
-profesional si se leen los documentos.
-
-Accion:
-
-- Marcar ADR 0001 como superada por ADR 0004.
-- Actualizar continuation prompt y mapping oficial a "Track 3 principal, Track 2 evidencia,
-  Track 1 soporte por nueva capa".
-- Donde se hable de "all tracks", aclarar que Devpost probablemente pide seleccionar una
-  categoria principal.
+Corregido: ADR 0001 queda superada por ADR 0004, y los documentos de continuidad,
+mapping oficial y arquitectura cloud ya dicen Track 3 principal con Track 1/2 como
+evidencia tecnica.
 
 ### P1 - A2A/MCP Se Promete Mas Fuerte De Lo Que Esta Implementado
 
-El endpoint de submission declara `MCP/A2A-ready contracts` y deliverable `A2A agent card`
-como ready. La realidad implementada es agent card publica y HTTP JSON; no hay protocolo A2A
-completo ni MCP tool server funcional dentro del repo.
+Corregido parcialmente: el endpoint de submission ya no declara `MCP/A2A-ready contracts`;
+ahora habla de agent card A2A-ready y contratos HTTP JSON. La realidad implementada sigue
+siendo agent card publica y HTTP JSON; no hay protocolo A2A completo ni MCP tool server
+funcional dentro del repo.
 
 Impacto: riesgo de sobrepromesa en Track 1/3.
 
@@ -150,17 +139,12 @@ Accion:
 - Si queda tiempo: crear un endpoint interoperable minimo mas cercano a A2A real, o una
   seccion de docs con contrato de invocacion por agente.
 
-### P1 - Login Demo Devuelve Reader Si El User ID Es Invalido
+### P1 - Login Demo Devuelve Reader Si El User ID Es Invalido - Corregido
 
 `auth_demo_login` busca el usuario y si no existe cae a `_demo_users()[0]`.
 
-Impacto: no da privilegios admin, pero es una mala senal de seguridad y de contrato API.
-Un login invalido deberia devolver 401/404, incluso en demo.
-
-Accion:
-
-- Cambiar a `HTTPException(status_code=401, detail="Invalid demo user.")`.
-- Agregar test.
+Corregido: un `user_id` inexistente devuelve `401 Invalid demo user.` y hay test de
+regresion.
 
 ### P1 - El Producto Es Operable, Pero No Todavia "App Real Completa"
 
@@ -238,23 +222,21 @@ Accion:
 
 ## Backlog Recomendado Antes De Enviar
 
-1. Corregir estrategia documental y root agent Track 3.
-2. Corregir deadline en endpoint/docs tras verificar Devpost.
-3. Endurecer `auth_demo_login` para user invalido.
-4. Ajustar lenguaje A2A/MCP para no sobreprometer.
-5. Exportar o adjuntar arquitectura como imagen si Devpost no acepta Mermaid.
-6. Grabar video de 1-2 minutos en ingles.
-7. Probar demo desde navegador limpio con `Judge Access`.
-8. Opcional fuerte: integrar Gemini en analisis de upload o ajustar copy.
-9. Opcional fuerte: mejorar Reader con catalogo/fragmento/progreso simple.
-10. Opcional fuerte: agregar metrica real de interacciones por libro para Publisher.
+1. Grabar video de 1-2 minutos en ingles.
+2. Verificar deadline en Devpost en vivo antes de enviar.
+3. Ajustar lenguaje A2A/MCP para no sobreprometer.
+4. Exportar o adjuntar arquitectura como imagen si Devpost no acepta Mermaid.
+5. Probar demo desde navegador limpio con `Judge Access`.
+6. Opcional fuerte: integrar Gemini en analisis de upload o ajustar copy.
+7. Opcional fuerte: mejorar Reader con catalogo/fragmento/progreso simple.
+8. Opcional fuerte: agregar metrica real de interacciones por libro para Publisher.
 
 ## Veredicto
 
-Estado actual: **demo publica tecnicamente solida, pero narrative/compliance cleanup pendiente**.
+Estado actual: **demo publica tecnicamente solida, con P0/P1 narrativos principales corregidos
+salvo video final y verificacion live del deadline**.
 
 La submission puede ser competitiva si se corrigen los P0/P1. Sin esas correcciones, el riesgo no
 es tecnico basico, sino de confianza: el proyecto dice "ADK/A2A/All tracks/Marketplace" en varios
 sitios, pero algunos archivos todavia dicen Track 2 y algunas afirmaciones son readiness, no runtime
 completo.
-
