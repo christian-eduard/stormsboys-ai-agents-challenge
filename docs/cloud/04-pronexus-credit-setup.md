@@ -144,6 +144,12 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 - Section engagement verificado: `/api/v1/admin/marketplace` en Cloud Run devuelve
   `section_signals` para `quijote-section-2` con `progress_events=1`, `notes=1`
   y `readers=1`.
+- Publisher export verificado el 2026-06-05 contra revision
+  `stormsboys-agents-api-00045-ll9`: `/api/v1/admin/marketplace/export` devuelve
+  paquete JSON protegido para `publisher-demo` con `retrieval=Cloud SQL PostgreSQL + pgvector`,
+  `readerSignals=2`, `sectionSignals=1`, `characterTurns=7` y catalogo Don Quijote.
+- Revision Cloud Run actual: `stormsboys-agents-api-00045-ll9`, 100% de trafico,
+  digest `sha256:0711ad71e08566b24dffabf7a81b3bd5653f16d06af1c3dbcf3ebce3d364a1ce`.
 - Upload smoke publico: `The Orchard of Mirrors` creo
   `book_id=upload-the-orchard-of-mirrors-46f285dceb`, `character_id=elena`,
   catalogo visible para `author-demo` y chat canonico con citas de secciones subidas.
