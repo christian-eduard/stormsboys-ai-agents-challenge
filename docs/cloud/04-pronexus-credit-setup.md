@@ -162,6 +162,15 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
   sin overflow horizontal en desktop.
 - Revision Cloud Run actual: `stormsboys-agents-api-00047-6vk`, 100% de trafico,
   digest `sha256:29162aa1498f9e65a9befc94f219559d9bdf5ea66c780eb71d461e349d0dd011`.
+- Upload visible verificado el 2026-06-05 01:36 CEST contra revision
+  `stormsboys-agents-api-00048-5bt`: formulario real de subida en Reader, assets cache-busted
+  con `?v=20260605-upload-experience`, `Judge Access` con boton `Upload and analyze` activo
+  y sin overflow horizontal en desktop.
+- Revision Cloud Run actual: `stormsboys-agents-api-00048-5bt`, 100% de trafico,
+  digest `sha256:8e33ac3c341e4f72df9704382633e58019aca0e7b902ad8322055dd7e7bb02d3`.
+- Upload real publico verificado: `QA Upload Visible Book` creo
+  `book_id=upload-qa-upload-visible-book-c73581410d`, `provider=cloud-sql-postgresql`,
+  1 seccion, 3 personajes, analisis con `gemini-2.5-flash` y catalogo visible en UI.
 - Upload smoke publico: `The Orchard of Mirrors` creo
   `book_id=upload-the-orchard-of-mirrors-46f285dceb`, `character_id=elena`,
   catalogo visible para `author-demo` y chat canonico con citas de secciones subidas.

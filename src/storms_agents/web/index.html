@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Stormsboys AI Agents Challenge</title>
-    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="stylesheet" href="/static/styles.css?v=20260605-upload-experience" />
   </head>
   <body>
     <section id="accessScreen" class="access-screen">
@@ -16,10 +16,11 @@
           publishers, administrators, and challenge judges.
         </p>
         <div class="access-points">
+          <span>Upload books</span>
+          <span>Character psychology</span>
           <span>Cloud Run</span>
           <span>Gemini</span>
           <span>pgvector</span>
-          <span>Role access</span>
         </div>
       </div>
 
@@ -320,6 +321,39 @@
               <div class="reader-catalog-list" id="readerCatalog"></div>
             </div>
 
+            <div class="upload-panel reader-upload-panel">
+              <div>
+                <p class="eyebrow" data-i18n="upload.eyebrow">Upload and generate</p>
+                <h3 data-i18n="upload.title">Create a new book experience</h3>
+                <p data-i18n="upload.body">
+                  Add an owned or public-domain manuscript. The platform chunks it,
+                  embeds it, extracts characters, and makes the book available in
+                  the reader catalog.
+                </p>
+              </div>
+
+              <label class="field-label" for="uploadTitle" data-i18n="upload.bookTitle">Title</label>
+              <input id="uploadTitle" type="text" value="Judge sample manuscript" />
+
+              <label class="field-label" for="uploadAuthor" data-i18n="upload.author">Author</label>
+              <input id="uploadAuthor" type="text" value="Challenge Author" />
+
+              <label class="field-label" for="uploadRights" data-i18n="upload.rights">Rights</label>
+              <select id="uploadRights">
+                <option value="owned_or_public_domain" data-i18n="upload.rightsOwned">Owned or public domain</option>
+                <option value="publisher_catalog_rights" data-i18n="upload.rightsPublisher">Publisher catalog rights</option>
+              </select>
+
+              <label class="field-label" for="uploadFile" data-i18n="upload.file">Manuscript file</label>
+              <input id="uploadFile" type="file" accept=".txt,.md,.pdf,text/plain,application/pdf" />
+
+              <div class="button-row">
+                <button id="uploadBook" type="button" data-i18n="upload.submit">Upload and analyze</button>
+                <button type="button" class="secondary" data-jump-view="agents" data-i18n="upload.after">Chat after analysis</button>
+              </div>
+              <article class="access-box" id="readerUploadAccess"></article>
+            </div>
+
             <div class="reader-page-panel">
               <div class="reader-page-header">
                 <div>
@@ -469,26 +503,6 @@
                 <strong data-i18n="author.stepPublish">4. Submit for publishing</strong>
                 <p data-i18n="author.stepPublishBody">Publisher or superadmin approval moves the book into catalog availability.</p>
               </article>
-            </div>
-            <div class="upload-panel">
-              <label class="field-label" for="uploadTitle">Title</label>
-              <input id="uploadTitle" type="text" value="Judge sample manuscript" />
-
-              <label class="field-label" for="uploadAuthor">Author</label>
-              <input id="uploadAuthor" type="text" value="Challenge Author" />
-
-              <label class="field-label" for="uploadRights">Rights</label>
-              <select id="uploadRights">
-                <option value="owned_or_public_domain">Owned or public domain</option>
-                <option value="publisher_catalog_rights">Publisher catalog rights</option>
-              </select>
-
-              <label class="field-label" for="uploadFile">Manuscript file</label>
-              <input id="uploadFile" type="file" accept=".txt,.md,.pdf,text/plain,application/pdf" />
-
-              <div class="button-row">
-                <button id="uploadBook" type="button">Upload and analyze</button>
-              </div>
             </div>
             <article class="access-box" id="authorAccess"></article>
           </div>
@@ -683,6 +697,6 @@
       </section>
     </main>
 
-    <script src="/static/app.js" type="module"></script>
+    <script src="/static/app.js?v=20260605-upload-experience" type="module"></script>
   </body>
 </html>

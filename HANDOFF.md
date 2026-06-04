@@ -330,6 +330,16 @@ Estado UI publica 2026-06-05 01:23 CEST:
 - QA visual publica con `Judge Access`: portada de producto, lector, selector ingles/espanol,
   Don Quijote y Sancho visibles, sin overflow horizontal en desktop.
 
+Estado upload visible 2026-06-05 01:36 CEST:
+
+- Nueva revision Cloud Run `stormsboys-agents-api-00048-5bt`, 100% de trafico.
+- Imagen desplegada: `sha256:8e33ac3c341e4f72df9704382633e58019aca0e7b902ad8322055dd7e7bb02d3`.
+- Assets cache-busted con `?v=20260605-upload-experience`.
+- El lector muestra el formulario real `Create a new book experience` con input de archivo.
+- QA publica con `Judge Access`: boton `Upload and analyze` activo, sin overflow horizontal.
+- Upload real verificado: `QA Upload Visible Book` creo
+  `book_id=upload-qa-upload-visible-book-c73581410d`, 3 personajes y catalogo visible en UI.
+
 ## Prioridades Siguientes
 
 1. Preparar datos demo con Don Quijote y al menos un libro subido desde la UI antes de grabar.

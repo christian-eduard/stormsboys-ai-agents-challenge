@@ -72,6 +72,7 @@ const els = {
   uploadRights: document.querySelector("#uploadRights"),
   uploadFile: document.querySelector("#uploadFile"),
   uploadBook: document.querySelector("#uploadBook"),
+  readerUploadAccess: document.querySelector("#readerUploadAccess"),
   roleList: document.querySelector("#roleList"),
   marketplaceSummary: document.querySelector("#marketplaceSummary"),
   marketplaceExportResult: document.querySelector("#marketplaceExportResult"),
@@ -216,6 +217,20 @@ const copy = {
     "reader.favorite": "Mark favorite",
     "reader.favoriteSaved": "Favorite section saved",
     "reader.noNotes": "No notes for this section yet.",
+    "upload.eyebrow": "Upload and generate",
+    "upload.title": "Create a new book experience",
+    "upload.body":
+      "Add an owned or public-domain manuscript. The platform chunks it, embeds it, extracts characters, and makes the book available in the reader catalog.",
+    "upload.bookTitle": "Title",
+    "upload.author": "Author",
+    "upload.rights": "Rights",
+    "upload.rightsOwned": "Owned or public domain",
+    "upload.rightsPublisher": "Publisher catalog rights",
+    "upload.file": "Manuscript file",
+    "upload.submit": "Upload and analyze",
+    "upload.after": "Chat after analysis",
+    "upload.required": "Author, Publisher, Judge, or Super Admin access required to upload books.",
+    "upload.allowed": "Access granted: upload, analysis, embeddings, and catalog publishing.",
     "author.eyebrow": "Author Workspace",
     "author.title": "Book submission pipeline",
     "author.review": "Review",
@@ -437,6 +452,20 @@ const copy = {
     "reader.favorite": "Marcar favorito",
     "reader.favoriteSaved": "Seccion favorita guardada",
     "reader.noNotes": "Todavia no hay notas en esta seccion.",
+    "upload.eyebrow": "Subir y generar",
+    "upload.title": "Crear una nueva experiencia de libro",
+    "upload.body":
+      "Anade un manuscrito propio o libre de derechos. La plataforma lo divide, crea embeddings, extrae personajes y lo deja disponible en el catalogo del lector.",
+    "upload.bookTitle": "Titulo",
+    "upload.author": "Autor",
+    "upload.rights": "Derechos",
+    "upload.rightsOwned": "Propio o libre de derechos",
+    "upload.rightsPublisher": "Derechos de catalogo editorial",
+    "upload.file": "Archivo del manuscrito",
+    "upload.submit": "Subir y analizar",
+    "upload.after": "Chatear tras el analisis",
+    "upload.required": "Hace falta acceso de autor, editorial, juez o superadmin para subir libros.",
+    "upload.allowed": "Acceso concedido: subida, analisis, embeddings y publicacion en catalogo.",
     "author.eyebrow": "Espacio de autor",
     "author.title": "Pipeline de envio de libro",
     "author.review": "Revisar",
@@ -935,6 +964,7 @@ function applyAccess() {
   const canExport = hasPermission("export_catalog_insights") || hasPermission("manage_tenants");
   const canOperate = hasPermission("manage_tenants");
   els.runAuthorWorkflow.disabled = !canAuthor;
+  els.uploadBook.disabled = !canAuthor;
   els.runPublisher.disabled = !canPublish;
   els.refreshAdmin.disabled = !canPublish;
   els.exportMarketplace.disabled = !canExport;
@@ -945,6 +975,11 @@ function applyAccess() {
     ? `${t("login.allowed")}: author workflow`
     : state.session
       ? "Author or Super Admin access required."
+      : t("login.required");
+  els.readerUploadAccess.textContent = canAuthor
+    ? t("upload.allowed")
+    : state.session
+      ? t("upload.required")
       : t("login.required");
   els.publisherAccess.textContent = canPublish
     ? `${t("login.allowed")}: publisher catalog`
@@ -957,6 +992,7 @@ function applyAccess() {
       ? t("login.superRequired")
       : t("login.required");
   els.authorAccess.className = canAuthor ? "access-box granted" : "access-box locked";
+  els.readerUploadAccess.className = canAuthor ? "access-box granted" : "access-box locked";
   els.publisherAccess.className = canPublish ? "access-box granted" : "access-box locked";
   els.adminAccess.className = canOperate ? "access-box granted" : "access-box locked";
   els.cleanupResult.className = canOperate ? "access-box granted" : "access-box locked";
