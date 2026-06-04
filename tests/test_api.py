@@ -339,11 +339,34 @@ def test_admin_marketplace() -> None:
     assert body["catalog"][0]["book_id"] == "don-quijote"
     assert body["catalog"][0]["languages"] == ["en", "es"]
     assert body["catalog"][0]["reader_signals"]["readers"] >= 0
+    assert "section_signals" in body["catalog"][0]
     assert body["catalog"][0]["business_action"]
     assert body["catalog"][0]["readiness_level"]
     assert body["operations"]["agentHealth"] == "healthy"
     assert body["operations"]["users"] == 5
     assert "readerEngagement" in body["operations"]
+
+
+def test_admin_marketplace_includes_section_level_engagement() -> None:
+    client = TestClient(app)
+    headers = {"authorization": "Bearer demo-token:reader-demo"}
+    client.post(
+        "/api/v1/reader/progress",
+        headers=headers,
+        json={
+            "book_id": "don-quijote",
+            "section_id": "quijote-section-3",
+            "section_index": 2,
+            "progress_percent": 60,
+        },
+    )
+    response = client.get(
+        "/api/v1/admin/marketplace",
+        headers={"authorization": "Bearer demo-token:publisher-demo"},
+    )
+    assert response.status_code == 200
+    sections = response.json()["catalog"][0]["section_signals"]
+    assert any(section["section_id"] == "quijote-section-3" for section in sections)
 
 
 def test_judge_can_access_marketplace_admin() -> None:

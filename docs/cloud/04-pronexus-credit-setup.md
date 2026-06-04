@@ -45,13 +45,13 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 
 - Service: `stormsboys-agents-api`.
 - Region: `us-central1`.
-- Revision: `stormsboys-agents-api-00041-rq9`.
+- Revision: `stormsboys-agents-api-00042-m5h`.
 - Runtime service account: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - URL canonica: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
 - URL alternativa: `https://stormsboys-agents-api-425710112361.us-central1.run.app`.
-- Trafico: 100% a la revision `stormsboys-agents-api-00041-rq9`.
+- Trafico: 100% a la revision `stormsboys-agents-api-00042-m5h`.
 - Ultimo image digest desplegado:
-  `sha256:336c7a70e95e22dbf4159421bfea71ed18d2db4c6d8b5e432729fb1c097874e9`.
+  `sha256:2a6335ed887d3fac48d80a08930787e972f669b5cedc3f38a2ac619246edb2de`.
 - Smoke test publico: pasa el 2026-06-04.
 - Reader publico: revision `stormsboys-agents-api-00038-2ps` sirve catalogo
   navegable, progreso local y CTA `Talk now`; el HTML canonico contiene
@@ -65,6 +65,8 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 - Marketplace Admin publico: revision `stormsboys-agents-api-00041-rq9` muestra
   `reader_signals`, `business_action` y `readiness_level` por titulo en un tablero
   editorial de engagement para Track 3.
+- Marketplace Admin publico: revision `stormsboys-agents-api-00042-m5h` muestra
+  `section_signals` por titulo para drill-down editorial por seccion.
 - Upload publico: pasa el 2026-06-04 con manuscrito textual, catalogo y chat por `book_id`.
 - Upload Gemini-first publico: `The Glass Observatory` pasa el 2026-06-04 con
   `LiteraryAnalysisAgent` usando `gemini-2.5-flash`, Cloud SQL/pgvector,
@@ -134,6 +136,9 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 - Publisher engagement verificado: `/api/v1/admin/marketplace` en Cloud Run devuelve
   Don Quijote con `reader_signals.progress_events=1`, `notes=1`, `readers=1` y
   `business_action=Package as a premium discussion title`.
+- Section engagement verificado: `/api/v1/admin/marketplace` en Cloud Run devuelve
+  `section_signals` para `quijote-section-2` con `progress_events=1`, `notes=1`
+  y `readers=1`.
 - Upload smoke publico: `The Orchard of Mirrors` creo
   `book_id=upload-the-orchard-of-mirrors-46f285dceb`, `character_id=elena`,
   catalogo visible para `author-demo` y chat canonico con citas de secciones subidas.

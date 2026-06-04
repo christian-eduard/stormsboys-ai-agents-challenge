@@ -1140,6 +1140,45 @@ button.secondary:hover {
   text-align: right;
 }
 
+.section-drilldown {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.section-drilldown summary {
+  cursor: pointer;
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.section-signal-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.section-signal-row {
+  display: grid;
+  grid-template-columns: minmax(96px, 1fr) repeat(4, minmax(0, 0.8fr));
+  gap: 6px;
+  align-items: center;
+  padding: 8px;
+  background: #f4f7f6;
+}
+
+.section-signal-row strong,
+.section-signal-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+.section-signal-row span {
+  color: var(--muted);
+  font-weight: 700;
+}
+
 .split-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1497,6 +1536,7 @@ textarea {
   .journey-steps,
   .signal-grid,
   .catalog-signals,
+  .section-signal-row,
   .track-proof-grid {
     grid-template-columns: 1fr;
   }

@@ -352,20 +352,46 @@ def _local_reader_engagement_summary() -> dict[str, object]:
                 "notes": 0,
                 "favorites": 0,
                 "readers": set(),
+                "sections": {},
             },
         )
         summary["readers"].add(event["user_id"])  # type: ignore[union-attr]
+        sections = summary["sections"]  # type: ignore[assignment]
+        section = sections.setdefault(  # type: ignore[attr-defined]
+            str(event["section_id"]),
+            {
+                "section_id": event["section_id"],
+                "section_index": event["section_index"],
+                "progress_events": 0,
+                "notes": 0,
+                "favorites": 0,
+                "readers": set(),
+                "last_signal_at": event["created_at"],
+            },
+        )
+        section["readers"].add(event["user_id"])
+        section["last_signal_at"] = event["created_at"]
         if event["event_type"] == "progress":
             summary["progress_events"] += 1  # type: ignore[operator]
+            section["progress_events"] += 1
         elif event["event_type"] == "note":
             summary["notes"] += 1  # type: ignore[operator]
+            section["notes"] += 1
         elif event["event_type"] == "favorite":
             summary["favorites"] += 1  # type: ignore[operator]
+            section["favorites"] += 1
     return {
         "books": [
             {
-                **summary,
+                **{key: value for key, value in summary.items() if key != "sections"},
                 "readers": len(summary["readers"]),  # type: ignore[arg-type]
+                "sections": [
+                    {
+                        **{key: value for key, value in section.items() if key != "readers"},
+                        "readers": len(section["readers"]),
+                    }
+                    for section in summary["sections"].values()  # type: ignore[union-attr]
+                ][:5],
             }
             for summary in books.values()
         ]
@@ -381,6 +407,10 @@ def _empty_reader_signals() -> dict[str, int]:
     }
 
 
+def _empty_section_signals() -> list[dict[str, object]]:
+    return []
+
+
 def _reader_signals_for_book(
     reader_engagement: dict[str, object],
     book_id: str,
@@ -394,6 +424,16 @@ def _reader_signals_for_book(
                 "readers": int(item.get("readers", 0)),
             }
     return _empty_reader_signals()
+
+
+def _section_signals_for_book(
+    reader_engagement: dict[str, object],
+    book_id: str,
+) -> list[dict[str, object]]:
+    for item in reader_engagement.get("books", []):
+        if isinstance(item, dict) and item.get("book_id") == book_id:
+            return list(item.get("sections", _empty_section_signals()))
+    return _empty_section_signals()
 
 
 def _publisher_action_for_signals(signals: dict[str, int]) -> str:
@@ -749,6 +789,7 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
     else:
         reader_engagement = _local_reader_engagement_summary()
     demo_reader_signals = _reader_signals_for_book(reader_engagement, DEMO_BOOK_ID)
+    demo_section_signals = _section_signals_for_book(reader_engagement, DEMO_BOOK_ID)
     demo_catalog_item = {
         "book_id": DEMO_BOOK_ID,
         "title": DEMO_BOOK_TITLE,
@@ -761,6 +802,7 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
         "agent_modes": ["CANON", "FICTION"],
         "quality_score": round(evaluation.optimized_passed / evaluation.total_cases, 2),
         "reader_signals": demo_reader_signals,
+        "section_signals": demo_section_signals,
         "business_action": _publisher_action_for_signals(demo_reader_signals),
         "readiness_level": "active_reader_signal"
         if sum(demo_reader_signals.values())
@@ -769,6 +811,7 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
     uploaded_catalog_items = []
     for book in uploaded_catalog:
         reader_signals = _reader_signals_for_book(reader_engagement, str(book["book_id"]))
+        section_signals = _section_signals_for_book(reader_engagement, str(book["book_id"]))
         uploaded_catalog_items.append(
             {
                 "book_id": book["book_id"],
@@ -784,6 +827,7 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
                 "agent_modes": ["CANON", "FICTION"],
                 "quality_score": 0.82,
                 "reader_signals": reader_signals,
+                "section_signals": section_signals,
                 "business_action": _publisher_action_for_signals(reader_signals),
                 "readiness_level": "active_reader_signal"
                 if sum(reader_signals.values())

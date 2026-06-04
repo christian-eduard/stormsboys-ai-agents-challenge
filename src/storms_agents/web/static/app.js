@@ -272,6 +272,9 @@ const copy = {
     "marketplace.action": "Next action",
     "marketplace.quality": "Quality",
     "marketplace.availability": "Availability",
+    "marketplace.sectionSignals": "Section signals",
+    "marketplace.noSectionSignals": "No section-level signals yet.",
+    "marketplace.lastSignal": "Last signal",
     "operations.eyebrow": "Superadmin operations",
     "operations.title": "Platform controls",
     "operations.refresh": "Refresh",
@@ -478,6 +481,9 @@ const copy = {
     "marketplace.action": "Siguiente accion",
     "marketplace.quality": "Calidad",
     "marketplace.availability": "Disponibilidad",
+    "marketplace.sectionSignals": "Senales por seccion",
+    "marketplace.noSectionSignals": "Aun no hay senales por seccion.",
+    "marketplace.lastSignal": "Ultima senal",
     "operations.eyebrow": "Operaciones superadmin",
     "operations.title": "Controles de plataforma",
     "operations.refresh": "Actualizar",
@@ -1529,6 +1535,34 @@ function totalReaderSignals(signals) {
   );
 }
 
+function sectionSignals(book) {
+  return book.section_signals ?? [];
+}
+
+function renderSectionSignalRows(book) {
+  const sections = sectionSignals(book);
+  if (!sections.length) {
+    return `<p class="board-empty">${t("marketplace.noSectionSignals")}</p>`;
+  }
+  return `
+    <div class="section-signal-list" aria-label="${t("marketplace.sectionSignals")}">
+      ${sections
+        .map(
+          (section) => `
+            <div class="section-signal-row">
+              <strong>Section ${(section.section_index ?? 0) + 1}</strong>
+              <span>${section.readers ?? 0} ${t("marketplace.readers")}</span>
+              <span>${section.progress_events ?? 0} ${t("marketplace.progress")}</span>
+              <span>${section.notes ?? 0} ${t("marketplace.notes")}</span>
+              <span>${section.favorites ?? 0} ${t("marketplace.favorites")}</span>
+            </div>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
 function renderPublisherEngagementBoard(catalog = []) {
   if (!els.publisherEngagementBoard) {
     return;
@@ -1570,6 +1604,10 @@ function renderPublisherEngagementBoard(catalog = []) {
         <span>${t("marketplace.quality")} ${quality}%</span>
         <strong>${book.business_action ?? t("marketplace.action")}</strong>
       </div>
+      <details class="section-drilldown" ${sectionSignals(book).length ? "open" : ""}>
+        <summary>${t("marketplace.sectionSignals")}</summary>
+        ${renderSectionSignalRows(book)}
+      </details>
     `;
     els.publisherEngagementBoard.appendChild(row);
   });

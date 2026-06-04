@@ -199,14 +199,15 @@ CTA directo a chat. El chat web envia `book_id: state.currentBookId`, por lo que
 personajes queda anclado al libro activo.
 
 Corregido para demo: el panel Admin/Marketplace ya muestra un tablero editorial
-`ENGAGEMENT BOARD` con `reader_signals`, estado de readiness y siguiente accion de negocio
-por titulo. Don Quijote aparece con senales reales persistidas en Cloud SQL.
+`ENGAGEMENT BOARD` con `reader_signals`, `section_signals`, estado de readiness y
+siguiente accion de negocio por titulo. Don Quijote aparece con senales reales
+persistidas en Cloud SQL y drill-down por seccion.
 
 Impacto: el producto se entiende, pero el usuario puede sentir que falta aplicacion lectora.
 
 Accion:
 
-- Si queda tiempo, anadir drill-down por seccion/personaje dentro de cada titulo.
+- Si queda tiempo, anadir drill-down por personaje dentro de cada titulo.
 
 ### P2 - Idioma Espanol Existe En Chat/UI, Pero No En Todo El Producto
 
@@ -229,7 +230,7 @@ Accion:
 3. Ajustar lenguaje A2A/MCP para no sobreprometer.
 4. Exportar o adjuntar arquitectura como imagen si Devpost no acepta Mermaid.
 5. Probar demo desde navegador limpio con `Judge Access`.
-6. Opcional fuerte: mejorar panel Publisher con drill-down por seccion/personaje.
+6. Opcional fuerte: mejorar panel Publisher con drill-down por personaje.
 7. Opcional fuerte: agregar metrica real de interacciones por libro para Publisher.
 
 ## Veredicto

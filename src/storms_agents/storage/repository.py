@@ -760,7 +760,7 @@ class StorageRepository:
     def reader_engagement_summary(self) -> dict[str, object]:
         self.initialize_schema()
         with self.engine.connect() as connection:
-            rows = list(
+            book_rows = list(
                 connection.execute(
                     text(
                         """
@@ -778,6 +778,42 @@ class StorageRepository:
                     )
                 ).mappings()
             )
+            section_rows = list(
+                connection.execute(
+                    text(
+                        """
+                        SELECT
+                          book_id,
+                          section_id,
+                          section_index,
+                          COUNT(*) FILTER (WHERE event_type = 'progress') AS progress_events,
+                          COUNT(*) FILTER (WHERE event_type = 'note') AS notes,
+                          COUNT(*) FILTER (WHERE event_type = 'favorite') AS favorites,
+                          COUNT(DISTINCT user_id) AS readers,
+                          MAX(created_at) AS last_signal_at
+                        FROM reader_events
+                        GROUP BY book_id, section_id, section_index
+                        ORDER BY MAX(created_at) DESC
+                        LIMIT 50
+                        """
+                    )
+                ).mappings()
+            )
+        sections_by_book: dict[str, list[dict[str, object]]] = {}
+        for row in section_rows:
+            sections_by_book.setdefault(str(row["book_id"]), []).append(
+                {
+                    "section_id": row["section_id"],
+                    "section_index": row["section_index"],
+                    "progress_events": row["progress_events"],
+                    "notes": row["notes"],
+                    "favorites": row["favorites"],
+                    "readers": row["readers"],
+                    "last_signal_at": row["last_signal_at"].isoformat()
+                    if hasattr(row["last_signal_at"], "isoformat")
+                    else str(row["last_signal_at"]),
+                }
+            )
         return {
             "books": [
                 {
@@ -786,8 +822,9 @@ class StorageRepository:
                     "notes": row["notes"],
                     "favorites": row["favorites"],
                     "readers": row["readers"],
+                    "sections": sections_by_book.get(str(row["book_id"]), [])[:5],
                 }
-                for row in rows
+                for row in book_rows
             ]
         }
 
