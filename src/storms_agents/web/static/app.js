@@ -7,7 +7,7 @@ const state = {
   currentBookId: "don-quijote",
   currentBookDetail: null,
   currentSectionIndex: 0,
-  currentView: "dashboard",
+  currentView: "reader",
   session: null,
   currentCharacterSessionId: "judge-demo-session",
 };
@@ -891,7 +891,7 @@ async function loginAs(userId) {
   renderShell();
   renderRoleDashboard();
   applyViewAccess();
-  setView("dashboard");
+  setView("reader");
   await loadReaderCatalog();
   await loadAdmin();
 }
@@ -2280,7 +2280,7 @@ els.markReaderFavorite.addEventListener("click", () => {
 
 applyLanguage(els.languageSelect.value);
 renderShell();
-setView("dashboard");
+setView("reader");
 
 loadBook()
   .then(runEvaluation)
