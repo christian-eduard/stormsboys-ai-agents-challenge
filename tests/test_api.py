@@ -444,6 +444,30 @@ def test_publisher_can_export_marketplace_insights() -> None:
     assert body["operations"]["agentHealth"] == "healthy"
 
 
+def test_reader_cannot_export_marketplace_csv() -> None:
+    client = TestClient(app)
+    response = client.get(
+        "/api/v1/admin/marketplace/export.csv",
+        headers={"authorization": "Bearer demo-token:reader-demo"},
+    )
+    assert response.status_code == 403
+
+
+def test_publisher_can_export_marketplace_csv() -> None:
+    client = TestClient(app)
+    response = client.get(
+        "/api/v1/admin/marketplace/export.csv",
+        headers={"authorization": "Bearer demo-token:publisher-demo"},
+    )
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/csv")
+    assert "stormsboys-marketplace-insights.csv" in response.headers[
+        "content-disposition"
+    ]
+    assert "book_id,title,availability" in response.text
+    assert "don-quijote" in response.text
+
+
 def test_demo_author_workflow_requires_author_access() -> None:
     client = TestClient(app)
     response = client.get(

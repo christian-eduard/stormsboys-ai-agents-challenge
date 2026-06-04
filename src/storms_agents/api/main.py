@@ -1,13 +1,14 @@
+import csv
 import hashlib
 import re
 from datetime import UTC, datetime
 from importlib.resources import files
-from io import BytesIO
+from io import BytesIO, StringIO
 from typing import Annotated
 
 import uvicorn
 from fastapi import FastAPI, File, Form, Header, HTTPException, Query, UploadFile
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -942,14 +943,7 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
     return _marketplace_payload(user)
 
 
-@app.get("/api/v1/admin/marketplace/export")
-def export_marketplace_insights(
-    authorization: str | None = Header(default=None),
-) -> dict[str, object]:
-    user = _require_any_permission(
-        authorization,
-        {"export_catalog_insights", "manage_tenants"},
-    )
+def _marketplace_export_payload(user: dict[str, object]) -> dict[str, object]:
     marketplace = _marketplace_payload(user)
     catalog = [
         {
@@ -979,6 +973,92 @@ def export_marketplace_insights(
         "catalog": catalog,
         "operations": marketplace["operations"],
     }
+
+
+@app.get("/api/v1/admin/marketplace/export")
+def export_marketplace_insights(
+    authorization: str | None = Header(default=None),
+) -> dict[str, object]:
+    user = _require_any_permission(
+        authorization,
+        {"export_catalog_insights", "manage_tenants"},
+    )
+    return _marketplace_export_payload(user)
+
+
+@app.get("/api/v1/admin/marketplace/export.csv")
+def export_marketplace_insights_csv(
+    authorization: str | None = Header(default=None),
+) -> Response:
+    user = _require_any_permission(
+        authorization,
+        {"export_catalog_insights", "manage_tenants"},
+    )
+    payload = _marketplace_export_payload(user)
+    output = StringIO()
+    writer = csv.DictWriter(
+        output,
+        fieldnames=[
+            "book_id",
+            "title",
+            "availability",
+            "languages",
+            "quality_score",
+            "reader_signals",
+            "section_signals",
+            "character_turns",
+            "character_sessions",
+            "character_preferences",
+            "business_action",
+            "readiness_level",
+        ],
+    )
+    writer.writeheader()
+    for item in payload["catalog"]:
+        if not isinstance(item, dict):
+            continue
+        reader_signals = item.get("reader_signals", {})
+        section_signals = item.get("section_signals", [])
+        character_signals = item.get("character_signals", [])
+        character_turns = 0
+        character_sessions = 0
+        character_preferences = 0
+        if isinstance(character_signals, list):
+            for character in character_signals:
+                if not isinstance(character, dict):
+                    continue
+                character_turns += int(character.get("turns", 0))
+                character_sessions += int(character.get("sessions", 0))
+                character_preferences += int(character.get("preferences", 0))
+        writer.writerow(
+            {
+                "book_id": item.get("book_id", ""),
+                "title": item.get("title", ""),
+                "availability": item.get("availability", ""),
+                "languages": "|".join(item.get("languages", [])),
+                "quality_score": item.get("quality_score", ""),
+                "reader_signals": sum(reader_signals.values())
+                if isinstance(reader_signals, dict)
+                else 0,
+                "section_signals": len(section_signals)
+                if isinstance(section_signals, list)
+                else 0,
+                "character_turns": character_turns,
+                "character_sessions": character_sessions,
+                "character_preferences": character_preferences,
+                "business_action": item.get("business_action", ""),
+                "readiness_level": item.get("readiness_level", ""),
+            }
+        )
+    return Response(
+        output.getvalue(),
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": (
+                'attachment; filename="stormsboys-marketplace-insights.csv"'
+            )
+        },
+    )
 
 
 @app.post("/api/v1/books/upload")

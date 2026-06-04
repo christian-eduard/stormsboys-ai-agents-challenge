@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
+  <title id="title">Stormsboys AI Agents Architecture</title>
+  <desc id="desc">Cloud Run web and API connected to an ADK-first agent layer, Gemini, Cloud SQL pgvector, Secret Manager, traces, and Publisher/Admin exports.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f5f8fb; }
+      .box { fill: #ffffff; stroke: #c8d6e2; stroke-width: 2; rx: 8; }
+      .cloud { fill: #e9f2ff; stroke: #2c5f9e; }
+      .agent { fill: #eaf8f2; stroke: #1f7a6d; }
+      .judge { fill: #fff4df; stroke: #b78a3b; }
+      .export { fill: #f2ecff; stroke: #6c4bb3; }
+      .title { fill: #18202a; font-family: Arial, sans-serif; font-size: 26px; font-weight: 700; }
+      .label { fill: #18202a; font-family: Arial, sans-serif; font-size: 16px; font-weight: 700; }
+      .small { fill: #536273; font-family: Arial, sans-serif; font-size: 13px; }
+      .line { stroke: #7890a4; stroke-width: 2.4; fill: none; marker-end: url(#arrow); }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#7890a4" />
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1280" height="760" />
+  <text class="title" x="48" y="54">Stormsboys AI Agents: Marketplace-Oriented Cloud Architecture</text>
+  <text class="small" x="48" y="80">Build + Optimize + Refactor evidence for Google for Startups AI Agents Challenge</text>
+
+  <rect class="box judge" x="48" y="126" width="180" height="82" />
+  <text class="label" x="70" y="158">Judges / Readers</text>
+  <text class="small" x="70" y="184">Demo access, books, chat</text>
+
+  <rect class="box cloud" x="292" y="118" width="214" height="98" />
+  <text class="label" x="314" y="153">Cloud Run Web</text>
+  <text class="small" x="314" y="179">FastAPI static UI</text>
+  <text class="small" x="314" y="197">Role-based demo shell</text>
+
+  <rect class="box cloud" x="566" y="118" width="214" height="98" />
+  <text class="label" x="588" y="153">FastAPI /api/v1</text>
+  <text class="small" x="588" y="179">Auth, upload, chat</text>
+  <text class="small" x="588" y="197">Admin exports</text>
+
+  <rect class="box agent" x="842" y="116" width="236" height="102" />
+  <text class="label" x="864" y="151">ADK-first Agent Layer</text>
+  <text class="small" x="864" y="177">Root agent + traces</text>
+  <text class="small" x="864" y="195">HTTP JSON / agent card</text>
+
+  <path class="line" d="M228 167 H292" />
+  <path class="line" d="M506 167 H566" />
+  <path class="line" d="M780 167 H842" />
+
+  <rect class="box agent" x="90" y="304" width="210" height="76" />
+  <text class="label" x="110" y="335">Book Ingestion</text>
+  <text class="small" x="110" y="360">TXT, MD, textual PDF</text>
+
+  <rect class="box agent" x="330" y="304" width="210" height="76" />
+  <text class="label" x="350" y="335">Literary Analysis</text>
+  <text class="small" x="350" y="360">Characters + psychology</text>
+
+  <rect class="box agent" x="570" y="304" width="210" height="76" />
+  <text class="label" x="590" y="335">Retrieval Agent</text>
+  <text class="small" x="590" y="360">Grounded book context</text>
+
+  <rect class="box agent" x="810" y="304" width="210" height="76" />
+  <text class="label" x="830" y="335">Character Agent</text>
+  <text class="small" x="830" y="360">Canon / fiction modes</text>
+
+  <rect class="box agent" x="1050" y="304" width="210" height="76" />
+  <text class="label" x="1070" y="335">Scene / Voice</text>
+  <text class="small" x="1070" y="360">Group scene + SSML plan</text>
+
+  <path class="line" d="M960 218 V260 H195 V304" />
+  <path class="line" d="M960 260 H435 V304" />
+  <path class="line" d="M960 260 H675 V304" />
+  <path class="line" d="M960 260 H915 V304" />
+  <path class="line" d="M960 260 H1155 V304" />
+
+  <rect class="box cloud" x="120" y="500" width="230" height="88" />
+  <text class="label" x="142" y="535">Vertex AI / Gemini</text>
+  <text class="small" x="142" y="560">gemini-2.5-flash</text>
+  <text class="small" x="142" y="578">gemini-embedding-001</text>
+
+  <rect class="box cloud" x="420" y="500" width="230" height="88" />
+  <text class="label" x="442" y="535">Cloud SQL PostgreSQL</text>
+  <text class="small" x="442" y="560">pgvector retrieval</text>
+  <text class="small" x="442" y="578">memory + fiction branches</text>
+
+  <rect class="box cloud" x="720" y="500" width="210" height="88" />
+  <text class="label" x="742" y="535">Secret Manager</text>
+  <text class="small" x="742" y="560">DATABASE_URL</text>
+  <text class="small" x="742" y="578">managed runtime identity</text>
+
+  <rect class="box export" x="1000" y="486" width="230" height="116" />
+  <text class="label" x="1022" y="526">Publisher/Admin</text>
+  <text class="small" x="1022" y="552">Marketplace readiness</text>
+  <text class="small" x="1022" y="572">JSON + CSV insights</text>
+  <text class="small" x="1022" y="592">Reader + character signals</text>
+
+  <path class="line" d="M435 380 V440 H235 V500" />
+  <path class="line" d="M675 380 V500" />
+  <path class="line" d="M675 380 V440 H235 V500" />
+  <path class="line" d="M673 216 V462 H825 V500" />
+  <path class="line" d="M780 167 H1115 V486" />
+  <path class="line" d="M915 380 V448 H535 V500" />
+  <path class="line" d="M1078 167 H1115 V486" />
+
+  <rect class="box cloud" x="48" y="654" width="1184" height="54" />
+  <text class="label" x="72" y="687">Observability:</text>
+  <text class="small" x="196" y="687">Cloud Logging, agent traces, Track 2 before/after evaluation, runtime proof endpoints, and smoke tests.</text>
+</svg>

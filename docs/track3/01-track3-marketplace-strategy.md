@@ -67,6 +67,8 @@ Objetivo minimo:
 - Publicar agent card.
 - Exponer capacidades de ingestion, character chat, canon guardrail, fiction branch y publisher insights.
 - Preparar puente A2A con ADK cuando el tiempo lo permita.
+- Documentar el contrato implementado sin sobreprometer runtime A2A completo:
+  `docs/track3/02-agent-interoperability-contract.md`.
 
 ### Marketplace Readiness
 
@@ -90,6 +92,7 @@ Estado demo implementado:
 - `/api/v1/admin/roles`: matriz de roles `reader`, `author`, `publisher_admin`, `super_admin`, `judge_access`.
 - `/api/v1/admin/marketplace`: tenant demo, catalogo, readiness Marketplace y metricas de operacion; requiere token demo con `manage_catalog` o `manage_tenants`.
 - `/api/v1/admin/marketplace/export`: paquete JSON de insights editoriales para Publisher/Admin con catalogo, readiness, `reader_signals`, `section_signals`, `character_signals` y totales; requiere `export_catalog_insights` o `manage_tenants`.
+- `/api/v1/admin/marketplace/export.csv`: descarga CSV protegida para reporting editorial y agentes externos.
 - `/api/v1/demo/publisher`: insights publisher protegidos por token demo.
 - UI `Testing access`: pantalla inicial con cuentas demo y entrada dedicada `Judge Access`.
 - UI `Role dashboard`: cada cuenta ve acciones y navegacion filtradas por su rol.

@@ -9,6 +9,7 @@ Target length: 90 seconds.
 ## Pre-Recording Setup
 
 - Open: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
+- Sign in with `Judge Access` if the access screen appears.
 - Zoom browser to 100%.
 - Keep DevTools closed.
 - Use the default prompts already loaded in the UI.
@@ -58,15 +59,16 @@ Say:
 
 "The Scene Orchestrator coordinates multiple character agents, so the book behaves like a multi-agent environment rather than a single assistant."
 
-### 1:15-1:25 Voice And Publisher
+### 1:15-1:30 Voice And Publisher
 
-Click `Prepare` in Voice / Narration Agent, then `Analyze` in Publisher Insights Agent.
+Click `Prepare` in Voice / Narration Agent, then open `Admin` and click
+`Export insights`.
 
 Say:
 
-"The same agent layer can prepare narration handoff for TTS and produce publisher insights such as engagement, quality, and recommendations."
+"The same agent layer can prepare narration handoff for TTS and expose protected publisher operations. The Marketplace console exports catalog readiness, reader signals, section signals, and character engagement as JSON or CSV."
 
-### 1:25-1:40 Track 2 Evaluation
+### 1:30-1:43 Track 2 Evaluation
 
 Click `Run` in evaluation if needed.
 
@@ -74,7 +76,7 @@ Say:
 
 "The evaluation panel shows baseline versus optimized behavior across twelve cases, including grounding, voice, missing evidence, multilingual prompts, and multi-step reasoning."
 
-### 1:40-1:55 Runtime Proof
+### 1:43-1:57 Runtime Proof
 
 Scroll to Runtime.
 
@@ -82,7 +84,7 @@ Say:
 
 "The public demo is deployed on Cloud Run, uses Gemini through Vertex AI, Gemini embeddings, Cloud SQL PostgreSQL with pgvector, Secret Manager, and visible agent traces."
 
-### 1:55-2:00 Close
+### 1:57-2:00 Close
 
 "Stormsboys is a production-oriented multi-agent literary intelligence platform for readers, authors, publishers, and education."
 

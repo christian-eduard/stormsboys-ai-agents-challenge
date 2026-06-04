@@ -88,6 +88,12 @@ Ya existe:
 - Endpoints auth/admin: `/api/v1/auth/demo-users`, `/api/v1/auth/demo-login`, `/api/v1/admin/roles` y `/api/v1/admin/marketplace`.
 - Endpoint superadmin para limpiar solo memoria/rama de una sesion demo:
   `DELETE /api/v1/admin/demo-sessions/{session_id}`.
+- Endpoint publisher/admin para export CSV:
+  `GET /api/v1/admin/marketplace/export.csv`.
+- Contrato honesto de interoperabilidad agentica:
+  `docs/track3/02-agent-interoperability-contract.md`.
+- Diagrama visual listo para adjuntar en Devpost:
+  `docs/submission/architecture-diagram.svg`.
 
 ## Comandos Basicos
 
@@ -115,7 +121,7 @@ http://127.0.0.1:8080
 
 Ultima validacion local conocida:
 
-- Tests en contenedor Python 3.11: pasan, 51 tests.
+- Tests en contenedor Python 3.11: pasan, 57 tests.
 - Ruff en contenedor Python 3.11: pasa.
 - `node --check src/storms_agents/web/static/app.js`: pasa.
 - `make public-ready`: pasa.

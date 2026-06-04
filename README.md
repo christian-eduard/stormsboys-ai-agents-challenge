@@ -36,6 +36,7 @@ Proyecto nuevo para preparar la entrega de Stormsboys Libros IA al Google for St
 Diagrama para Devpost:
 
 - `docs/submission/architecture-diagram.mmd`
+- `docs/submission/architecture-diagram.svg`
 
 Resumen:
 
@@ -150,7 +151,7 @@ BASE_URL=https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app make smoke
 
 Ultima validacion conocida:
 
-- Tests Docker/Python 3.11: 55 passed.
+- Tests Docker/Python 3.11: 57 passed.
 - Lint: passed.
 - Public-ready scan: passed.
 - Public smoke test: passed.
@@ -177,5 +178,6 @@ Ultima validacion conocida:
 - Publisher/Admin: tablero Track 3 con `reader_signals`, `business_action` y
   readiness por titulo desde Cloud SQL, mas drill-down `section_signals` por seccion
   y `character_signals` por personaje/modo. Incluye export protegido
-  `/api/v1/admin/marketplace/export` para paquete JSON de insights editoriales.
-- Tests: 55 tests pasan en Python 3.11.
+  `/api/v1/admin/marketplace/export` para paquete JSON de insights editoriales y
+  `/api/v1/admin/marketplace/export.csv` para descarga CSV.
+- Tests: 57 tests pasan en Python 3.11.

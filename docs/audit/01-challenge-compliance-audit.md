@@ -4,7 +4,7 @@ Fecha: 2026-06-04.
 
 ## Resumen Ejecutivo
 
-El proyecto esta en buen estado para demo tecnica: compila, pasa lint, pasa 50 tests en
+El proyecto esta en buen estado para demo tecnica: compila, pasa lint, pasa tests en
 Docker/Python 3.11, pasa `public-ready`, pasa smoke publico y esta desplegado en Cloud Run.
 
 La base cumple una parte importante del challenge:
@@ -43,7 +43,7 @@ Resultado:
 
 - Ruff: passed.
 - Public-ready scan: passed.
-- Tests Docker/Python 3.11: 50 passed.
+- Tests Docker/Python 3.11: 57 passed.
 - Public smoke: passed.
 
 ## Matriz Contra El Challenge
@@ -52,7 +52,7 @@ Resultado:
 | --- | --- | --- | --- |
 | Code | Cumple | Repo publico y tests pasan | Bajo |
 | Video 1-2 min en ingles | Pendiente | `docs/submission/05-devpost-fields-en.md` mantiene `TODO` para video | Alto |
-| Architecture diagram | Cumple parcialmente | `docs/submission/architecture-diagram.mmd` existe | Medio si no se exporta/adjunta visualmente |
+| Architecture diagram | Cumple | `docs/submission/architecture-diagram.mmd` y `.svg` existen | Bajo |
 | Testing access | Cumple | Demo publica y `Judge Access` | Bajo |
 | Technical Implementation 30% | Fuerte con matices | Cloud Run, Gemini, Cloud SQL, pgvector, agentes, trazas | Medio por ADK/A2A y evaluacion determinista |
 | Business Case 30% | Fuerte | Publisher/admin, catalogo, B2B docs | Medio por metricas demo no basadas en uso real |
@@ -139,6 +139,10 @@ Accion:
 - Si queda tiempo: crear un endpoint interoperable minimo mas cercano a A2A real, o una
   seccion de docs con contrato de invocacion por agente.
 
+Corregido adicionalmente: `docs/track3/02-agent-interoperability-contract.md` documenta
+el contrato implementado, ejemplos `curl`, lenguaje seguro para Devpost y limites que
+no se deben prometer.
+
 ### P1 - Login Demo Devuelve Reader Si El User ID Es Invalido - Corregido
 
 `auth_demo_login` busca el usuario y si no existe cae a `_demo_users()[0]`.
@@ -203,7 +207,8 @@ Corregido para demo: el panel Admin/Marketplace ya muestra un tablero editorial
 estado de readiness y siguiente accion de negocio por titulo. Don Quijote aparece
 con senales reales persistidas en Cloud SQL y drill-down por seccion/personaje.
 Tambien existe export JSON protegido `/api/v1/admin/marketplace/export` para
-Publisher/Admin con catalogo, readiness, senales y totales.
+Publisher/Admin con catalogo, readiness, senales y totales. La API tambien expone
+`/api/v1/admin/marketplace/export.csv` para descarga CSV protegida.
 
 Impacto: el producto se entiende, pero el usuario puede sentir que falta aplicacion lectora.
 
@@ -230,10 +235,9 @@ Accion:
 1. Grabar video de 1-2 minutos en ingles.
 2. Verificar deadline en Devpost en vivo antes de enviar.
 3. Ajustar lenguaje A2A/MCP para no sobreprometer.
-4. Exportar o adjuntar arquitectura como imagen si Devpost no acepta Mermaid.
+4. Adjuntar `docs/submission/architecture-diagram.svg` si Devpost no acepta Mermaid.
 5. Probar demo desde navegador limpio con `Judge Access`.
-6. Opcional fuerte: agregar descarga CSV adicional si el video necesita mostrar archivo.
-7. Opcional fuerte: agregar metrica real de interacciones por libro para Publisher.
+6. Opcional fuerte: agregar metrica real de interacciones por libro para Publisher.
 
 ## Veredicto
 

@@ -76,6 +76,7 @@ const els = {
   marketplaceSummary: document.querySelector("#marketplaceSummary"),
   marketplaceExportResult: document.querySelector("#marketplaceExportResult"),
   exportMarketplace: document.querySelector("#exportMarketplace"),
+  downloadMarketplaceCsv: document.querySelector("#downloadMarketplaceCsv"),
   adminAccess: document.querySelector("#adminAccess"),
   publisherEngagementBoard: document.querySelector("#publisherEngagementBoard"),
   catalogList: document.querySelector("#catalogList"),
@@ -283,8 +284,11 @@ const copy = {
     "marketplace.sessions": "Sessions",
     "marketplace.preferences": "Prefs",
     "marketplace.export": "Export insights",
+    "marketplace.downloadCsv": "Download CSV",
     "marketplace.exportRunning": "Preparing publisher export package.",
+    "marketplace.csvRunning": "Preparing CSV download.",
     "marketplace.exportReady": "Export package ready",
+    "marketplace.csvReady": "CSV package downloaded",
     "marketplace.exportBlocked": "Publisher Admin or Super Admin export access required.",
     "operations.eyebrow": "Superadmin operations",
     "operations.title": "Platform controls",
@@ -501,8 +505,11 @@ const copy = {
     "marketplace.sessions": "Sesiones",
     "marketplace.preferences": "Prefs",
     "marketplace.export": "Exportar insights",
+    "marketplace.downloadCsv": "Descargar CSV",
     "marketplace.exportRunning": "Preparando paquete de exportacion editorial.",
+    "marketplace.csvRunning": "Preparando descarga CSV.",
     "marketplace.exportReady": "Paquete de exportacion listo",
+    "marketplace.csvReady": "CSV descargado",
     "marketplace.exportBlocked": "Se requiere acceso Publisher Admin o Super Admin para exportar.",
     "operations.eyebrow": "Operaciones superadmin",
     "operations.title": "Controles de plataforma",
@@ -931,6 +938,7 @@ function applyAccess() {
   els.runPublisher.disabled = !canPublish;
   els.refreshAdmin.disabled = !canPublish;
   els.exportMarketplace.disabled = !canExport;
+  els.downloadMarketplaceCsv.disabled = !canExport;
   els.refreshOperations.disabled = !canOperate;
   els.cleanupSession.disabled = !canOperate;
   els.authorAccess.textContent = canAuthor
@@ -1771,6 +1779,44 @@ async function exportMarketplaceInsights() {
   els.marketplaceExportResult.className = "access-box granted";
 }
 
+async function downloadMarketplaceCsv() {
+  if (!(hasPermission("export_catalog_insights") || hasPermission("manage_tenants"))) {
+    applyAccess();
+    return;
+  }
+  els.marketplaceExportResult.textContent = t("marketplace.csvRunning");
+  els.marketplaceExportResult.className = "access-box";
+  let response;
+  try {
+    response = await fetch("/api/v1/admin/marketplace/export.csv", {
+      headers: authHeaders(),
+    });
+  } catch (error) {
+    els.marketplaceExportResult.textContent = `${t("login.denied")}: ${error.message}`;
+    els.marketplaceExportResult.className = "access-box locked";
+    return;
+  }
+  if (!response.ok) {
+    els.marketplaceExportResult.textContent = `${t("login.denied")}: ${response.status}`;
+    els.marketplaceExportResult.className = "access-box locked";
+    return;
+  }
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "stormsboys-marketplace-insights.csv";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  els.marketplaceExportResult.innerHTML = `
+    <strong>${t("marketplace.csvReady")}</strong>
+    <p>stormsboys-marketplace-insights.csv</p>
+  `;
+  els.marketplaceExportResult.className = "access-box granted";
+}
+
 function renderOperations(operations) {
   els.operationsSummary.innerHTML = `
     <div>
@@ -2204,6 +2250,7 @@ els.uploadBook.addEventListener("click", uploadBook);
 els.runPublisher.addEventListener("click", runPublisher);
 els.refreshAdmin.addEventListener("click", loadAdmin);
 els.exportMarketplace.addEventListener("click", exportMarketplaceInsights);
+els.downloadMarketplaceCsv.addEventListener("click", downloadMarketplaceCsv);
 els.refreshOperations.addEventListener("click", loadAdmin);
 els.cleanupSession.addEventListener("click", cleanupDemoSession);
 els.runEvaluation.addEventListener("click", runEvaluation);

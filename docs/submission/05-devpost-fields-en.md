@@ -56,7 +56,14 @@ Stormsboys transforms books into interactive literary worlds. Authors and publis
 - Cloud SQL PostgreSQL with pgvector retrieval.
 - Real manuscript upload, catalog insertion, uploaded-book retrieval, and chat by `book_id`.
 - Agent traces for retrieval, character generation, consistency, narration, and publisher insights.
+- Protected Publisher/Admin JSON and CSV export for Marketplace catalog insights.
+- A2A-ready agent card and HTTP JSON interface, documented without claiming a full A2A runtime.
 - Track 2 evaluation across 12 cases.
+
+## Architecture Diagram
+
+Use `docs/submission/architecture-diagram.svg` as the visual attachment and
+`docs/submission/architecture-diagram.mmd` as the editable source.
 
 ## Known Limitations
 
