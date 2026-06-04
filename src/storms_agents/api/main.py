@@ -372,6 +372,38 @@ def _local_reader_engagement_summary() -> dict[str, object]:
     }
 
 
+def _empty_reader_signals() -> dict[str, int]:
+    return {
+        "progress_events": 0,
+        "notes": 0,
+        "favorites": 0,
+        "readers": 0,
+    }
+
+
+def _reader_signals_for_book(
+    reader_engagement: dict[str, object],
+    book_id: str,
+) -> dict[str, int]:
+    for item in reader_engagement.get("books", []):
+        if isinstance(item, dict) and item.get("book_id") == book_id:
+            return {
+                "progress_events": int(item.get("progress_events", 0)),
+                "notes": int(item.get("notes", 0)),
+                "favorites": int(item.get("favorites", 0)),
+                "readers": int(item.get("readers", 0)),
+            }
+    return _empty_reader_signals()
+
+
+def _publisher_action_for_signals(signals: dict[str, int]) -> str:
+    if signals["notes"] or signals["favorites"]:
+        return "Package as a premium discussion title"
+    if signals["progress_events"]:
+        return "Invite readers into character chat"
+    return "Seed judge/demo reader interactions"
+
+
 @app.get("/", response_class=HTMLResponse)
 def web_demo() -> str:
     return WEB_DIR.joinpath("index.html").read_text(encoding="utf-8")
@@ -716,6 +748,48 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
             reader_engagement = _local_reader_engagement_summary()
     else:
         reader_engagement = _local_reader_engagement_summary()
+    demo_reader_signals = _reader_signals_for_book(reader_engagement, DEMO_BOOK_ID)
+    demo_catalog_item = {
+        "book_id": DEMO_BOOK_ID,
+        "title": DEMO_BOOK_TITLE,
+        "rights": "public-domain demo title",
+        "owner_role": "publisher_admin",
+        "availability": "published",
+        "characters": len(analysis.characters),
+        "scenes": len(analysis.scenes),
+        "languages": ["en", "es"],
+        "agent_modes": ["CANON", "FICTION"],
+        "quality_score": round(evaluation.optimized_passed / evaluation.total_cases, 2),
+        "reader_signals": demo_reader_signals,
+        "business_action": _publisher_action_for_signals(demo_reader_signals),
+        "readiness_level": "active_reader_signal"
+        if sum(demo_reader_signals.values())
+        else "ready_for_demo_seed",
+    }
+    uploaded_catalog_items = []
+    for book in uploaded_catalog:
+        reader_signals = _reader_signals_for_book(reader_engagement, str(book["book_id"]))
+        uploaded_catalog_items.append(
+            {
+                "book_id": book["book_id"],
+                "title": book["title"],
+                "rights": book["rights"],
+                "owner_role": "uploaded_catalog",
+                "availability": book["status"],
+                "characters": book["characters"],
+                "scenes": book["scenes"],
+                "languages": [book["language"], "es"]
+                if book["language"] != "es"
+                else ["es", "en"],
+                "agent_modes": ["CANON", "FICTION"],
+                "quality_score": 0.82,
+                "reader_signals": reader_signals,
+                "business_action": _publisher_action_for_signals(reader_signals),
+                "readiness_level": "active_reader_signal"
+                if sum(reader_signals.values())
+                else "ready_for_review",
+            }
+        )
     return {
         "listingReadiness": {
             "track": "Track 1 + Track 2 + Track 3 challenge evidence",
@@ -738,35 +812,7 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
             "billing": "challenge-credit-backed demo project",
         },
         "currentUser": user,
-        "catalog": [
-            {
-                "book_id": DEMO_BOOK_ID,
-                "title": DEMO_BOOK_TITLE,
-                "rights": "public-domain demo title",
-                "owner_role": "publisher_admin",
-                "availability": "published",
-                "characters": len(analysis.characters),
-                "scenes": len(analysis.scenes),
-                "languages": ["en", "es"],
-                "agent_modes": ["CANON", "FICTION"],
-                "quality_score": round(evaluation.optimized_passed / evaluation.total_cases, 2),
-            }
-        ]
-        + [
-            {
-                "book_id": book["book_id"],
-                "title": book["title"],
-                "rights": book["rights"],
-                "owner_role": "uploaded_catalog",
-                "availability": book["status"],
-                "characters": book["characters"],
-                "scenes": book["scenes"],
-                "languages": [book["language"], "es"] if book["language"] != "es" else ["es", "en"],
-                "agent_modes": ["CANON", "FICTION"],
-                "quality_score": 0.82,
-            }
-            for book in uploaded_catalog
-        ],
+        "catalog": [demo_catalog_item] + uploaded_catalog_items,
         "operations": {
             "users": len(_demo_users()),
             "tenants": 1,

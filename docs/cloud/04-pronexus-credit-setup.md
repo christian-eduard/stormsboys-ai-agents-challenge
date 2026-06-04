@@ -45,13 +45,13 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 
 - Service: `stormsboys-agents-api`.
 - Region: `us-central1`.
-- Revision: `stormsboys-agents-api-00040-pqp`.
+- Revision: `stormsboys-agents-api-00041-rq9`.
 - Runtime service account: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - URL canonica: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
 - URL alternativa: `https://stormsboys-agents-api-425710112361.us-central1.run.app`.
-- Trafico: 100% a la revision `stormsboys-agents-api-00040-pqp`.
+- Trafico: 100% a la revision `stormsboys-agents-api-00041-rq9`.
 - Ultimo image digest desplegado:
-  `sha256:ea91586ad22bde93cb27ab56b5b675cd33d49b1d73cc1fa8b5c457f8df5883f4`.
+  `sha256:336c7a70e95e22dbf4159421bfea71ed18d2db4c6d8b5e432729fb1c097874e9`.
 - Smoke test publico: pasa el 2026-06-04.
 - Reader publico: revision `stormsboys-agents-api-00038-2ps` sirve catalogo
   navegable, progreso local y CTA `Talk now`; el HTML canonico contiene
@@ -62,6 +62,9 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 - Reader publico: revision `stormsboys-agents-api-00040-pqp` persiste progreso,
   notas y favoritos en Cloud SQL mediante `reader_events`; Marketplace Admin expone
   `operations.readerEngagement` con senales por libro.
+- Marketplace Admin publico: revision `stormsboys-agents-api-00041-rq9` muestra
+  `reader_signals`, `business_action` y `readiness_level` por titulo en un tablero
+  editorial de engagement para Track 3.
 - Upload publico: pasa el 2026-06-04 con manuscrito textual, catalogo y chat por `book_id`.
 - Upload Gemini-first publico: `The Glass Observatory` pasa el 2026-06-04 con
   `LiteraryAnalysisAgent` usando `gemini-2.5-flash`, Cloud SQL/pgvector,
@@ -128,6 +131,9 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 - Reader events verificado: `reader_events` registra progreso, notas y favoritos por
   usuario/libro/seccion; `/api/v1/admin/marketplace` agrega `progress_events`, `notes`,
   `favorites` y `readers` para publisher/admin.
+- Publisher engagement verificado: `/api/v1/admin/marketplace` en Cloud Run devuelve
+  Don Quijote con `reader_signals.progress_events=1`, `notes=1`, `readers=1` y
+  `business_action=Package as a premium discussion title`.
 - Upload smoke publico: `The Orchard of Mirrors` creo
   `book_id=upload-the-orchard-of-mirrors-46f285dceb`, `character_id=elena`,
   catalogo visible para `author-demo` y chat canonico con citas de secciones subidas.

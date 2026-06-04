@@ -198,14 +198,15 @@ persistido via backend `reader_events` con fallback local, notas/favoritos por s
 CTA directo a chat. El chat web envia `book_id: state.currentBookId`, por lo que hablar con
 personajes queda anclado al libro activo.
 
-Pendiente: el panel Publisher ya recibe resumen `readerEngagement`, pero todavia puede
-visualizar mejor esas senales por titulo/seccion.
+Corregido para demo: el panel Admin/Marketplace ya muestra un tablero editorial
+`ENGAGEMENT BOARD` con `reader_signals`, estado de readiness y siguiente accion de negocio
+por titulo. Don Quijote aparece con senales reales persistidas en Cloud SQL.
 
 Impacto: el producto se entiende, pero el usuario puede sentir que falta aplicacion lectora.
 
 Accion:
 
-- Si queda tiempo, mejorar la visualizacion Publisher de `reader_events`.
+- Si queda tiempo, anadir drill-down por seccion/personaje dentro de cada titulo.
 
 ### P2 - Idioma Espanol Existe En Chat/UI, Pero No En Todo El Producto
 
@@ -228,7 +229,7 @@ Accion:
 3. Ajustar lenguaje A2A/MCP para no sobreprometer.
 4. Exportar o adjuntar arquitectura como imagen si Devpost no acepta Mermaid.
 5. Probar demo desde navegador limpio con `Judge Access`.
-6. Opcional fuerte: mejorar panel Publisher con engagement por titulo/seccion.
+6. Opcional fuerte: mejorar panel Publisher con drill-down por seccion/personaje.
 7. Opcional fuerte: agregar metrica real de interacciones por libro para Publisher.
 
 ## Veredicto

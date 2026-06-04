@@ -1027,6 +1027,16 @@ button.secondary:hover {
   gap: 12px;
 }
 
+.publisher-engagement-board {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8faf9;
+}
+
 .runtime-metrics div,
 .publisher-metrics div,
 .marketplace-summary div {
@@ -1048,6 +1058,86 @@ button.secondary:hover {
 .marketplace-summary span {
   color: var(--muted);
   font-size: 13px;
+}
+
+.board-heading,
+.catalog-title-row,
+.engagement-title,
+.engagement-action {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.board-heading strong {
+  display: block;
+  font-size: 17px;
+}
+
+.board-heading span,
+.engagement-title span,
+.catalog-title-row span {
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.board-empty {
+  margin: 0;
+  color: var(--muted);
+}
+
+.engagement-row {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+}
+
+.signal-grid,
+.catalog-signals {
+  display: grid;
+  gap: 8px;
+}
+
+.signal-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.signal-grid span,
+.catalog-signals span {
+  min-width: 0;
+  padding: 8px;
+  background: #eef4f1;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.signal-grid b {
+  display: block;
+  color: var(--ink);
+  font-size: 18px;
+}
+
+.engagement-action {
+  align-items: center;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.engagement-action span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.engagement-action strong {
+  color: var(--ink);
+  text-align: right;
 }
 
 .split-grid {
@@ -1193,6 +1283,25 @@ textarea {
 
 .role-list {
   gap: 12px;
+}
+
+.catalog-item {
+  display: grid;
+  gap: 8px;
+}
+
+.catalog-title-row strong {
+  min-width: 0;
+}
+
+.catalog-signals {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.catalog-action {
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+  font-weight: 800;
 }
 
 .role-item div {
@@ -1386,6 +1495,8 @@ textarea {
   .experience-lanes,
   .judge-journey,
   .journey-steps,
+  .signal-grid,
+  .catalog-signals,
   .track-proof-grid {
     grid-template-columns: 1fr;
   }

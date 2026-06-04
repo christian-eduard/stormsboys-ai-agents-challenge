@@ -139,7 +139,7 @@ Ultima validacion local conocida:
 - Billing Pronexus enlazado.
 - Budget guardrail de 50 EUR creado.
 - Cloud Run desplegado: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
-- Revision Cloud Run activa: `stormsboys-agents-api-00039-r6d`.
+- Revision Cloud Run activa: `stormsboys-agents-api-00041-rq9`.
 - Cloud Run usa service account nueva: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - No hay claves JSON de usuario ni credenciales antiguas en el runtime.
 - Cloud SQL instance: `stormsboys-pgvector`.
@@ -160,6 +160,7 @@ Ultima validacion local conocida:
 - Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00038-2ps`.
 - Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00039-r6d`.
 - Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00040-pqp`.
+- Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00041-rq9`.
 - Compliance publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00036-6g9`:
   `/api/v1/challenge/submission` muestra deadline extendido `2026-06-12 02:00 CEST`,
   evidencia A2A honesta como agent card/HTTP JSON, y login demo invalido devuelve
@@ -177,6 +178,9 @@ Ultima validacion local conocida:
   `POST /api/v1/reader/progress`, `POST /api/v1/reader/notes` y
   `GET /api/v1/reader/notes` persisten en Cloud SQL; `/api/v1/admin/marketplace`
   devuelve `operations.readerEngagement` para `don-quijote`.
+- UI/API publica confirmada el 2026-06-04 contra revision `stormsboys-agents-api-00041-rq9`:
+  Admin muestra `ENGAGEMENT BOARD`, 4 titulos del catalogo, Don Quijote con
+  `reader_signals` reales y accion editorial `Package as a premium discussion title`.
 - UI publica confirmada el 2026-06-04 contra revision `stormsboys-agents-api-00035-rjd`:
   dashboard incluye `Judge journey`, 6 pasos de demo, 3 proof cards para Track 1/2/3,
   CTA de upload, sin claves i18n crudas y sin overflow horizontal.

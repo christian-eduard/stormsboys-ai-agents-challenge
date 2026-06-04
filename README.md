@@ -99,7 +99,8 @@ La demo cubre:
 - Chat con personaje.
 - Escena multi-personaje.
 - Plan de voz/narracion.
-- Vista publisher/admin.
+- Vista publisher/admin con tablero editorial de engagement, senales de lector,
+  readiness por titulo y siguiente accion de negocio.
 - Evaluacion baseline vs optimized.
 - Panel runtime con Gemini, Cloud SQL/pgvector, seed y retrieval path.
 
@@ -173,4 +174,6 @@ Ultima validacion conocida:
 - Upload real: activo en Cloud Run con catalogo, analisis y chat por `book_id`.
 - Reader web: catalogo Don Quijote/uploads, secciones de lectura, progreso/notas
   persistidos via `reader_events` y chat anclado al `book_id` activo.
+- Publisher/Admin: tablero Track 3 con `reader_signals`, `business_action` y
+  readiness por titulo desde Cloud SQL.
 - Tests: 51 tests pasan en Python 3.11.

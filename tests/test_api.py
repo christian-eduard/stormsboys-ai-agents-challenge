@@ -338,6 +338,9 @@ def test_admin_marketplace() -> None:
     assert body["tenant"]["plan"] == "Marketplace Pilot"
     assert body["catalog"][0]["book_id"] == "don-quijote"
     assert body["catalog"][0]["languages"] == ["en", "es"]
+    assert body["catalog"][0]["reader_signals"]["readers"] >= 0
+    assert body["catalog"][0]["business_action"]
+    assert body["catalog"][0]["readiness_level"]
     assert body["operations"]["agentHealth"] == "healthy"
     assert body["operations"]["users"] == 5
     assert "readerEngagement" in body["operations"]

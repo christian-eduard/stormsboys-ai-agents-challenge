@@ -75,6 +75,7 @@ const els = {
   roleList: document.querySelector("#roleList"),
   marketplaceSummary: document.querySelector("#marketplaceSummary"),
   adminAccess: document.querySelector("#adminAccess"),
+  publisherEngagementBoard: document.querySelector("#publisherEngagementBoard"),
   catalogList: document.querySelector("#catalogList"),
   operationsList: document.querySelector("#operationsList"),
   operationsSummary: document.querySelector("#operationsSummary"),
@@ -261,6 +262,16 @@ const copy = {
     "marketplace.title": "Publisher catalog console",
     "marketplace.catalog": "Catalog",
     "marketplace.operations": "Operations",
+    "marketplace.readerSignals": "Reader signals",
+    "marketplace.signalBoard": "Engagement board",
+    "marketplace.signalBoardEmpty": "No reader signals yet. Open Reader, save a note or favorite, then refresh.",
+    "marketplace.readers": "Readers",
+    "marketplace.notes": "Notes",
+    "marketplace.favorites": "Favorites",
+    "marketplace.progress": "Progress",
+    "marketplace.action": "Next action",
+    "marketplace.quality": "Quality",
+    "marketplace.availability": "Availability",
     "operations.eyebrow": "Superadmin operations",
     "operations.title": "Platform controls",
     "operations.refresh": "Refresh",
@@ -457,6 +468,16 @@ const copy = {
     "marketplace.title": "Consola de catalogo editorial",
     "marketplace.catalog": "Catalogo",
     "marketplace.operations": "Operaciones",
+    "marketplace.readerSignals": "Senales de lector",
+    "marketplace.signalBoard": "Panel de engagement",
+    "marketplace.signalBoardEmpty": "Aun no hay senales de lector. Abre Lector, guarda una nota o favorito y actualiza.",
+    "marketplace.readers": "Lectores",
+    "marketplace.notes": "Notas",
+    "marketplace.favorites": "Favoritos",
+    "marketplace.progress": "Progreso",
+    "marketplace.action": "Siguiente accion",
+    "marketplace.quality": "Calidad",
+    "marketplace.availability": "Disponibilidad",
     "operations.eyebrow": "Operaciones superadmin",
     "operations.title": "Controles de plataforma",
     "operations.refresh": "Actualizar",
@@ -1458,6 +1479,9 @@ async function loadAdmin() {
     renderMarketplace(marketplace);
   } else {
     els.marketplaceSummary.innerHTML = "";
+    if (els.publisherEngagementBoard) {
+      els.publisherEngagementBoard.innerHTML = "";
+    }
     els.catalogList.innerHTML = "";
   }
   if (operations) {
@@ -1485,23 +1509,92 @@ function renderRoles(roles = []) {
   });
 }
 
+function bookSignals(book) {
+  return (
+    book.reader_signals ?? {
+      progress_events: 0,
+      notes: 0,
+      favorites: 0,
+      readers: 0,
+    }
+  );
+}
+
+function totalReaderSignals(signals) {
+  return (
+    (signals.progress_events ?? 0) +
+    (signals.notes ?? 0) +
+    (signals.favorites ?? 0) +
+    (signals.readers ?? 0)
+  );
+}
+
+function renderPublisherEngagementBoard(catalog = []) {
+  if (!els.publisherEngagementBoard) {
+    return;
+  }
+  const activeBooks = catalog
+    .map((book) => ({ book, signals: bookSignals(book) }))
+    .sort((left, right) => totalReaderSignals(right.signals) - totalReaderSignals(left.signals));
+  els.publisherEngagementBoard.innerHTML = `
+    <div class="board-heading">
+      <div>
+        <p class="eyebrow">${t("marketplace.signalBoard")}</p>
+        <strong>${t("marketplace.readerSignals")}</strong>
+      </div>
+      <span>${activeBooks.length} title(s)</span>
+    </div>
+  `;
+  if (!activeBooks.some((item) => totalReaderSignals(item.signals) > 0)) {
+    const empty = document.createElement("p");
+    empty.className = "board-empty";
+    empty.textContent = t("marketplace.signalBoardEmpty");
+    els.publisherEngagementBoard.appendChild(empty);
+  }
+  activeBooks.forEach(({ book, signals }) => {
+    const quality = Math.round((book.quality_score ?? 0) * 100);
+    const row = document.createElement("article");
+    row.className = "engagement-row";
+    row.innerHTML = `
+      <div class="engagement-title">
+        <strong>${book.title}</strong>
+        <span>${book.readiness_level ?? book.availability}</span>
+      </div>
+      <div class="signal-grid">
+        <span><b>${signals.readers ?? 0}</b>${t("marketplace.readers")}</span>
+        <span><b>${signals.progress_events ?? 0}</b>${t("marketplace.progress")}</span>
+        <span><b>${signals.notes ?? 0}</b>${t("marketplace.notes")}</span>
+        <span><b>${signals.favorites ?? 0}</b>${t("marketplace.favorites")}</span>
+      </div>
+      <div class="engagement-action">
+        <span>${t("marketplace.quality")} ${quality}%</span>
+        <strong>${book.business_action ?? t("marketplace.action")}</strong>
+      </div>
+    `;
+    els.publisherEngagementBoard.appendChild(row);
+  });
+}
+
 function renderMarketplace(marketplace) {
   const canPublish = hasPermission("manage_catalog") || hasPermission("manage_tenants");
   if (!canPublish) {
     els.marketplaceSummary.innerHTML = "";
+    if (els.publisherEngagementBoard) {
+      els.publisherEngagementBoard.innerHTML = "";
+    }
     els.catalogList.innerHTML = "";
     return;
   }
   const readiness = marketplace.listingReadiness;
   const operations = marketplace.operations;
-  const engagementBooks = operations.readerEngagement?.books ?? [];
-  const engagementTotals = engagementBooks.reduce(
+  const engagementTotals = marketplace.catalog.map(bookSignals).reduce(
     (totals, book) => ({
       readers: totals.readers + (book.readers ?? 0),
       notes: totals.notes + (book.notes ?? 0),
       favorites: totals.favorites + (book.favorites ?? 0),
+      progress: totals.progress + (book.progress_events ?? 0),
     }),
-    { readers: 0, notes: 0, favorites: 0 },
+    { readers: 0, notes: 0, favorites: 0, progress: 0 },
   );
   els.marketplaceSummary.innerHTML = `
     <div>
@@ -1521,25 +1614,31 @@ function renderMarketplace(marketplace) {
       <span>${t("marketplace.catalog")}</span>
     </div>
     <div>
-      <strong>${engagementTotals.notes + engagementTotals.favorites}</strong>
-      <span>reader signals | ${engagementTotals.readers} reader(s)</span>
+      <strong>${engagementTotals.notes + engagementTotals.favorites + engagementTotals.progress}</strong>
+      <span>${t("marketplace.readerSignals")} | ${engagementTotals.readers} reader(s)</span>
     </div>
   `;
+  renderPublisherEngagementBoard(marketplace.catalog);
   els.catalogList.innerHTML = "";
   marketplace.catalog.forEach((book) => {
-    const engagement = engagementBooks.find((item) => item.book_id === book.book_id);
+    const engagement = bookSignals(book);
     const item = document.createElement("article");
     item.className = "catalog-item";
     item.innerHTML = `
-      <strong>${book.title}</strong>
-      <p>${book.rights} | ${book.availability} | ${book.languages.join(", ")}</p>
-      <small>${book.characters} characters | ${book.scenes} scenes | ${
-        book.agent_modes.join(" / ")
-      } | quality ${Math.round(book.quality_score * 100)}%${
-        engagement
-          ? ` | ${engagement.progress_events} progress | ${engagement.notes} notes | ${engagement.favorites} favorites`
-          : ""
-      }</small>
+      <div class="catalog-title-row">
+        <strong>${book.title}</strong>
+        <span>${book.availability}</span>
+      </div>
+      <p>${book.rights} | ${book.languages.join(", ")}</p>
+      <small>${book.characters} characters | ${book.scenes} scenes | ${book.agent_modes.join(
+        " / ",
+      )} | ${t("marketplace.quality")} ${Math.round(book.quality_score * 100)}%</small>
+      <div class="catalog-signals">
+        <span>${engagement.progress_events ?? 0} ${t("marketplace.progress")}</span>
+        <span>${engagement.notes ?? 0} ${t("marketplace.notes")}</span>
+        <span>${engagement.favorites ?? 0} ${t("marketplace.favorites")}</span>
+      </div>
+      <p class="catalog-action">${book.business_action ?? ""}</p>
     `;
     els.catalogList.appendChild(item);
   });
