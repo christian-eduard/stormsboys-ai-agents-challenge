@@ -200,6 +200,10 @@ Ultima validacion local conocida:
   Publisher/Admin con readiness, catalogo, `reader_signals`, `section_signals`,
   `character_signals`, totales de exportacion y operaciones. La UI Admin incluye
   boton bilingue `Export insights` / `Exportar insights`.
+- API/UI publica confirmada el 2026-06-05 contra revision `stormsboys-agents-api-00046-x72`:
+  `/api/v1/admin/marketplace/export.csv` devuelve CSV protegido para
+  Publisher/Admin, bloquea Reader con 403 y la UI Admin incluye boton
+  `Download CSV` / `Descargar CSV`.
 - UI publica confirmada el 2026-06-04 contra revision `stormsboys-agents-api-00035-rjd`:
   dashboard incluye `Judge journey`, 6 pasos de demo, 3 proof cards para Track 1/2/3,
   CTA de upload, sin claves i18n crudas y sin overflow horizontal.

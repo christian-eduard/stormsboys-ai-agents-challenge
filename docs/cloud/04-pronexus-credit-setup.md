@@ -150,6 +150,12 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
   `readerSignals=2`, `sectionSignals=1`, `characterTurns=7` y catalogo Don Quijote.
 - Revision Cloud Run actual: `stormsboys-agents-api-00045-ll9`, 100% de trafico,
   digest `sha256:0711ad71e08566b24dffabf7a81b3bd5653f16d06af1c3dbcf3ebce3d364a1ce`.
+- Publisher CSV export verificado el 2026-06-05 contra revision
+  `stormsboys-agents-api-00046-x72`: `/api/v1/admin/marketplace/export.csv` devuelve
+  CSV protegido para `publisher-demo`, bloquea `reader-demo` con 403 y contiene
+  Don Quijote con `reader_signals=3`, `section_signals=1`, `character_turns=10`.
+- Revision Cloud Run actual: `stormsboys-agents-api-00046-x72`, 100% de trafico,
+  digest `sha256:c55b093caa940ce34dfadb275728c55e2bf79a007dc4693eba4d42d6132c849b`.
 - Upload smoke publico: `The Orchard of Mirrors` creo
   `book_id=upload-the-orchard-of-mirrors-46f285dceb`, `character_id=elena`,
   catalogo visible para `author-demo` y chat canonico con citas de secciones subidas.
