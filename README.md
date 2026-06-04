@@ -80,7 +80,8 @@ https://github.com/christian-eduard/stormsboys-ai-agents-challenge
 
 Ya existe una API FastAPI con demo web para jueces, agente raiz ADK-first, agentes
 especializados, Cloud SQL PostgreSQL con pgvector, embeddings `gemini-embedding-001`
-via Vertex AI, Character Agent con `gemini-2.5-flash`, subida real de manuscritos,
+via Vertex AI, Character Agent con `gemini-2.5-flash`, analisis Gemini-first para
+manuscritos subidos, subida real de manuscritos,
 trazas por agente y evaluacion before/after para Track 2.
 
 La direccion actual es consolidar esta base como app real: upload/analisis de libros,
@@ -143,7 +144,7 @@ BASE_URL=https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app make smoke
 
 Ultima validacion conocida:
 
-- Tests Docker/Python 3.11: 46 passed.
+- Tests Docker/Python 3.11: 50 passed.
 - Lint: passed.
 - Public-ready scan: passed.
 - Public smoke test: passed.
@@ -163,4 +164,4 @@ Ultima validacion conocida:
 - Cloud Run real: desplegado.
 - Cloud SQL/pgvector: activo.
 - Upload real: activo en Cloud Run con catalogo, analisis y chat por `book_id`.
-- Tests: 46 tests pasan en Python 3.11.
+- Tests: 50 tests pasan en Python 3.11.

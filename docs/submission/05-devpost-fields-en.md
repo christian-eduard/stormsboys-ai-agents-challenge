@@ -51,6 +51,7 @@ Stormsboys transforms books into interactive literary worlds. Authors and publis
 
 - Public Cloud Run demo.
 - Character generation with `gemini-2.5-flash`.
+- Gemini-first literary analysis for uploaded manuscripts with a validated fallback path.
 - Retrieval embeddings with `gemini-embedding-001`.
 - Cloud SQL PostgreSQL with pgvector retrieval.
 - Real manuscript upload, catalog insertion, uploaded-book retrieval, and chat by `book_id`.

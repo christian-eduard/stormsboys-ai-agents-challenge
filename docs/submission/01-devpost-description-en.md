@@ -32,7 +32,7 @@ The system includes:
 - A protected Super Admin operations surface for runtime, tenant, quality, and governance evidence.
 - A demo login flow with role-specific workspaces for Reader, Author, Publisher Admin, Super Admin, and a dedicated Judge Access account.
 
-Authors and publishers can upload a manuscript, have it chunked, embedded, analyzed, and added to the catalog; readers can then ask questions to a specific generated character, trigger multi-character scene interactions, and receive responses grounded in that book instead of generic chatbot answers.
+Authors and publishers can upload a manuscript, have it chunked, embedded, analyzed with a Gemini-first literary analysis flow, and added to the catalog; readers can then ask questions to a specific generated character, trigger multi-character scene interactions, and receive responses grounded in that book instead of generic chatbot answers.
 The demo also includes a narration handoff that produces a TTS-ready script/SSML plan, plus a publisher/admin view with engagement, quality, and commercialization insights.
 English is the primary submission language for judges, and the demo also includes a Spanish option for character chat so the product can serve Spanish-speaking readers.
 

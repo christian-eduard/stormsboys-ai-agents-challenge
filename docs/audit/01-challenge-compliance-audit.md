@@ -4,7 +4,7 @@ Fecha: 2026-06-04.
 
 ## Resumen Ejecutivo
 
-El proyecto esta en buen estado para demo tecnica: compila, pasa lint, pasa 46 tests en
+El proyecto esta en buen estado para demo tecnica: compila, pasa lint, pasa 50 tests en
 Docker/Python 3.11, pasa `public-ready`, pasa smoke publico y esta desplegado en Cloud Run.
 
 La base cumple una parte importante del challenge:
@@ -43,7 +43,7 @@ Resultado:
 
 - Ruff: passed.
 - Public-ready scan: passed.
-- Tests Docker/Python 3.11: 46 passed.
+- Tests Docker/Python 3.11: 50 passed.
 - Public smoke: passed.
 
 ## Matriz Contra El Challenge
@@ -179,19 +179,15 @@ Accion:
 - Documentar en UI/API que es deterministic evaluation harness.
 - Opcional: agregar un endpoint/flag de evaluacion live para 2-3 casos, con coste controlado.
 
-### P2 - Analisis De Libros Subidos Es Heuristico, No Gemini Real
+### P2 - Analisis De Libros Subidos Es Heuristico, No Gemini Real - Corregido
 
-`LiteraryAnalysisAgent` usa reglas internas para Don Quijote y heuristica de nombres para uploads.
-El upload real existe, y el chat con character puede usar Gemini despues, pero el analisis inicial
-no llama Gemini.
+Corregido: `LiteraryAnalysisAgent` usa Gemini como primera via para analizar libros subidos
+cuando Gemini/Vertex esta configurado. El agente pide JSON estricto, valida el contrato y cae a
+heuristica local si Gemini no esta configurado, falla o devuelve JSON invalido.
 
-Impacto: el texto de UI dice "Gemini extracts characters..." y eso puede ser cuestionable para
-uploads si un juez mira el codigo.
-
-Accion:
-
-- O bien integrar Gemini en `LiteraryAnalysisAgent` con fallback heuristico.
-- O bien ajustar copy a "agent pipeline extracts..." y reservar Gemini real para chat/embedding.
+Verificado en Cloud Run: `The Glass Observatory` genero personajes mediante
+`LiteraryAnalysisAgent` con `model=gemini-2.5-flash`, guardo el libro en Cloud SQL y
+permitio chat canonico con `liora` usando `retrieval.pgvector_search`.
 
 ### P2 - Reader No Es Todavia Un Lector Completo
 
@@ -227,9 +223,8 @@ Accion:
 3. Ajustar lenguaje A2A/MCP para no sobreprometer.
 4. Exportar o adjuntar arquitectura como imagen si Devpost no acepta Mermaid.
 5. Probar demo desde navegador limpio con `Judge Access`.
-6. Opcional fuerte: integrar Gemini en analisis de upload o ajustar copy.
-7. Opcional fuerte: mejorar Reader con catalogo/fragmento/progreso simple.
-8. Opcional fuerte: agregar metrica real de interacciones por libro para Publisher.
+6. Opcional fuerte: mejorar Reader con catalogo/fragmento/progreso simple.
+7. Opcional fuerte: agregar metrica real de interacciones por libro para Publisher.
 
 ## Veredicto
 

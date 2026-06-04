@@ -71,6 +71,9 @@ Ya existe:
 - Panel web `Role dashboard` con acciones y navegacion filtradas para reader, author, publisher, superadmin y judge.
 - Vista `Author` con flujo protegido `/api/v1/demo/author-workflow`, checklist de aprobacion y agentes generados.
 - Upload real de libros desde vista `Author` y API `POST /api/v1/books/upload`.
+- Analisis de libros subidos es Gemini-first cuando Vertex/Gemini esta configurado:
+  `LiteraryAnalysisAgent` pide JSON estricto, valida personajes/psicologia y cae a
+  heuristica local si el modelo no esta disponible o devuelve JSON invalido.
 - Catalogo real `GET /api/v1/books/catalog` que combina Don Quijote demo y libros subidos por tenant/usuario.
 - Detalle de libro subido `GET /api/v1/books/{book_id}` con analisis, personajes, escenas y lugares.
 - Chat de personaje acepta `book_id`, por lo que puede conversar contra Don Quijote o contra un libro subido.
@@ -107,7 +110,7 @@ http://127.0.0.1:8080
 
 Ultima validacion local conocida:
 
-- Tests en contenedor Python 3.11: pasan, 46 tests.
+- Tests en contenedor Python 3.11: pasan, 50 tests.
 - Ruff en contenedor Python 3.11: pasa.
 - `node --check src/storms_agents/web/static/app.js`: pasa.
 - `make public-ready`: pasa.
@@ -123,7 +126,7 @@ Ultima validacion local conocida:
 - Billing Pronexus enlazado.
 - Budget guardrail de 50 EUR creado.
 - Cloud Run desplegado: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
-- Revision Cloud Run activa: `stormsboys-agents-api-00036-6g9`.
+- Revision Cloud Run activa: `stormsboys-agents-api-00037-vtk`.
 - Cloud Run usa service account nueva: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - No hay claves JSON de usuario ni credenciales antiguas en el runtime.
 - Cloud SQL instance: `stormsboys-pgvector`.
@@ -140,6 +143,7 @@ Ultima validacion local conocida:
 - Publisher publico confirmado: `PublisherInsightsAgent`, engagement y quality `100%`.
 - Admin publico confirmado: login demo, tokens demo, roles `reader`, `author`, `publisher_admin`, `super_admin`, `judge_access`, tenant demo, catalogo y readiness Marketplace.
 - Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00036-6g9`.
+- Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00037-vtk`.
 - Compliance publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00036-6g9`:
   `/api/v1/challenge/submission` muestra deadline extendido `2026-06-12 02:00 CEST`,
   evidencia A2A honesta como agent card/HTTP JSON, y login demo invalido devuelve
@@ -154,6 +158,12 @@ Ultima validacion local conocida:
   `The Orchard of Mirrors`, creo `book_id=upload-the-orchard-of-mirrors-46f285dceb`,
   lo guardo en `provider=cloud-sql-postgresql`, lo mostro en catalogo y permitio chat
   canonico con `character_id=elena`.
+- Upload publico Gemini-first confirmado el 2026-06-04 contra revision
+  `stormsboys-agents-api-00037-vtk`: `The Glass Observatory` creo
+  `book_id=upload-the-glass-observatory-c0e5a3d03f`, `LiteraryAnalysisAgent`
+  uso `model=gemini-2.5-flash`, genero personajes `liora`, `mateo` y
+  `liora_s_mother`, guardo en `provider=cloud-sql-postgresql` y permitio chat
+  canonico con `liora` usando `retrieval.pgvector_search`.
 - Chat publico confirmado: Don Quijote responde en espanol con psicologia visible,
   memoria de sesion, consistencia `passed=true` y citas separadas sin IDs inline.
 - Memoria publica confirmada: `/api/v1/demo/chat/memory` devuelve historial desde
@@ -182,9 +192,8 @@ Ultima validacion local conocida:
 - `src/storms_agents/api/main.py`: tambien contiene login demo, usuarios demo y contratos de acceso por rol.
 - `src/storms_agents/agents/root_agent.py`: agente raiz ADK.
 - `src/storms_agents/agents/book_ingestion.py`: ingestion demo.
-- `src/storms_agents/agents/literary_analysis.py`: analisis literario demo.
-- `src/storms_agents/agents/literary_analysis.py`: tambien infiere personajes,
-  psicologia, escenas y lugares desde manuscritos subidos.
+- `src/storms_agents/agents/literary_analysis.py`: analisis literario demo y analisis
+  Gemini-first de manuscritos subidos con fallback heuristico.
 - `src/storms_agents/agents/retrieval.py`: retrieval demo.
 - `src/storms_agents/agents/character.py`: respuesta de personaje.
 - `src/storms_agents/agents/fiction_branch.py`: rama ficcional alternativa, separada del canon.
@@ -260,7 +269,7 @@ BASE_URL=https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app make smoke
 
 1. Pulir UI/UX visual para que parezca producto premium, no solo consola tecnica.
 2. Convertir el timeline ficcional en una vista editable por usuario/publisher.
-3. Conectar Gemini tambien a LiteraryAnalysisAgent o SceneOrchestratorAgent con schemas estrictos.
+3. Mejorar Reader con catalogo/fragmento/progreso simple.
 4. Preparar datos demo con Don Quijote y al menos un libro subido desde la UI antes de grabar.
 5. Grabar video demo 1-2 minutos en ingles al final.
 

@@ -1,20 +1,25 @@
+import json
 import re
 
 from storms_agents.agents.base import AgentResult
 from storms_agents.demo_data import DEMO_BOOK_TITLE
 from storms_agents.observability import trace_span
 from storms_agents.schemas import BookAnalysis, CharacterProfile
+from storms_agents.tools.gemini import GeminiClientProtocol, GeminiTool
 
 
 class LiteraryAnalysisAgent:
     name = "LiteraryAnalysisAgent"
 
+    def __init__(self, gemini: GeminiClientProtocol | None = None) -> None:
+        self.gemini = gemini or GeminiTool()
+
     def run(self, title: str, sections: list[str]) -> AgentResult[BookAnalysis]:
-        with trace_span(self.name, "book.analyze") as trace:
+        with trace_span(self.name, "book.analyze", model=self.gemini.status.model) as trace:
             if self._looks_like_quijote(title, sections):
                 analysis = self._quijote_analysis(title)
             else:
-                analysis = self._uploaded_book_analysis(title, sections)
+                analysis = self._gemini_uploaded_book_analysis(title, sections)
             trace.input_tokens = sum(len(section.split()) for section in sections)
             trace.output_tokens = (
                 len(analysis.characters) + len(analysis.places) + len(analysis.scenes)
@@ -329,3 +334,147 @@ class LiteraryAnalysisAgent:
     def _slug(self, value: str) -> str:
         slug = re.sub(r"[^a-z0-9]+", "_", value.lower()).strip("_")
         return slug or "uploaded_character"
+
+    def _gemini_uploaded_book_analysis(self, title: str, sections: list[str]) -> BookAnalysis:
+        if not self.gemini.status.configured:
+            return self._uploaded_book_analysis(title, sections)
+        text = "\n\n".join(sections)[:12000]
+        prompt = (
+            "Analyze this uploaded manuscript for an interactive literary agent platform. "
+            "Return ONLY valid compact JSON with keys: summary, places, scenes, characters. "
+            "characters must be an array of 2 to 4 objects with keys: name, description, "
+            "personality, speech_style, emotional_baseline, desires, fears, relationships. "
+            "Keep all claims grounded in the supplied manuscript excerpt.\n\n"
+            f"Title: {title.strip() or 'Uploaded manuscript'}\n\n"
+            f"Manuscript excerpt:\n{text}"
+        )
+        try:
+            generated = self.gemini.generate_text(
+                prompt,
+                system_instruction=(
+                    "You are a Gemini literary analysis agent. Extract grounded character "
+                    "profiles for canon-safe and fiction-branch conversations. Return JSON only."
+                ),
+            )
+            return self._analysis_from_gemini_json(title, sections, generated)
+        except Exception:
+            return self._uploaded_book_analysis(title, sections)
+
+    def _analysis_from_gemini_json(
+        self,
+        title: str,
+        sections: list[str],
+        generated: str,
+    ) -> BookAnalysis:
+        payload = self._extract_json_object(generated)
+        raw_characters = payload.get("characters")
+        if not isinstance(raw_characters, list) or not raw_characters:
+            raise ValueError("Gemini analysis did not include characters.")
+
+        fallback = self._uploaded_book_analysis(title, sections)
+        characters = [
+            self._character_from_gemini_item(item, index)
+            for index, item in enumerate(raw_characters[:4], start=1)
+            if isinstance(item, dict)
+        ]
+        if not characters:
+            raise ValueError("Gemini analysis did not include valid character objects.")
+
+        return BookAnalysis(
+            title=title.strip() or "Uploaded manuscript",
+            summary=self._clean_text(payload.get("summary"), fallback.summary),
+            characters=characters,
+            places=self._clean_list(payload.get("places"), fallback.places)[:6],
+            scenes=self._clean_list(payload.get("scenes"), fallback.scenes)[:8],
+        )
+
+    def _character_from_gemini_item(
+        self,
+        item: dict[str, object],
+        index: int,
+    ) -> CharacterProfile:
+        name = self._clean_text(item.get("name"), f"Uploaded Character {index}")
+        relationships = item.get("relationships")
+        if not isinstance(relationships, dict):
+            relationships = {}
+        return CharacterProfile(
+            character_id=self._slug(name),
+            name=name,
+            description=self._clean_text(
+                item.get("description"),
+                "Grounded character extracted from uploaded manuscript evidence.",
+            ),
+            personality=self._clean_text(
+                item.get("personality"),
+                "grounded, adaptive, and shaped by uploaded manuscript evidence",
+            ),
+            speech_style=self._clean_text(
+                item.get("speech_style"),
+                "First person, grounded in retrieved uploaded sections.",
+            ),
+            psychological_profile={
+                "ocean": {
+                    "openness": "inferred by Gemini from manuscript evidence",
+                    "conscientiousness": "keeps continuity with uploaded scenes",
+                    "extraversion": "scene-dependent",
+                    "agreeableness": "inferred from relationships",
+                    "neuroticism": "inferred from conflict and stakes",
+                },
+                "analysis_provider": self.gemini.status.mode,
+                "core_wound": self._clean_text(item.get("core_wound"), "inferred from text"),
+                "growth_vector": self._clean_text(
+                    item.get("growth_vector"),
+                    "may evolve only in explicitly marked fiction branches",
+                ),
+            },
+            emotional_baseline=self._clean_text(
+                item.get("emotional_baseline"),
+                "grounded, reflective, shaped by uploaded scenes",
+            ),
+            desires=self._clean_list(
+                item.get("desires"),
+                ["Reveal the manuscript's conflict", "Stay faithful to the text"],
+            ),
+            fears=self._clean_list(
+                item.get("fears"),
+                ["Being pulled outside canon without a fiction label"],
+            ),
+            relationships={
+                self._slug(str(key)): str(value)
+                for key, value in relationships.items()
+                if str(key).strip() and str(value).strip()
+            },
+            memory_policy=(
+                "Canon memory stays tied to uploaded sections; fiction memory can create "
+                "alternative branches only when explicitly labeled."
+            ),
+            goals=["Answer from uploaded evidence", "Preserve narrative consistency"],
+            constraints=[
+                "Do not invent facts as canon",
+                "Use retrieved uploaded sections as grounding",
+            ],
+        )
+
+    def _extract_json_object(self, generated: str) -> dict[str, object]:
+        cleaned = generated.strip()
+        fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", cleaned, flags=re.DOTALL)
+        if fenced:
+            cleaned = fenced.group(1)
+        elif "{" in cleaned and "}" in cleaned:
+            cleaned = cleaned[cleaned.find("{") : cleaned.rfind("}") + 1]
+        payload = json.loads(cleaned)
+        if not isinstance(payload, dict):
+            raise ValueError("Gemini analysis JSON must be an object.")
+        return payload
+
+    def _clean_text(self, value: object, fallback: str) -> str:
+        if isinstance(value, str) and value.strip():
+            return " ".join(value.split())
+        return fallback
+
+    def _clean_list(self, value: object, fallback: list[str]) -> list[str]:
+        if isinstance(value, list):
+            cleaned = [str(item).strip() for item in value if str(item).strip()]
+            if cleaned:
+                return cleaned
+        return fallback

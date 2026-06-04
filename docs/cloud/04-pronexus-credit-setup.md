@@ -45,15 +45,18 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 
 - Service: `stormsboys-agents-api`.
 - Region: `us-central1`.
-- Revision: `stormsboys-agents-api-00036-6g9`.
+- Revision: `stormsboys-agents-api-00037-vtk`.
 - Runtime service account: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - URL canonica: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
 - URL alternativa: `https://stormsboys-agents-api-425710112361.us-central1.run.app`.
-- Trafico: 100% a la revision `stormsboys-agents-api-00036-6g9`.
+- Trafico: 100% a la revision `stormsboys-agents-api-00037-vtk`.
 - Ultimo image digest desplegado:
-  `sha256:4ecac7ffba00618c4eeaa6904b403b538505edfd853ce74c317de817f54b90fc`.
+  `sha256:63620a243d7407c1db06590a6dedd66c067a5ac676e881eae2c57c879f667632`.
 - Smoke test publico: pasa el 2026-06-04.
 - Upload publico: pasa el 2026-06-04 con manuscrito textual, catalogo y chat por `book_id`.
+- Upload Gemini-first publico: `The Glass Observatory` pasa el 2026-06-04 con
+  `LiteraryAnalysisAgent` usando `gemini-2.5-flash`, Cloud SQL/pgvector,
+  personajes generados por Gemini y chat canonico por `book_id`.
 - Admin publico confirmado: login demo, tokens demo protegidos, roles, catalogo, tenant demo y readiness Marketplace.
 - Idioma publico confirmado: `language=en` y `language=es` en chat de personaje.
 - Character Agent usa Gemini/Vertex real con identidad gestionada y fallback seguro.
