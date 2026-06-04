@@ -128,6 +128,60 @@ def test_demo_book() -> None:
     assert body["traces"]
 
 
+def test_reader_progress_and_notes_are_persisted_for_demo_user() -> None:
+    client = TestClient(app)
+    headers = {"authorization": "Bearer demo-token:reader-demo"}
+    progress = client.post(
+        "/api/v1/reader/progress",
+        headers=headers,
+        json={
+            "book_id": "don-quijote",
+            "section_id": "quijote-section-2",
+            "section_index": 1,
+            "progress_percent": 40,
+        },
+    )
+    assert progress.status_code == 200
+    assert progress.json()["progress"]["progress_percent"] == 40
+
+    current = client.get("/api/v1/reader/progress?book_id=don-quijote", headers=headers)
+    assert current.status_code == 200
+    assert current.json()["progress"]["section_id"] == "quijote-section-2"
+
+    note = client.post(
+        "/api/v1/reader/notes",
+        headers=headers,
+        json={
+            "book_id": "don-quijote",
+            "section_id": "quijote-section-2",
+            "section_index": 1,
+            "event_type": "note",
+            "note_text": "Reader wants more psychological detail.",
+        },
+    )
+    favorite = client.post(
+        "/api/v1/reader/notes",
+        headers=headers,
+        json={
+            "book_id": "don-quijote",
+            "section_id": "quijote-section-2",
+            "section_index": 1,
+            "event_type": "favorite",
+            "note_text": "Favorite windmill passage.",
+        },
+    )
+    assert note.status_code == 200
+    assert favorite.status_code == 200
+
+    notes = client.get(
+        "/api/v1/reader/notes?book_id=don-quijote&section_id=quijote-section-2",
+        headers=headers,
+    )
+    assert notes.status_code == 200
+    event_types = {item["event_type"] for item in notes.json()["notes"]}
+    assert {"note", "favorite"} <= event_types
+
+
 def test_auth_demo_users() -> None:
     client = TestClient(app)
     response = client.get("/api/v1/auth/demo-users")
@@ -286,6 +340,7 @@ def test_admin_marketplace() -> None:
     assert body["catalog"][0]["languages"] == ["en", "es"]
     assert body["operations"]["agentHealth"] == "healthy"
     assert body["operations"]["users"] == 5
+    assert "readerEngagement" in body["operations"]
 
 
 def test_judge_can_access_marketplace_admin() -> None:

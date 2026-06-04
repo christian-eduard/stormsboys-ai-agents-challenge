@@ -45,13 +45,13 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 
 - Service: `stormsboys-agents-api`.
 - Region: `us-central1`.
-- Revision: `stormsboys-agents-api-00039-r6d`.
+- Revision: `stormsboys-agents-api-00040-pqp`.
 - Runtime service account: `stormsboys-agents-runtime@stormsboys-agents-20260602.iam.gserviceaccount.com`.
 - URL canonica: `https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app`.
 - URL alternativa: `https://stormsboys-agents-api-425710112361.us-central1.run.app`.
-- Trafico: 100% a la revision `stormsboys-agents-api-00039-r6d`.
+- Trafico: 100% a la revision `stormsboys-agents-api-00040-pqp`.
 - Ultimo image digest desplegado:
-  `sha256:48afbe8f066ea142109667a01fb5a832b8ffee1325cd6693a9c0708e7f3183ea`.
+  `sha256:ea91586ad22bde93cb27ab56b5b675cd33d49b1d73cc1fa8b5c457f8df5883f4`.
 - Smoke test publico: pasa el 2026-06-04.
 - Reader publico: revision `stormsboys-agents-api-00038-2ps` sirve catalogo
   navegable, progreso local y CTA `Talk now`; el HTML canonico contiene
@@ -59,6 +59,9 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 - Reader publico: revision `stormsboys-agents-api-00039-r6d` sirve secciones de
   lectura, controles anterior/siguiente, notas/favoritos locales y
   `readingSections` en `/api/v1/demo/book`.
+- Reader publico: revision `stormsboys-agents-api-00040-pqp` persiste progreso,
+  notas y favoritos en Cloud SQL mediante `reader_events`; Marketplace Admin expone
+  `operations.readerEngagement` con senales por libro.
 - Upload publico: pasa el 2026-06-04 con manuscrito textual, catalogo y chat por `book_id`.
 - Upload Gemini-first publico: `The Glass Observatory` pasa el 2026-06-04 con
   `LiteraryAnalysisAgent` usando `gemini-2.5-flash`, Cloud SQL/pgvector,
@@ -122,6 +125,9 @@ El credito del challenge debe usarse en un entorno aislado. No se deben mezclar 
 - Fallback de embeddings: `demo-hash-embedding-768` solo si Vertex/API no esta configurado o falla.
 - Upload verificado: `uploaded_books` registra metadatos y analisis JSONB; las secciones
   subidas se guardan en `book_sections` con embeddings y se consultan por `book_id`.
+- Reader events verificado: `reader_events` registra progreso, notas y favoritos por
+  usuario/libro/seccion; `/api/v1/admin/marketplace` agrega `progress_events`, `notes`,
+  `favorites` y `readers` para publisher/admin.
 - Upload smoke publico: `The Orchard of Mirrors` creo
   `book_id=upload-the-orchard-of-mirrors-46f285dceb`, `character_id=elena`,
   catalogo visible para `author-demo` y chat canonico con citas de secciones subidas.

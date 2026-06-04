@@ -194,17 +194,18 @@ permitio chat canonico con `liora` usando `retrieval.pgvector_search`.
 Corregido para demo: la vista Reader ahora incluye catalogo navegable, Don Quijote como
 titulo demo, libros subidos visibles cuando el usuario autenticado los tiene disponibles,
 secciones/paginas de lectura desde `readingSections`, resumen/escenas/lugares, progreso
-simple persistido en `localStorage`, notas/favoritos locales por seccion y CTA directo a
-chat. El chat web envia `book_id: state.currentBookId`, por lo que hablar con personajes
-queda anclado al libro activo.
+persistido via backend `reader_events` con fallback local, notas/favoritos por seccion y
+CTA directo a chat. El chat web envia `book_id: state.currentBookId`, por lo que hablar con
+personajes queda anclado al libro activo.
 
-Pendiente: progreso, favoritos y anotaciones todavia no se persisten en backend por usuario.
+Pendiente: el panel Publisher ya recibe resumen `readerEngagement`, pero todavia puede
+visualizar mejor esas senales por titulo/seccion.
 
 Impacto: el producto se entiende, pero el usuario puede sentir que falta aplicacion lectora.
 
 Accion:
 
-- Si queda tiempo, persistir progreso/anotaciones en backend como senal de engagement.
+- Si queda tiempo, mejorar la visualizacion Publisher de `reader_events`.
 
 ### P2 - Idioma Espanol Existe En Chat/UI, Pero No En Todo El Producto
 
@@ -227,7 +228,7 @@ Accion:
 3. Ajustar lenguaje A2A/MCP para no sobreprometer.
 4. Exportar o adjuntar arquitectura como imagen si Devpost no acepta Mermaid.
 5. Probar demo desde navegador limpio con `Judge Access`.
-6. Opcional fuerte: convertir el Reader parcial en lectura paginada/anotable.
+6. Opcional fuerte: mejorar panel Publisher con engagement por titulo/seccion.
 7. Opcional fuerte: agregar metrica real de interacciones por libro para Publisher.
 
 ## Veredicto

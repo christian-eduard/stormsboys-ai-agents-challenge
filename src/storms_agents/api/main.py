@@ -38,6 +38,7 @@ settings = get_settings()
 WEB_DIR = files("storms_agents").joinpath("web")
 STATIC_DIR = WEB_DIR.joinpath("static")
 LOCAL_UPLOADED_BOOKS: dict[str, dict[str, object]] = {}
+LOCAL_READER_EVENTS: list[dict[str, object]] = []
 
 app = FastAPI(
     title="Stormsboys AI Agents Challenge API",
@@ -66,6 +67,21 @@ class SceneChatRequest(BaseModel):
 
 class NarrationRequest(BaseModel):
     scene_text: str = "Don Quijote charges at the windmills while Sancho warns him from the road."
+
+
+class ReaderProgressRequest(BaseModel):
+    book_id: str = DEMO_BOOK_ID
+    section_id: str
+    section_index: int = 0
+    progress_percent: int = 0
+
+
+class ReaderNoteRequest(BaseModel):
+    book_id: str = DEMO_BOOK_ID
+    section_id: str
+    section_index: int = 0
+    event_type: str = "note"
+    note_text: str = ""
 
 
 def _slug(value: str) -> str:
@@ -285,6 +301,75 @@ def _require_any_permission(
     if user_permissions.isdisjoint(permissions):
         raise HTTPException(status_code=403, detail="Role does not have access.")
     return user
+
+
+def _reader_user(authorization: str | None) -> dict[str, object]:
+    return _require_any_permission(
+        authorization,
+        {
+            "read_public_books",
+            "chat_with_characters",
+            "upload_owned_books",
+            "manage_catalog",
+            "manage_tenants",
+        },
+    )
+
+
+def _local_reader_event(
+    user: dict[str, object],
+    book_id: str,
+    section_id: str,
+    section_index: int,
+    event_type: str,
+    note_text: str | None = None,
+    progress_percent: int | None = None,
+) -> dict[str, object]:
+    event = {
+        "event_id": len(LOCAL_READER_EVENTS) + 1,
+        "user_id": user["user_id"],
+        "tenant_id": user["tenant_id"],
+        "book_id": book_id,
+        "section_id": section_id,
+        "section_index": section_index,
+        "event_type": event_type,
+        "note_text": note_text,
+        "progress_percent": progress_percent,
+        "created_at": "local-process-memory",
+    }
+    LOCAL_READER_EVENTS.append(event)
+    return event
+
+
+def _local_reader_engagement_summary() -> dict[str, object]:
+    books: dict[str, dict[str, object]] = {}
+    for event in LOCAL_READER_EVENTS:
+        summary = books.setdefault(
+            str(event["book_id"]),
+            {
+                "book_id": event["book_id"],
+                "progress_events": 0,
+                "notes": 0,
+                "favorites": 0,
+                "readers": set(),
+            },
+        )
+        summary["readers"].add(event["user_id"])  # type: ignore[union-attr]
+        if event["event_type"] == "progress":
+            summary["progress_events"] += 1  # type: ignore[operator]
+        elif event["event_type"] == "note":
+            summary["notes"] += 1  # type: ignore[operator]
+        elif event["event_type"] == "favorite":
+            summary["favorites"] += 1  # type: ignore[operator]
+    return {
+        "books": [
+            {
+                **summary,
+                "readers": len(summary["readers"]),  # type: ignore[arg-type]
+            }
+            for summary in books.values()
+        ]
+    }
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -623,6 +708,14 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
     analysis = LiteraryAnalysisAgent().run(DEMO_BOOK_TITLE, [DEMO_BOOK_TEXT]).output
     evaluation = run_demo_evaluation()
     uploaded_catalog = _uploaded_catalog_for_user(user)
+    reader_engagement: dict[str, object] = {"books": []}
+    if storage.status.configured:
+        try:
+            reader_engagement = storage.reader_engagement_summary()
+        except Exception:
+            reader_engagement = _local_reader_engagement_summary()
+    else:
+        reader_engagement = _local_reader_engagement_summary()
     return {
         "listingReadiness": {
             "track": "Track 1 + Track 2 + Track 3 challenge evidence",
@@ -684,6 +777,7 @@ def admin_marketplace(authorization: str | None = Header(default=None)) -> dict[
             "agentHealth": "healthy",
             "optimizedEvaluationCases": evaluation.optimized_passed,
             "totalEvaluationCases": evaluation.total_cases,
+            "readerEngagement": reader_engagement,
         },
     }
 
@@ -1001,6 +1095,145 @@ def demo_book() -> dict[str, object]:
         "readingSections": _reading_sections_for_book(DEMO_BOOK_ID, ingestion.output),
         "traces": [trace.model_dump() for trace in ingestion.traces + analysis.traces],
     }
+
+
+@app.post("/api/v1/reader/progress")
+def save_reader_progress(
+    request: ReaderProgressRequest,
+    authorization: str | None = Header(default=None),
+) -> dict[str, object]:
+    user = _reader_user(authorization)
+    progress_percent = max(0, min(request.progress_percent, 100))
+    storage = StorageRepository()
+    provider = "local-process-memory"
+    if storage.status.configured:
+        try:
+            event = storage.record_reader_event(
+                user_id=str(user["user_id"]),
+                tenant_id=str(user["tenant_id"]),
+                book_id=request.book_id,
+                section_id=request.section_id,
+                section_index=request.section_index,
+                event_type="progress",
+                progress_percent=progress_percent,
+            )
+            provider = "cloud-sql-postgresql"
+        except Exception:
+            event = _local_reader_event(
+                user,
+                request.book_id,
+                request.section_id,
+                request.section_index,
+                "progress",
+                progress_percent=progress_percent,
+            )
+    else:
+        event = _local_reader_event(
+            user,
+            request.book_id,
+            request.section_id,
+            request.section_index,
+            "progress",
+            progress_percent=progress_percent,
+        )
+    return {"provider": provider, "progress": event}
+
+
+@app.get("/api/v1/reader/progress")
+def reader_progress(
+    book_id: str,
+    authorization: str | None = Header(default=None),
+) -> dict[str, object]:
+    user = _reader_user(authorization)
+    storage = StorageRepository()
+    if storage.status.configured:
+        try:
+            progress = storage.latest_reader_progress(str(user["user_id"]), book_id)
+            return {"provider": "cloud-sql-postgresql", "progress": progress}
+        except Exception:
+            pass
+    matching = [
+        event
+        for event in LOCAL_READER_EVENTS
+        if event["user_id"] == user["user_id"]
+        and event["book_id"] == book_id
+        and event["event_type"] == "progress"
+    ]
+    return {"provider": "local-process-memory", "progress": matching[-1] if matching else None}
+
+
+@app.post("/api/v1/reader/notes")
+def save_reader_note(
+    request: ReaderNoteRequest,
+    authorization: str | None = Header(default=None),
+) -> dict[str, object]:
+    user = _reader_user(authorization)
+    event_type = "favorite" if request.event_type == "favorite" else "note"
+    note_text = request.note_text.strip()[:1000]
+    storage = StorageRepository()
+    provider = "local-process-memory"
+    if storage.status.configured:
+        try:
+            event = storage.record_reader_event(
+                user_id=str(user["user_id"]),
+                tenant_id=str(user["tenant_id"]),
+                book_id=request.book_id,
+                section_id=request.section_id,
+                section_index=request.section_index,
+                event_type=event_type,
+                note_text=note_text,
+            )
+            provider = "cloud-sql-postgresql"
+        except Exception:
+            event = _local_reader_event(
+                user,
+                request.book_id,
+                request.section_id,
+                request.section_index,
+                event_type,
+                note_text=note_text,
+            )
+    else:
+        event = _local_reader_event(
+            user,
+            request.book_id,
+            request.section_id,
+            request.section_index,
+            event_type,
+            note_text=note_text,
+        )
+    return {"provider": provider, "note": event}
+
+
+@app.get("/api/v1/reader/notes")
+def reader_notes(
+    book_id: str,
+    section_id: str,
+    authorization: str | None = Header(default=None),
+    limit: int = Query(default=20, ge=1, le=50),
+) -> dict[str, object]:
+    user = _reader_user(authorization)
+    storage = StorageRepository()
+    if storage.status.configured:
+        try:
+            notes = storage.list_reader_notes(
+                str(user["user_id"]),
+                book_id,
+                section_id,
+                limit,
+            )
+            return {"provider": "cloud-sql-postgresql", "notes": notes}
+        except Exception:
+            pass
+    notes = [
+        event
+        for event in reversed(LOCAL_READER_EVENTS)
+        if event["user_id"] == user["user_id"]
+        and event["book_id"] == book_id
+        and event["section_id"] == section_id
+        and event["event_type"] in {"note", "favorite"}
+    ][:limit]
+    return {"provider": "local-process-memory", "notes": notes}
 
 
 @app.post("/api/v1/demo/chat/character")

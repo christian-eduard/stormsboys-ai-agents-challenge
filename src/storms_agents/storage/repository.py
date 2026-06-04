@@ -104,6 +104,28 @@ SCHEMA_STATEMENTS = [
     CREATE INDEX IF NOT EXISTS fiction_branches_lookup_idx
       ON fiction_branches (session_id, character_id, created_at)
     """,
+    """
+    CREATE TABLE IF NOT EXISTS reader_events (
+      event_id BIGSERIAL PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      tenant_id TEXT NOT NULL,
+      book_id TEXT NOT NULL,
+      section_id TEXT NOT NULL,
+      section_index INTEGER NOT NULL DEFAULT 0,
+      event_type TEXT NOT NULL,
+      note_text TEXT,
+      progress_percent INTEGER,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS reader_events_lookup_idx
+      ON reader_events (user_id, book_id, section_id, created_at)
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS reader_events_book_idx
+      ON reader_events (book_id, event_type, created_at)
+    """,
 ]
 
 
@@ -616,6 +638,159 @@ class StorageRepository:
             "fiction_branches": fiction_result.rowcount or 0,
         }
 
+    def record_reader_event(
+        self,
+        user_id: str,
+        tenant_id: str,
+        book_id: str,
+        section_id: str,
+        section_index: int,
+        event_type: str,
+        note_text: str | None = None,
+        progress_percent: int | None = None,
+    ) -> dict[str, object]:
+        self.initialize_schema()
+        with self.engine.begin() as connection:
+            row = (
+                connection.execute(
+                    text(
+                        """
+                        INSERT INTO reader_events (
+                          user_id, tenant_id, book_id, section_id, section_index,
+                          event_type, note_text, progress_percent
+                        )
+                        VALUES (
+                          :user_id, :tenant_id, :book_id, :section_id, :section_index,
+                          :event_type, :note_text, :progress_percent
+                        )
+                        RETURNING event_id, created_at
+                        """
+                    ),
+                    {
+                        "user_id": user_id,
+                        "tenant_id": tenant_id,
+                        "book_id": book_id,
+                        "section_id": section_id,
+                        "section_index": section_index,
+                        "event_type": event_type,
+                        "note_text": note_text,
+                        "progress_percent": progress_percent,
+                    },
+                )
+                .mappings()
+                .one()
+            )
+        return {
+            "event_id": row["event_id"],
+            "user_id": user_id,
+            "tenant_id": tenant_id,
+            "book_id": book_id,
+            "section_id": section_id,
+            "section_index": section_index,
+            "event_type": event_type,
+            "note_text": note_text,
+            "progress_percent": progress_percent,
+            "created_at": row["created_at"].isoformat()
+            if hasattr(row["created_at"], "isoformat")
+            else str(row["created_at"]),
+        }
+
+    def latest_reader_progress(self, user_id: str, book_id: str) -> dict[str, object] | None:
+        self.initialize_schema()
+        with self.engine.connect() as connection:
+            row = (
+                connection.execute(
+                    text(
+                        """
+                        SELECT
+                          event_id, user_id, tenant_id, book_id, section_id,
+                          section_index, progress_percent, created_at
+                        FROM reader_events
+                        WHERE user_id = :user_id
+                          AND book_id = :book_id
+                          AND event_type = 'progress'
+                        ORDER BY created_at DESC, event_id DESC
+                        LIMIT 1
+                        """
+                    ),
+                    {"user_id": user_id, "book_id": book_id},
+                )
+                .mappings()
+                .first()
+            )
+        if row is None:
+            return None
+        return self._reader_event_from_row(row, event_type="progress")
+
+    def list_reader_notes(
+        self,
+        user_id: str,
+        book_id: str,
+        section_id: str,
+        limit: int = 20,
+    ) -> list[dict[str, object]]:
+        self.initialize_schema()
+        with self.engine.connect() as connection:
+            rows = list(
+                connection.execute(
+                    text(
+                        """
+                        SELECT
+                          event_id, user_id, tenant_id, book_id, section_id,
+                          section_index, event_type, note_text, created_at
+                        FROM reader_events
+                        WHERE user_id = :user_id
+                          AND book_id = :book_id
+                          AND section_id = :section_id
+                          AND event_type IN ('note', 'favorite')
+                        ORDER BY created_at DESC, event_id DESC
+                        LIMIT :limit
+                        """
+                    ),
+                    {
+                        "user_id": user_id,
+                        "book_id": book_id,
+                        "section_id": section_id,
+                        "limit": limit,
+                    },
+                ).mappings()
+            )
+        return [self._reader_event_from_row(row) for row in rows]
+
+    def reader_engagement_summary(self) -> dict[str, object]:
+        self.initialize_schema()
+        with self.engine.connect() as connection:
+            rows = list(
+                connection.execute(
+                    text(
+                        """
+                        SELECT
+                          book_id,
+                          COUNT(*) FILTER (WHERE event_type = 'progress') AS progress_events,
+                          COUNT(*) FILTER (WHERE event_type = 'note') AS notes,
+                          COUNT(*) FILTER (WHERE event_type = 'favorite') AS favorites,
+                          COUNT(DISTINCT user_id) AS readers
+                        FROM reader_events
+                        GROUP BY book_id
+                        ORDER BY MAX(created_at) DESC
+                        LIMIT 10
+                        """
+                    )
+                ).mappings()
+            )
+        return {
+            "books": [
+                {
+                    "book_id": row["book_id"],
+                    "progress_events": row["progress_events"],
+                    "notes": row["notes"],
+                    "favorites": row["favorites"],
+                    "readers": row["readers"],
+                }
+                for row in rows
+            ]
+        }
+
     def append_fiction_branch(
         self,
         session_id: str,
@@ -749,6 +924,30 @@ class StorageRepository:
             if hasattr(row["created_at"], "isoformat")
             else str(row["created_at"]),
         }
+
+    def _reader_event_from_row(
+        self,
+        row: object,
+        event_type: str | None = None,
+    ) -> dict[str, object]:
+        created_at = row["created_at"]
+        event: dict[str, object] = {
+            "event_id": row["event_id"],
+            "user_id": row["user_id"],
+            "tenant_id": row["tenant_id"],
+            "book_id": row["book_id"],
+            "section_id": row["section_id"],
+            "section_index": row["section_index"],
+            "event_type": event_type or row["event_type"],
+            "created_at": created_at.isoformat()
+            if hasattr(created_at, "isoformat")
+            else str(created_at),
+        }
+        if "note_text" in row:
+            event["note_text"] = row["note_text"]
+        if "progress_percent" in row:
+            event["progress_percent"] = row["progress_percent"]
+        return event
 
     def _decode_json_list(self, value: object) -> list[str]:
         if isinstance(value, list):

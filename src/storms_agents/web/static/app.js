@@ -1036,6 +1036,13 @@ function saveReaderNotes(sectionId, notes) {
   localStorage.setItem(readerNotesKey(state.currentBookId, sectionId), JSON.stringify(notes));
 }
 
+function noteFromReaderEvent(event) {
+  return {
+    kind: event.event_type === "favorite" ? t("reader.favoriteSaved") : t("reader.noteLabel"),
+    text: event.note_text || "",
+  };
+}
+
 function renderReaderProgress() {
   const progress = currentBookProgress();
   els.readerProgressInput.value = String(progress);
@@ -1105,6 +1112,28 @@ function renderReaderNotes() {
     : `<p>${t("reader.noNotes")}</p>`;
 }
 
+async function hydrateReaderNotes(section) {
+  if (!state.session?.token || !section) {
+    return;
+  }
+  try {
+    const params = new URLSearchParams({
+      book_id: state.currentBookId,
+      section_id: section.section_id,
+    });
+    const data = await api(`/api/v1/reader/notes?${params.toString()}`, {
+      headers: authHeaders(),
+    });
+    const notes = (data.notes ?? []).map(noteFromReaderEvent);
+    if (notes.length) {
+      saveReaderNotes(section.section_id, notes);
+      renderReaderNotes();
+    }
+  } catch (error) {
+    // Local notes remain available if backend persistence is unavailable.
+  }
+}
+
 function renderReaderPage() {
   const sections = activeReadingSections();
   const section = activeReadingSection();
@@ -1117,6 +1146,55 @@ function renderReaderPage() {
     section,
   );
   renderReaderNotes();
+  hydrateReaderNotes(section);
+}
+
+async function persistReaderProgress(progress, section) {
+  if (!state.session?.token || !section) {
+    return;
+  }
+  try {
+    await api("/api/v1/reader/progress", {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({
+        book_id: state.currentBookId,
+        section_id: section.section_id,
+        section_index: state.currentSectionIndex,
+        progress_percent: progress,
+      }),
+    });
+  } catch (error) {
+    // Progress remains available locally.
+  }
+}
+
+async function hydrateReaderProgress() {
+  if (!state.session?.token) {
+    return;
+  }
+  try {
+    const params = new URLSearchParams({ book_id: state.currentBookId });
+    const data = await api(`/api/v1/reader/progress?${params.toString()}`, {
+      headers: authHeaders(),
+    });
+    if (!data.progress) {
+      return;
+    }
+    const sections = activeReadingSections();
+    state.currentSectionIndex = Math.max(
+      0,
+      Math.min(data.progress.section_index ?? 0, Math.max(sections.length - 1, 0)),
+    );
+    localStorage.setItem(
+      bookProgressKey(state.currentBookId),
+      String(data.progress.progress_percent ?? currentBookProgress()),
+    );
+    renderReaderProgress();
+    renderReaderPage();
+  } catch (error) {
+    // Local progress remains the fallback.
+  }
 }
 
 function goToReaderSection(nextIndex) {
@@ -1126,10 +1204,32 @@ function goToReaderSection(nextIndex) {
     ? Math.round(((state.currentSectionIndex + 1) / sections.length) * 100)
     : currentBookProgress();
   saveCurrentBookProgress(progress);
+  persistReaderProgress(progress, activeReadingSection());
   renderReaderPage();
 }
 
-function saveReaderNote(kind, text) {
+async function persistReaderNote(eventType, noteText, section) {
+  if (!state.session?.token || !section) {
+    return;
+  }
+  try {
+    await api("/api/v1/reader/notes", {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({
+        book_id: state.currentBookId,
+        section_id: section.section_id,
+        section_index: state.currentSectionIndex,
+        event_type: eventType,
+        note_text: noteText,
+      }),
+    });
+  } catch (error) {
+    // Notes remain available locally.
+  }
+}
+
+function saveReaderNote(kind, text, eventType = "note") {
   const section = activeReadingSection();
   if (!section) {
     return;
@@ -1146,6 +1246,7 @@ function saveReaderNote(kind, text) {
   saveReaderNotes(section.section_id, notes.slice(0, 8));
   els.readerNoteInput.value = "";
   renderReaderNotes();
+  persistReaderNote(eventType, trimmed || section.text.slice(0, 140), section);
 }
 
 function updateActiveBook(book, analysis, traces = [], readingSections = []) {
@@ -1172,6 +1273,7 @@ function updateActiveBook(book, analysis, traces = [], readingSections = []) {
   if (traces.length) {
     renderTraces(traces);
   }
+  hydrateReaderProgress();
 }
 
 function renderReaderCatalog() {
@@ -1392,6 +1494,15 @@ function renderMarketplace(marketplace) {
   }
   const readiness = marketplace.listingReadiness;
   const operations = marketplace.operations;
+  const engagementBooks = operations.readerEngagement?.books ?? [];
+  const engagementTotals = engagementBooks.reduce(
+    (totals, book) => ({
+      readers: totals.readers + (book.readers ?? 0),
+      notes: totals.notes + (book.notes ?? 0),
+      favorites: totals.favorites + (book.favorites ?? 0),
+    }),
+    { readers: 0, notes: 0, favorites: 0 },
+  );
   els.marketplaceSummary.innerHTML = `
     <div>
       <strong>${readiness.marketplaceStatus}</strong>
@@ -1409,9 +1520,14 @@ function renderMarketplace(marketplace) {
       <strong>${operations.publishedBooks}</strong>
       <span>${t("marketplace.catalog")}</span>
     </div>
+    <div>
+      <strong>${engagementTotals.notes + engagementTotals.favorites}</strong>
+      <span>reader signals | ${engagementTotals.readers} reader(s)</span>
+    </div>
   `;
   els.catalogList.innerHTML = "";
   marketplace.catalog.forEach((book) => {
+    const engagement = engagementBooks.find((item) => item.book_id === book.book_id);
     const item = document.createElement("article");
     item.className = "catalog-item";
     item.innerHTML = `
@@ -1419,7 +1535,11 @@ function renderMarketplace(marketplace) {
       <p>${book.rights} | ${book.availability} | ${book.languages.join(", ")}</p>
       <small>${book.characters} characters | ${book.scenes} scenes | ${
         book.agent_modes.join(" / ")
-      } | quality ${Math.round(book.quality_score * 100)}%</small>
+      } | quality ${Math.round(book.quality_score * 100)}%${
+        engagement
+          ? ` | ${engagement.progress_events} progress | ${engagement.notes} notes | ${engagement.favorites} favorites`
+          : ""
+      }</small>
     `;
     els.catalogList.appendChild(item);
   });
@@ -1881,7 +2001,7 @@ els.saveReaderNote.addEventListener("click", () => {
   saveReaderNote(t("reader.noteLabel"), els.readerNoteInput.value);
 });
 els.markReaderFavorite.addEventListener("click", () => {
-  saveReaderNote(t("reader.favoriteSaved"), "");
+  saveReaderNote(t("reader.favoriteSaved"), "", "favorite");
 });
 
 applyLanguage(els.languageSelect.value);

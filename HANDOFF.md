@@ -78,7 +78,8 @@ Ya existe:
 - Detalle de libro subido `GET /api/v1/books/{book_id}` con analisis, personajes, escenas y lugares.
 - Chat de personaje acepta `book_id`, por lo que puede conversar contra Don Quijote o contra un libro subido.
 - Vista `Reader` con catalogo navegable, libro activo, secciones/paginas de lectura,
-  anotaciones/favoritos locales, progreso simple en `localStorage` y CTA directo a agentes.
+  anotaciones/favoritos, progreso de lectura, persistencia backend via `reader_events`
+  con fallback local y CTA directo a agentes.
 - El chat web envia `book_id: state.currentBookId`; al subir o seleccionar un libro,
   los personajes y la conversacion se anclan al libro activo.
 - Consola web `Marketplace Admin` con roles, permisos, tenant editorial, catalogo, readiness y salud operativa.
@@ -114,7 +115,7 @@ http://127.0.0.1:8080
 
 Ultima validacion local conocida:
 
-- Tests en contenedor Python 3.11: pasan, 50 tests.
+- Tests en contenedor Python 3.11: pasan, 51 tests.
 - Ruff en contenedor Python 3.11: pasa.
 - `node --check src/storms_agents/web/static/app.js`: pasa.
 - `make public-ready`: pasa.
@@ -124,6 +125,8 @@ Ultima validacion local conocida:
 - Verificacion local Browser contra `http://127.0.0.1:8091`: Reader muestra
   `Section 1 / 4`, permite avanzar a `Section 2 / 4`, actualiza progreso a `50%`
   y guarda una nota local visible en `readerNoteList`.
+- API local verificada contra `http://127.0.0.1:8092`: `POST /api/v1/reader/progress`,
+  `POST /api/v1/reader/notes` y `GET /api/v1/reader/notes` funcionan con token demo.
 - `BASE_URL=http://127.0.0.1:8088 make smoke`: pasa.
 - Docker daemon: disponible tras abrir Docker Desktop.
 - Docker build local: pasa.
@@ -156,6 +159,7 @@ Ultima validacion local conocida:
 - Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00037-vtk`.
 - Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00038-2ps`.
 - Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00039-r6d`.
+- Smoke test publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00040-pqp`.
 - Compliance publico confirmado el 2026-06-04 contra revision `stormsboys-agents-api-00036-6g9`:
   `/api/v1/challenge/submission` muestra deadline extendido `2026-06-12 02:00 CEST`,
   evidencia A2A honesta como agent card/HTTP JSON, y login demo invalido devuelve
@@ -169,6 +173,10 @@ Ultima validacion local conocida:
 - UI/API publica confirmada el 2026-06-04 contra revision `stormsboys-agents-api-00039-r6d`:
   Reader sirve controles anterior/siguiente, notas/favoritos locales y
   `/api/v1/demo/book` devuelve `readingSections` desde Cloud SQL.
+- API publica confirmada el 2026-06-04 contra revision `stormsboys-agents-api-00040-pqp`:
+  `POST /api/v1/reader/progress`, `POST /api/v1/reader/notes` y
+  `GET /api/v1/reader/notes` persisten en Cloud SQL; `/api/v1/admin/marketplace`
+  devuelve `operations.readerEngagement` para `don-quijote`.
 - UI publica confirmada el 2026-06-04 contra revision `stormsboys-agents-api-00035-rjd`:
   dashboard incluye `Judge journey`, 6 pasos de demo, 3 proof cards para Track 1/2/3,
   CTA de upload, sin claves i18n crudas y sin overflow horizontal.
@@ -254,6 +262,10 @@ Ultima validacion local conocida:
 - `POST /api/v1/books/upload`
 - `GET /api/v1/books/catalog`
 - `GET /api/v1/books/{book_id}`
+- `POST /api/v1/reader/progress`
+- `GET /api/v1/reader/progress`
+- `POST /api/v1/reader/notes`
+- `GET /api/v1/reader/notes`
 - `GET /api/v1/demo/book`
 - `POST /api/v1/demo/chat/character`
 - `GET /api/v1/demo/chat/memory`
@@ -287,8 +299,8 @@ BASE_URL=https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app make smoke
 
 1. Pulir UI/UX visual para que parezca producto premium, no solo consola tecnica.
 2. Convertir el timeline ficcional en una vista editable por usuario/publisher.
-3. Persistir progreso/anotaciones del Reader en backend si queda tiempo.
-4. Preparar datos demo con Don Quijote y al menos un libro subido desde la UI antes de grabar.
+3. Preparar datos demo con Don Quijote y al menos un libro subido desde la UI antes de grabar.
+4. Pulir Publisher para visualizar mejor las senales `reader_events`.
 5. Grabar video demo 1-2 minutos en ingles al final.
 
 ## Trabajo Seguro Para Otro Agente

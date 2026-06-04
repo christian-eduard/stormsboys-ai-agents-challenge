@@ -93,7 +93,7 @@ La demo cubre:
 
 - Dashboard de jueces con recorrido guiado para Track 1, Track 2 y Track 3.
 - Lector con catalogo navegable, libro activo, secciones/paginas, progreso simple,
-  notas/favoritos locales y CTA a chat.
+  notas/favoritos persistidos via backend y CTA a chat.
 - Upload y analisis de manuscritos `.txt`, `.md` y PDFs textuales.
 - Analisis literario con personajes, psicologia, escenas, lugares y constraints.
 - Chat con personaje.
@@ -127,6 +127,10 @@ BASE_URL=http://127.0.0.1:8080 make smoke
 - `POST /api/v1/books/upload`
 - `GET /api/v1/books/catalog`
 - `GET /api/v1/books/{book_id}`
+- `POST /api/v1/reader/progress`
+- `GET /api/v1/reader/progress`
+- `POST /api/v1/reader/notes`
+- `GET /api/v1/reader/notes`
 - `GET /api/v1/demo/book`
 - `POST /api/v1/demo/chat/character`
 - `POST /api/v1/demo/chat/scene`
@@ -145,7 +149,7 @@ BASE_URL=https://stormsboys-agents-api-5mpmuf566a-uc.a.run.app make smoke
 
 Ultima validacion conocida:
 
-- Tests Docker/Python 3.11: 50 passed.
+- Tests Docker/Python 3.11: 51 passed.
 - Lint: passed.
 - Public-ready scan: passed.
 - Public smoke test: passed.
@@ -167,6 +171,6 @@ Ultima validacion conocida:
 - Cloud Run real: desplegado.
 - Cloud SQL/pgvector: activo.
 - Upload real: activo en Cloud Run con catalogo, analisis y chat por `book_id`.
-- Reader web: catalogo Don Quijote/uploads, secciones de lectura, progreso/notas locales
-  y chat anclado al `book_id` activo.
-- Tests: 50 tests pasan en Python 3.11.
+- Reader web: catalogo Don Quijote/uploads, secciones de lectura, progreso/notas
+  persistidos via `reader_events` y chat anclado al `book_id` activo.
+- Tests: 51 tests pasan en Python 3.11.
